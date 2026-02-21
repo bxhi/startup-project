@@ -1,0 +1,57 @@
+/* Checkbox.css */
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: var(--font-body);
+    color: var(--text);
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 17px;
+    width: 17px;
+    background-color: rgba(0, 0, 0, 0.753);
+    border-color: rgba(0, 0, 0, 0.753);
+    border: 2px solid var(--border);
+    border-radius: 3px;
+    /* Slightly rounded for checkboxes */
+    margin-right: var(--spacing-1);
+    transition: all var(--transition-fast);
+}
+
+
+
+.checkbox-container input:checked~.checkmark {
+    background-color: var(--danger);
+    border-color: var(--danger);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    right: 4px;
+    top: 0px;
+    width:4px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked~.checkmark:after {
+    display: block;
+}

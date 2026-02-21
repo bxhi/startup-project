@@ -1,0 +1,79 @@
+/* Input.css */
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    width: 100%;
+}
+
+.input-label {
+    font-size: var(--font-body);
+    font-weight: var(--weight-regular);
+    color: var(--text);
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-field {
+    width: 100%;
+    height: var(--input-height-desktop);
+    padding: 0 var(--spacing-2);
+    border: 1px solid rgba(128, 128, 128, 0.305);
+    border-radius: var(--radius);
+    font-size: var(--font-body);
+    color: var(--text);
+    background-color: var(--bg);
+    transition: border-color var(--transition-fast);
+    outline: none;
+}
+
+.input-field::placeholder {
+    font-size: var(--font-body);
+    color: var(--muted);
+    font-weight: 400;
+    opacity: 1;
+}
+
+.input-field:focus {
+    border: 2px solid var(--primary);
+    background-color: white;
+    
+}
+
+.input-field:disabled {
+    background-color: var(--bg);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.input-field--error {
+    border-color: var(--danger);
+}
+
+.input-field--with-icon {
+    padding-right: var(--spacing-5);
+    /* Space for icon */
+}
+
+.input-icon {
+    position: absolute;
+    right: var(--spacing-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.input-icon:hover {
+    color: var(--text);
+}
+
+.input-error-msg {
+    font-size: var(--font-small);
+    color: var(--danger);
+}

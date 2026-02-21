@@ -1,0 +1,56 @@
+:root {
+  /* Colors */
+  --primary: #1F73B7;
+  --secondary: #2EBF91;
+  --accent: #F4A261;
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --bg: #F9FAFB;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --muted: #6B7280;
+  --border: rgba(128, 128, 128, 0.305);
+  --input:rgba(128, 128, 128, 0.063);
+
+  /* Typography */
+  --font-h1: 28px;
+  --font-h2: 24px;
+  --font-h3: 20px;
+  --font-body: 14px;
+  --font-small: 12px;
+
+  /* Font Weights */
+  --weight-regular: 500;
+  --weight-semibold: 500;
+  --weight-bold: 500;
+
+  /* Spacing */
+  --spacing-1: 8px;
+  --spacing-2: 16px;
+  --spacing-3: 24px;
+  --spacing-4: 32px;
+  --spacing-5: 40px;
+  --spacing-6: 48px;
+  --spacing-8: 64px;
+
+  /* Layout */
+  --radius: 8px;
+  --card-padding: 20px;
+  --page-padding: 24px;
+  --sidebar-width: 240px;
+  --topbar-height: 64px;
+  --content-max-width: 1400px;
+
+  /* Component Sizes */
+  --btn-height-desktop: 44px;
+  --input-height-desktop: 44px;
+  --btn-height-small: 36px;
+  --btn-height-large: 52px;
+  
+  /* Shadows */
+  --card-shadow: 0 6px 18px rgba(31, 115, 183, 0.06);
+  
+  /* Utilities */
+  --transition-fast: 0.2s ease;
+}

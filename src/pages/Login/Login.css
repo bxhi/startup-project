@@ -1,0 +1,79 @@
+/* Login.css */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: var(--page-padding);
+    background-color: var(--bg);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.login-title {
+    color: var(--primary);
+    margin-bottom: var(--spacing-1);
+    font-weight: 550;
+}
+
+.login-subtitle {
+    color: var(--muted);
+    font-size: medium;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 440px;
+    background-color: var(--card);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    font-size: var(--font-body);
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--spacing-1);
+    margin-bottom: var(--spacing-2);
+}
+
+.form-actions .checkbox-container {
+    font-size: 14px;
+    font-weight: 550;
+}
+
+.forgot-password {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 400;
+}
+
+.register-link {
+    margin-top: var(--spacing-4);
+    text-align: center;
+    font-size: 14px;
+    font-weight:400;
+    color: var(--muted);
+}
+
+.register-link a {
+    color: var(--primary);
+    font-weight:400;
+    font-size: 14px;
+}
+
+.login-footer {
+    margin-top: var(--spacing-6);
+    text-align: center;
+    font-size: var(--font-small);
+    color: var(--muted);
+}

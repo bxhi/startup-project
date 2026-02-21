@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import './variables.css';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-weight: var(--weight-regular);
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+    font-size: var(--font-h1);
+    font-weight: var(--weight-semibold);
+    color: var(--text);
+    margin-bottom: var(--spacing-2);
+}
+
+h2 {
+    font-size: var(--font-h2);
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--spacing-2);
+}
+
+h3 {
+    font-size: var(--font-h3);
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--spacing-1);
+}
+
+p,
+.body-text {
+    font-size: var(--font-body);
+    font-weight: var(--weight-regular);
+    color: var(--text);
+}
+
+small,
+.small-text {
+    font-size: var(--font-small);
+    font-weight: var(--weight-regular);
+    color: var(--muted);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: var(--weight-semibold);
+    transition: opacity var(--transition-fast);
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+/* Form elements reset */
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-weight: inherit;
+}
+
+/* Placeholder default styling (lighter weight) */
+::placeholder {
+    font-weight: 500;
+    opacity: 1;
+}
+
+/* Vendor prefixes for broader support */
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    font-weight: 500;
+}
+::-ms-input-placeholder { /* Microsoft Edge */
+    font-weight: 500;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    font-weight: 500;
+}

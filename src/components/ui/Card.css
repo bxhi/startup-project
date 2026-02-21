@@ -1,0 +1,12 @@
+/* Card.css */
+.card {
+    background-color: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    padding: var(--card-padding);
+    border: 1px solid transparent;
+}
+
+.card--accent-border {
+    border-left: 4px solid var(--accent);
+}
