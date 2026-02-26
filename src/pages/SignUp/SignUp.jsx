@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiCheckCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiX } from 'react-icons/fi';
 import { LuUpload } from 'react-icons/lu';
 import { PiCamera } from 'react-icons/pi';
 import { IoMdTime } from 'react-icons/io';
 import Card from '../../components/Card/Card';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
+import authService from '../../api/authService';
 import './SignUp.css';
 
 const SignUp = ({ onNavigate }) => {
@@ -13,6 +14,7 @@ const SignUp = ({ onNavigate }) => {
     const [isVerificationPending, setIsVerificationPending] = useState(false);
     const [cameraActive, setCameraActive] = useState(false);
     const [selfiePhoto, setSelfiePhoto] = useState(null);
+    const [errorSteps, setErrorSteps] = useState([]); // Track steps with errors
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
@@ -33,24 +35,124 @@ const SignUp = ({ onNavigate }) => {
         selfiePhoto: null
     });
 
+    const validateFormData = (data, selfie) => {
+        let errors = [];
+        let errSteps = [];
+
+        // Step 1 Validation
+        if (!data.businessName?.trim()) {
+            errors.push('Business Name is required.');
+            errSteps.push(1);
+        }
+        if (!data.ownerFullName?.trim()) {
+            errors.push('Owner Full Name is required.');
+            errSteps.push(1);
+        }
+        if (!data.commerceNumber?.trim()) {
+            errors.push('Register Commerce Number is required.');
+            errSteps.push(1);
+        }
+        if (!data.nin?.trim()) {
+            errors.push('NIN is required.');
+            errSteps.push(1);
+        } else if (data.nin.length !== 18) {
+            errors.push('NIN must be exactly 18 digits.');
+            errSteps.push(1);
+        }
+
+        // Step 2 Validation
+        if (!data.email?.trim()) {
+            errors.push('Email is required.');
+            errSteps.push(2);
+        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+            errors.push('Email format is invalid.');
+            errSteps.push(2);
+        }
+        if (!data.phone?.trim()) {
+            errors.push('Phone number is required.');
+            errSteps.push(2);
+        }
+        if (!data.password) {
+            errors.push('Password is required.');
+            errSteps.push(2);
+        } else if (data.password !== data.confirmPassword) {
+            errors.push('Passwords do not match.');
+            errSteps.push(2);
+        }
+
+        // Step 3 Validation
+        if (!data.idFront) {
+            errors.push('ID Front image is required.');
+            errSteps.push(3);
+        }
+        if (!data.importLicense) {
+            errors.push('Import License is required.');
+            errSteps.push(3);
+        }
+        if (!data.commercialRegister) {
+            errors.push('Commercial Register is required.');
+            errSteps.push(3);
+        }
+
+        // Step 4 Validation
+        if (!selfie) {
+            errors.push('Selfie photo is required.');
+            errSteps.push(4);
+        }
+
+        return {
+            errors,
+            errSteps: [...new Set(errSteps)]
+        };
+    };
+
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        let newValue = value;
+        if (field === 'nin' || field === 'commerceNumber') {
+            newValue = value.replace(/\D/g, '');
+            if (field === 'nin') newValue = newValue.slice(0, 18);
+        }
+
+        const newFormData = { ...formData, [field]: newValue };
+        setFormData(newFormData);
+
+        // Real-time validation if errors already exist
+        if (error && Array.isArray(error)) {
+            const { errors, errSteps } = validateFormData(newFormData, selfiePhoto);
+            setError(errors);
+            setErrorSteps(errSteps);
+        }
     };
 
     const handleFileChange = (field, file) => {
-        setFormData(prev => ({ ...prev, [field]: file }));
+        const newFormData = { ...formData, [field]: file };
+        setFormData(newFormData);
+
+        // Real-time validation if errors already exist
+        if (error && Array.isArray(error)) {
+            const { errors, errSteps } = validateFormData(newFormData, selfiePhoto);
+            setError(errors);
+            setErrorSteps(errSteps);
+        }
     };
 
     const startCamera = async () => {
         try {
+            setSelfiePhoto(null);
+            setFormData(prev => ({ ...prev, selfiePhoto: null }));
+            // Instead of clearing all errors, just update them
+            if (error && Array.isArray(error)) {
+                const { errors, errSteps } = validateFormData({ ...formData, selfiePhoto: null }, null);
+                setError(errors);
+                setErrorSteps(errSteps);
+            }
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user' }
             });
             streamRef.current = stream;
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
             setCameraActive(true);
+            // The videoRef.current is not yet available because the component hasn't re-rendered.
+            // We handle attaching the stream in a useEffect below.
         } catch (error) {
             console.error('Error accessing camera:', error);
             alert('Unable to access camera. Please check permissions.');
@@ -74,12 +176,146 @@ const SignUp = ({ onNavigate }) => {
             const photoData = canvasRef.current.toDataURL('image/jpeg');
             setSelfiePhoto(photoData);
             setFormData(prev => ({ ...prev, selfiePhoto: photoData }));
+
+            // Trigger validation check on capture
+            if (error && Array.isArray(error)) {
+                const { errors, errSteps } = validateFormData(formData, photoData);
+                setError(errors);
+                setErrorSteps(errSteps);
+            }
+
             stopCamera();
         }
     };
 
-    const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
-    const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+    // EFFECT: Attach camera stream to video element when it appears
+    useEffect(() => {
+        if (cameraActive && streamRef.current && videoRef.current) {
+            videoRef.current.srcObject = streamRef.current;
+        }
+    }, [cameraActive]);
+
+    const nextStep = () => {
+        setStep(prev => Math.min(prev + 1, 4));
+        // REMOVED: setError(''); - Keep errors visible
+    };
+    const prevStep = () => {
+        setStep(prev => Math.max(prev - 1, 1));
+        // REMOVED: setError(''); - Keep errors visible
+    };
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleSubmit = async () => {
+        const { errors, errSteps } = validateFormData(formData, selfiePhoto);
+
+        if (errors.length > 0) {
+            setError(errors);
+            setErrorSteps(errSteps);
+            setStep(Math.min(...errSteps));
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        setErrorSteps([]);
+        try {
+            const fd = new FormData();
+
+            // Normalize phone number (remove spaces)
+            const normalizedPhone = formData.phone.replace(/\s+/g, '');
+
+            // Map to the structure expected by the backend
+            fd.append('user[fullName]', formData.ownerFullName);
+            fd.append('user[email]', formData.email);
+            fd.append('user[phoneNumber]', '+213' + normalizedPhone);
+            fd.append('user[password]', formData.password);
+
+            fd.append('profile[licenseId]', formData.commerceNumber);
+            fd.append('profile[registerCommerceNumber]', formData.commerceNumber);
+            fd.append('profile[NIN]', formData.nin);
+            fd.append('profile[wilaya]', 'Not Specified');
+            fd.append('profile[adress]', 'Not Specified');
+
+            // Files
+            fd.append('registerCommerceImage', formData.commercialRegister);
+            fd.append('licenseImage', formData.importLicense);
+            fd.append('idCardImage', formData.idFront);
+
+            // Camera selfie
+            if (selfiePhoto && typeof selfiePhoto === 'string' && selfiePhoto.includes(',')) {
+                const dataURLtoFile = (dataurl, filename) => {
+                    try {
+                        let arr = dataurl.split(',');
+                        let mimeMatch = arr[0].match(/:(.*?);/);
+                        if (!mimeMatch) return null;
+
+                        let mime = mimeMatch[1];
+                        let bstr = atob(arr[1]);
+                        let n = bstr.length;
+                        let u8arr = new Uint8Array(n);
+                        while (n--) {
+                            u8arr[n] = bstr.charCodeAt(n);
+                        }
+                        return new File([u8arr], filename, { type: mime });
+                    } catch (e) {
+                        console.error('Error converting dataURL to file:', e);
+                        return null;
+                    }
+                };
+                const selfieFile = dataURLtoFile(selfiePhoto, 'selfie.jpg');
+                if (selfieFile) {
+                    fd.append('selfieImage', selfieFile);
+                } else {
+                    setError(['Error processing selfie photo. Please try retaking it.']);
+                    setErrorSteps([4]);
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                setError(['Selfie photo is missing or invalid.']);
+                setErrorSteps([4]);
+                setLoading(false);
+                return;
+            }
+
+            await authService.registerImportator(fd);
+            setIsVerificationPending(true);
+        } catch (err) {
+            console.error('Registration error details:', err.response?.data);
+            if (!err.response) {
+                setError(['Network error: Unable to connect to the server.']);
+            } else if (err.response.status >= 400 && err.response.status < 500) {
+                let message = err.response.data?.message;
+                if (Array.isArray(message)) {
+                    // Clean up common NestJS prefixes and make readable
+                    const cleanedMessages = message.map(msg =>
+                        msg.replace(/^user\.|^profile\./, '') // Remove internal prefixes
+                            .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase (fullName -> full Name)
+                            .replace(/^./, str => str.toUpperCase()) // Capitalize
+                    );
+                    setError(cleanedMessages);
+                    // Determine which steps have errors based on field names
+                    const backendErrSteps = [];
+                    cleanedMessages.forEach(msg => {
+                        const lowMsg = msg.toLowerCase();
+                        if (lowMsg.includes('full name') || lowMsg.includes('business name') || lowMsg.includes('nin')) backendErrSteps.push(1);
+                        if (lowMsg.includes('email') || lowMsg.includes('password') || lowMsg.includes('phone')) backendErrSteps.push(2);
+                        if (lowMsg.includes('license') || lowMsg.includes('register') || lowMsg.includes('id card')) backendErrSteps.push(3);
+                        if (lowMsg.includes('selfie')) backendErrSteps.push(4);
+                    });
+                    setErrorSteps([...new Set(backendErrSteps)]);
+                } else {
+                    setError([message || 'Invalid data. Please check your inputs.']);
+                }
+            } else {
+                setError([err.response.data?.message || 'An error occurred during registration.']);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Cleanup camera stream on component unmount
     useEffect(() => {
@@ -95,7 +331,7 @@ const SignUp = ({ onNavigate }) => {
             case 1:
                 return (
                     <div className="step-content">
-                        
+
                         <div className="inputs-grid">
                             <Input
                                 label="Business Name"
@@ -127,7 +363,7 @@ const SignUp = ({ onNavigate }) => {
             case 2:
                 return (
                     <div className="step-content">
-                       
+
                         <div className="inputs-grid">
                             <Input
                                 label="Email"
@@ -139,13 +375,12 @@ const SignUp = ({ onNavigate }) => {
                             <Input
                                 label="Phone"
                                 type="tel"
-                                placeholder="+213 XXX XX XX XX"
+                                prefix="+213"
+                                placeholder="XXX XX XX XX"
                                 inputMode="tel"
-                                maxLength={17}
-                                pattern="^\+213\s?\d{3}\s?\d{2}\s?\d{2}\s?\d{2}$"
-                                title="Phone must match +213 XXX XX XX XX"
+                                maxLength={12}
                                 value={formData.phone}
-                                onChange={(e) => handleChange('phone', e.target.value)}
+                                onChange={(e) => handleChange('phone', e.target.value.replace(/\D/g, ''))}
                             />
                             <Input
                                 label="Password"
@@ -246,7 +481,7 @@ const SignUp = ({ onNavigate }) => {
                             <h2 className="selfie-title">Live Selfie Verification</h2>
                             <p className="selfie-subtitle">Please capture a clear photo of yourself</p>
                         </div>
-                        
+
                         <div className="camera-container">
                             {cameraActive ? (
                                 <div className="camera-wrapper">
@@ -258,8 +493,8 @@ const SignUp = ({ onNavigate }) => {
                                     />
                                     <canvas ref={canvasRef} style={{ display: 'none' }} />
                                     <div className="camera-controls">
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             onClick={stopCamera}
                                         >
                                             Cancel
@@ -270,15 +505,27 @@ const SignUp = ({ onNavigate }) => {
                                     </div>
                                 </div>
                             ) : selfiePhoto ? (
-                                <div className="photo-preview">
-                                    <div className="success-message">
-                                        <FiCheckCircle size={32} className="success-icon" />
-                                        <span className="success-text">Selfie captured successfully</span>
+                                <div className="photo-preview-container">
+                                    <div className="photo-frame">
+                                        <img src={selfiePhoto} alt="Selfie preview" className="photo-img" />
+                                    </div>
+                                    <div className="photo-actions">
+                                        <div className="success-badge">
+                                            <FiCheckCircle size={20} className="success-icon" />
+                                            <span className="success-text">Ready to submit</span>
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            onClick={startCamera}
+                                            className="retake-button"
+                                        >
+                                            Retake Photo
+                                        </Button>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="camera-input-wrapper">
-                                    <button 
+                                    <button
                                         className="camera-button"
                                         onClick={startCamera}
                                     >
@@ -305,22 +552,38 @@ const SignUp = ({ onNavigate }) => {
             </div>
 
             <Card className="signup-card">
+                {error && Array.isArray(error) && error.length > 0 && (
+                    <div className="error-message-container">
+                        <div className="error-title">
+                            <FiX size={18} />
+                            Please correct the following errors:
+                        </div>
+                        <ul className="error-list">
+                            {error.map((err, index) => (
+                                <li key={index} className="error-list-item">{err}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
                 {!isVerificationPending && (
                     <div className="step-indicator">
                         {[1, 2, 3, 4].map((s) => {
                             const labels = ['Register', 'Credential', 'Documents', 'Selfie'];
                             const isActive = step === s;
                             const isCompleted = step > s;
+                            const hasError = errorSteps.includes(s);
                             return (
-                                <div key={s} className={`step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
-                                    <div className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
-                                        {isCompleted ? (
+                                <div key={s} className={`step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>
+                                    <div className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>
+                                        {hasError ? (
+                                            <FiX size={24} />
+                                        ) : isCompleted ? (
                                             <FiCheckCircle size={24} />
                                         ) : (
-                                        s
+                                            s
                                         )}
                                     </div>
-                                    <div className={`step-label ${isActive ? 'active' : ''}`}>{labels[s - 1]}</div>
+                                    <div className={`step-label ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>{labels[s - 1]}</div>
                                 </div>
                             );
                         })}
@@ -345,22 +608,22 @@ const SignUp = ({ onNavigate }) => {
                             <Button variant="outline" onClick={prevStep}>Back</Button>
                         )}
                         {step < 4 ? (
-                            <Button onClick={nextStep}>Continue to {['Credential', 'Documents', 'Selfie'][step - 1]}</Button>
+                            <Button onClick={nextStep} disabled={loading}>Continue to {['Credential', 'Documents', 'Selfie'][step - 1]}</Button>
                         ) : (
-                            <Button 
-                                onClick={() => setIsVerificationPending(true)}
-                                disabled={!selfiePhoto}
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={!selfiePhoto || loading}
                             >
-                                Submit for Verification
+                                {loading ? 'Submitting...' : 'Submit for Verification'}
                             </Button>
                         )}
                     </div>
                 )}
 
             </Card>
-                <div className="login-redirect">
-                    Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Login here</a>
-                </div>
+            <div className="login-redirect">
+                Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Login here</a>
+            </div>
         </div>
     );
 };

@@ -3,9 +3,12 @@ import Card from '../../components/Card/Card';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import './ForgotPassword.css';
+import authService from '../../api/authService';
 
 const ForgotPassword = ({ onNavigate }) => {
     const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         verificationCode: '',
@@ -17,9 +20,17 @@ const ForgotPassword = ({ onNavigate }) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleSendCode = () => {
-        if (formData.email) {
+    const handleSendCode = async () => {
+        if (!formData.email) return;
+        setLoading(true);
+        setError('');
+        try {
+            await authService.forgotPassword(formData.email);
             setStep(2);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to send verification code.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -29,11 +40,19 @@ const ForgotPassword = ({ onNavigate }) => {
         }
     };
 
-    const handleResetPassword = () => {
+    const handleResetPassword = async () => {
         if (formData.newPassword && formData.confirmPassword && formData.newPassword === formData.confirmPassword) {
-            console.log('Password reset:', formData);
-            alert('Password reset successfully!');
-            onNavigate();
+            setLoading(true);
+            setError('');
+            try {
+                await authService.resetPassword(formData.email, formData.verificationCode, formData.newPassword);
+                alert('Password reset successfully!');
+                onNavigate();
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to reset password.');
+            } finally {
+                setLoading(false);
+            }
         } else {
             alert('Passwords do not match or are empty.');
         }
@@ -112,20 +131,21 @@ const ForgotPassword = ({ onNavigate }) => {
             </div>
 
             <Card className="forgot-card">
+                {error && <div className="error-message" style={{ color: '#ef4444', textAlign: 'center', marginBottom: '10px', fontSize: '0.875rem' }}>{error}</div>}
                 {renderStep()}
 
                 <div className="forgot-actions">
-                    <Button variant="outline" onClick={handleBack}>
+                    <Button variant="outline" onClick={handleBack} disabled={loading}>
                         {step === 1 ? 'Login' : 'Back'}
                     </Button>
                     {step === 1 && (
-                        <Button onClick={handleSendCode}>Send Code</Button>
+                        <Button onClick={handleSendCode} disabled={loading}>{loading ? 'Sending...' : 'Send Code'}</Button>
                     )}
                     {step === 2 && (
-                        <Button onClick={handleVerifyCode}>Verify Code</Button>
+                        <Button onClick={handleVerifyCode} disabled={loading}>Verify Code</Button>
                     )}
                     {step === 3 && (
-                        <Button onClick={handleResetPassword}>Reset Password</Button>
+                        <Button onClick={handleResetPassword} disabled={loading}>{loading ? 'Resetting...' : 'Reset Password'}</Button>
                     )}
                 </div>
             </Card>

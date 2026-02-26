@@ -11,6 +11,7 @@ const Input = ({
     disabled,
     icon,
     onIconClick,
+    prefix,
     ...props
 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -24,10 +25,11 @@ const Input = ({
     return (
         <div className="input-wrapper">
             {label && <label className="input-label">{label}</label>}
-            <div className="input-container">
+            <div className={`input-container ${prefix ? 'input-container--with-prefix' : ''}`}>
+                {prefix && <span className="input-prefix">{prefix}</span>}
                 <input
                     type={inputType}
-                    className={`input-field ${error ? 'input-field--error' : ''} ${icon || isPassword ? 'input-field--with-icon' : ''}`}
+                    className={`input-field ${error ? 'input-field--error' : ''} ${icon || isPassword ? 'input-field--with-icon' : ''} ${prefix ? 'input-field--with-prefix' : ''}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}

@@ -4,15 +4,55 @@ import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import Checkbox from '../../components/Checkbox/Checkbox';
 import './Login.css';
+import authService from '../../api/authService';
 
 const Login = ({ onNavigate, onForgotPassword }) => {
     const [email, setEmail] = useState('your.email@example.com');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Login attempt:', { email, password, rememberMe });
+        setLoading(true);
+        setError('');
+        try {
+            await authService.login(email, password);
+            alert('Login successful!');
+        } catch (err) {
+            console.error('Login error full object:', err);
+            console.error('Error Response:', err.response);
+            console.error('Error Request:', err.request);
+            console.error('Error Message:', err.message);
+
+            if (err.response) {
+                if (err.response.status === 401) {
+                    setError(err.response.data?.message || 'Invalid email or password.');
+                } else if (err.response.status === 404) {
+                    setError('Account not found.');
+                } else {
+                    setError(err.response.data?.message || 'Login failed. Please try again.');
+                }
+            } else if (err.request) {
+                // The request was made but no response was received
+                setError('Network error: Server is unreachable or CORS blocked.');
+            } else {
+                setError('Error: ' + err.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEmailChange = (e) => {
+        setEmail(e.target.value);
+        if (error) setError('');
+    };
+
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+        if (error) setError('');
     };
 
     return (
@@ -24,12 +64,14 @@ const Login = ({ onNavigate, onForgotPassword }) => {
 
             <Card className="login-card">
                 <form className="login-form" onSubmit={handleSubmit}>
+                    {error && <div className="error-message" style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem', fontSize: '0.875rem', fontWeight: '500' }}>{error}</div>}
                     <Input
                         label="Email"
                         type="email"
                         placeholder="your.email@example.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={handleEmailChange}
+                        disabled={loading}
                     />
 
                     <Input
@@ -37,7 +79,8 @@ const Login = ({ onNavigate, onForgotPassword }) => {
                         type="password"
                         placeholder="Enter your password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
+                        disabled={loading}
                     />
 
                     <div className="form-actions ">
@@ -45,10 +88,13 @@ const Login = ({ onNavigate, onForgotPassword }) => {
                             label="Remember me"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
+                            disabled={loading}
                         />
                         <a href="#" className="forgot-password" onClick={(e) => { e.preventDefault(); onForgotPassword(); }}>Forgot password?</a>
                     </div>
-                    <Button type="submit" fullWidth>Login</Button>
+                    <Button type="submit" fullWidth disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
+                    </Button>
                     <div className="register-link">
                         Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Register as Business</a>
                     </div>

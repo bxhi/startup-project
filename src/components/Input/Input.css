@@ -41,7 +41,7 @@
 .input-field:focus {
     border: 2px solid var(--primary);
     background-color: white;
-    
+
 }
 
 .input-field:disabled {
@@ -57,6 +57,24 @@
 .input-field--with-icon {
     padding-right: var(--spacing-5);
     /* Space for icon */
+}
+
+.input-container--with-prefix {
+    background-color: var(--bg);
+}
+
+.input-prefix {
+    padding-left: var(--spacing-2);
+    padding-right: var(--spacing-1);
+    color: var(--muted);
+    font-size: var(--font-body);
+    font-weight: 500;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.input-field--with-prefix {
+    padding-left: 0.5rem;
 }
 
 .input-icon {
