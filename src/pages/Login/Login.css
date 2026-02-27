@@ -61,13 +61,13 @@
     margin-top: var(--spacing-4);
     text-align: center;
     font-size: 14px;
-    font-weight:400;
+    font-weight: 400;
     color: var(--muted);
 }
 
 .register-link a {
     color: var(--primary);
-    font-weight:400;
+    font-weight: 400;
     font-size: 14px;
 }
 
@@ -76,4 +76,24 @@
     text-align: center;
     font-size: var(--font-small);
     color: var(--muted);
+}
+
+.login-error-card {
+    background-color: #fef2f2;
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--danger);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.error-icon {
+    flex-shrink: 0;
+    color: var(--danger);
+    font-size: 1.25rem;
 }

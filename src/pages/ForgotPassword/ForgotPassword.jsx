@@ -99,23 +99,25 @@ const ForgotPassword = ({ onNavigate }) => {
                 );
             case 3:
                 return (
-                    <div className="forgot-content">
+                    <div className="forgot-content step-3">
                         <h2 className="forgot-title">Create New Password</h2>
                         <p className="forgot-subtitle">Enter your new password below.</p>
-                        <Input
-                            label="New Password"
-                            type="password"
-                            placeholder="Enter new password"
-                            value={formData.newPassword}
-                            onChange={(e) => handleChange('newPassword', e.target.value)}
-                        />
-                        <Input
-                            label="Confirm Password"
-                            type="password"
-                            placeholder="Confirm new password"
-                            value={formData.confirmPassword}
-                            onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                        />
+                        <div className="password-inputs">
+                            <Input
+                                label="New Password"
+                                type="password"
+                                placeholder="Enter new password"
+                                value={formData.newPassword}
+                                onChange={(e) => handleChange('newPassword', e.target.value)}
+                            />
+                            <Input
+                                label="Confirm Password"
+                                type="password"
+                                placeholder="Confirm new password"
+                                value={formData.confirmPassword}
+                                onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                            />
+                        </div>
                     </div>
                 );
             default:
@@ -126,7 +128,7 @@ const ForgotPassword = ({ onNavigate }) => {
     return (
         <div className="forgot-container">
             <div className="forgot-header">
-                <h1 className="forgot-main-title">Importators</h1>
+                <h1 className="forgot-main-title">Importers</h1>
                 <p className="forgot-main-subtitle">Forgot your password?</p>
             </div>
 

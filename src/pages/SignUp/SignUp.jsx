@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiX, FiShield } from 'react-icons/fi';
 import { LuUpload } from 'react-icons/lu';
 import { PiCamera } from 'react-icons/pi';
 import { IoMdTime } from 'react-icons/io';
@@ -14,6 +14,9 @@ const SignUp = ({ onNavigate }) => {
     const [isVerificationPending, setIsVerificationPending] = useState(false);
     const [cameraActive, setCameraActive] = useState(false);
     const [selfiePhoto, setSelfiePhoto] = useState(null);
+    const [isOtpStep, setIsOtpStep] = useState(false);
+    const [otpCode, setOtpCode] = useState('');
+    const [userId, setUserId] = useState(null);
     const [errorSteps, setErrorSteps] = useState([]); // Track steps with errors
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -68,9 +71,15 @@ const SignUp = ({ onNavigate }) => {
             errors.push('Email format is invalid.');
             errSteps.push(2);
         }
-        if (!data.phone?.trim()) {
+        if (!data.phone?.trim() || data.phone === '+213 ') {
             errors.push('Phone number is required.');
             errSteps.push(2);
+        } else {
+            const digits = data.phone.replace(/\D/g, '').slice(3); // Remove +213
+            if (digits.length !== 9) {
+                errors.push('Phone number must have 9 digits after the prefix.');
+                errSteps.push(2);
+            }
         }
         if (!data.password) {
             errors.push('Password is required.');
@@ -106,6 +115,20 @@ const SignUp = ({ onNavigate }) => {
         };
     };
 
+    const isStepValid = (stepNumber) => {
+        const { errSteps } = validateFormData(formData, selfiePhoto);
+        // A step is valid if it's not in the errorSteps and all fields for that step are filled
+        if (errSteps.includes(stepNumber)) return false;
+
+        switch (stepNumber) {
+            case 1: return formData.businessName && formData.ownerFullName && formData.commerceNumber && formData.nin;
+            case 2: return formData.email && formData.phone && formData.password && formData.password === formData.confirmPassword;
+            case 3: return formData.idFront && formData.importLicense && formData.commercialRegister;
+            case 4: return !!selfiePhoto;
+            default: return false;
+        }
+    };
+
     const handleChange = (field, value) => {
         let newValue = value;
         if (field === 'nin' || field === 'commerceNumber') {
@@ -113,11 +136,24 @@ const SignUp = ({ onNavigate }) => {
             if (field === 'nin') newValue = newValue.slice(0, 18);
         }
 
+        if (field === 'phone') {
+            // Formatting: XXX XX XX XX
+            const digits = value.replace(/\D/g, '').slice(0, 9);
+            let formatted = '';
+            if (digits.length > 0) {
+                formatted += digits.slice(0, 3);
+                if (digits.length > 3) formatted += ' ' + digits.slice(3, 5);
+                if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
+                if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
+            }
+            newValue = formatted;
+        }
+
         const newFormData = { ...formData, [field]: newValue };
         setFormData(newFormData);
 
-        // Real-time validation if errors already exist
-        if (error && Array.isArray(error)) {
+        // Real-time validation for error display only if errors already exist
+        if (error && Array.isArray(error) && error.length > 0) {
             const { errors, errSteps } = validateFormData(newFormData, selfiePhoto);
             setError(errors);
             setErrorSteps(errSteps);
@@ -128,8 +164,8 @@ const SignUp = ({ onNavigate }) => {
         const newFormData = { ...formData, [field]: file };
         setFormData(newFormData);
 
-        // Real-time validation if errors already exist
-        if (error && Array.isArray(error)) {
+        // Real-time validation for error display only if errors already exist
+        if (error && Array.isArray(error) && error.length > 0) {
             const { errors, errSteps } = validateFormData(newFormData, selfiePhoto);
             setError(errors);
             setErrorSteps(errSteps);
@@ -178,7 +214,7 @@ const SignUp = ({ onNavigate }) => {
             setFormData(prev => ({ ...prev, selfiePhoto: photoData }));
 
             // Trigger validation check on capture
-            if (error && Array.isArray(error)) {
+            if (error && Array.isArray(error) && error.length > 0) {
                 const { errors, errSteps } = validateFormData(formData, photoData);
                 setError(errors);
                 setErrorSteps(errSteps);
@@ -223,13 +259,13 @@ const SignUp = ({ onNavigate }) => {
         try {
             const fd = new FormData();
 
-            // Normalize phone number (remove spaces)
-            const normalizedPhone = formData.phone.replace(/\s+/g, '');
+            // Normalize phone number (keep digits only including the prefix)
+            const normalizedPhone = '+' + formData.phone.replace(/\D/g, '');
 
             // Map to the structure expected by the backend
             fd.append('user[fullName]', formData.ownerFullName);
             fd.append('user[email]', formData.email);
-            fd.append('user[phoneNumber]', '+213' + normalizedPhone);
+            fd.append('user[phoneNumber]', normalizedPhone);
             fd.append('user[password]', formData.password);
 
             fd.append('profile[licenseId]', formData.commerceNumber);
@@ -280,38 +316,71 @@ const SignUp = ({ onNavigate }) => {
                 return;
             }
 
-            await authService.registerImportator(fd);
-            setIsVerificationPending(true);
+            const response = await authService.registerImportator(fd);
+            const returnedUserId = response.importatorProfile?.user?.userId || response.importatorProfile?.userId;
+
+            if (returnedUserId) {
+                setUserId(returnedUserId);
+                await authService.sendOtp(returnedUserId);
+                setIsOtpStep(true);
+            } else {
+                // Fallback if userId is not found
+                setIsVerificationPending(true);
+            }
         } catch (err) {
             console.error('Registration error details:', err.response?.data);
             if (!err.response) {
                 setError(['Network error: Unable to connect to the server.']);
             } else if (err.response.status >= 400 && err.response.status < 500) {
-                let message = err.response.data?.message;
-                if (Array.isArray(message)) {
-                    // Clean up common NestJS prefixes and make readable
-                    const cleanedMessages = message.map(msg =>
-                        msg.replace(/^user\.|^profile\./, '') // Remove internal prefixes
-                            .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase (fullName -> full Name)
-                            .replace(/^./, str => str.toUpperCase()) // Capitalize
-                    );
-                    setError(cleanedMessages);
-                    // Determine which steps have errors based on field names
-                    const backendErrSteps = [];
-                    cleanedMessages.forEach(msg => {
-                        const lowMsg = msg.toLowerCase();
-                        if (lowMsg.includes('full name') || lowMsg.includes('business name') || lowMsg.includes('nin')) backendErrSteps.push(1);
-                        if (lowMsg.includes('email') || lowMsg.includes('password') || lowMsg.includes('phone')) backendErrSteps.push(2);
-                        if (lowMsg.includes('license') || lowMsg.includes('register') || lowMsg.includes('id card')) backendErrSteps.push(3);
-                        if (lowMsg.includes('selfie')) backendErrSteps.push(4);
-                    });
-                    setErrorSteps([...new Set(backendErrSteps)]);
-                } else {
-                    setError([message || 'Invalid data. Please check your inputs.']);
+                let rawMessage = err.response.data?.message;
+                let messages = Array.isArray(rawMessage) ? rawMessage : [rawMessage || 'Invalid data. Please check your inputs.'];
+
+                // Clean up and format messages
+                const cleanedMessages = messages.map(msg =>
+                    msg.replace(/^user\.|^profile\./, '')
+                        .replace(/([a-z])([A-Z])/g, '$1 $2')
+                        .replace(/^./, str => str.toUpperCase())
+                );
+                setError(cleanedMessages);
+
+                // Map to steps
+                const backendErrSteps = [];
+                cleanedMessages.forEach(msg => {
+                    const lowMsg = msg.toLowerCase();
+                    if (lowMsg.includes('full name') || lowMsg.includes('business name') || lowMsg.includes('nin')) backendErrSteps.push(1);
+                    if (lowMsg.includes('email') || lowMsg.includes('password') || lowMsg.includes('phone')) backendErrSteps.push(2);
+                    if (lowMsg.includes('license') || lowMsg.includes('register') || lowMsg.includes('id card')) backendErrSteps.push(3);
+                    if (lowMsg.includes('selfie')) backendErrSteps.push(4);
+                });
+
+                if (backendErrSteps.length > 0) {
+                    const uniqueSteps = [...new Set(backendErrSteps)];
+                    setErrorSteps(uniqueSteps);
+                    setStep(Math.min(...uniqueSteps));
                 }
             } else {
                 setError([err.response.data?.message || 'An error occurred during registration.']);
             }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleOtpSubmit = async () => {
+        if (!otpCode || otpCode.length !== 6) {
+            setError(['Please enter a valid 6-digit OTP code.']);
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        try {
+            await authService.verifyOtp(userId, otpCode);
+            setIsOtpStep(false);
+            setIsVerificationPending(true);
+        } catch (err) {
+            console.error('OTP verification error:', err.response?.data);
+            setError([err.response?.data?.message || 'Invalid OTP. Please try again.']);
         } finally {
             setLoading(false);
         }
@@ -380,7 +449,7 @@ const SignUp = ({ onNavigate }) => {
                                 inputMode="tel"
                                 maxLength={12}
                                 value={formData.phone}
-                                onChange={(e) => handleChange('phone', e.target.value.replace(/\D/g, ''))}
+                                onChange={(e) => handleChange('phone', e.target.value)}
                             />
                             <Input
                                 label="Password"
@@ -547,7 +616,7 @@ const SignUp = ({ onNavigate }) => {
     return (
         <div className="signup-container">
             <div className="signup-header">
-                <h1 className="signup-main-title">Importer</h1>
+                <h1 className="signup-main-title">Importers</h1>
                 <p className="signup-subtitle">Register your business account</p>
             </div>
 
@@ -569,9 +638,10 @@ const SignUp = ({ onNavigate }) => {
                     <div className="step-indicator">
                         {[1, 2, 3, 4].map((s) => {
                             const labels = ['Register', 'Credential', 'Documents', 'Selfie'];
-                            const isActive = step === s;
-                            const isCompleted = step > s;
+                            const isActive = step === s && !isOtpStep && !isVerificationPending;
                             const hasError = errorSteps.includes(s);
+                            const isCompleted = (isOtpStep || isVerificationPending) ? !hasError : isStepValid(s);
+
                             return (
                                 <div key={s} className={`step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>
                                     <div className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>
@@ -583,14 +653,56 @@ const SignUp = ({ onNavigate }) => {
                                             s
                                         )}
                                     </div>
-                                    <div className={`step-label ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>{labels[s - 1]}</div>
+                                    <div className={`step-label ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>{labels[s - 1]}</div>
                                 </div>
                             );
                         })}
                     </div>
                 )}
 
-                {isVerificationPending ? (
+                {isOtpStep ? (
+                    <div className="otp-verification">
+                        <div className="otp-content">
+                            <FiShield size={62} className="otp-icon" />
+                            <h2 className="otp-title">Verify Your Email</h2>
+                            <p className="otp-subtitle">We've sent a 6-digit code to {formData.email}. Please enter it below to continue.</p>
+                            <div className="otp-input-container">
+                                <Input
+                                    placeholder="000 000"
+                                    value={otpCode}
+                                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                    className="otp-input"
+                                    maxLength={6}
+                                    style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px' }}
+                                />
+                            </div>
+                            <div className="otp-actions">
+                                <Button
+                                    onClick={handleOtpSubmit}
+                                    disabled={loading || otpCode.length !== 6}
+                                    className="verify-button"
+                                >
+                                    {loading ? 'Verifying...' : 'Verify & Continue'}
+                                </Button>
+                                <button
+                                    className="resend-link"
+                                    onClick={() => authService.sendOtp(userId)}
+                                    disabled={loading}
+                                >
+                                    Resend Code
+                                </button>
+                                <button
+                                    className="resend-link"
+                                    onClick={() => { setIsOtpStep(false); setStep(2); }}
+                                    disabled={loading}
+                                    style={{ marginTop: '5px' }}
+                                >
+                                    Wrong email? Change it
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : isVerificationPending ? (
                     <div className="verification-pending">
                         <div className="verification-content">
                             <IoMdTime size={62} className="verification-icon" />
@@ -602,7 +714,7 @@ const SignUp = ({ onNavigate }) => {
                     renderStep()
                 )}
 
-                {!isVerificationPending && (
+                {!isVerificationPending && !isOtpStep && (
                     <div className="step-actions">
                         {step > 1 && (
                             <Button variant="outline" onClick={prevStep}>Back</Button>

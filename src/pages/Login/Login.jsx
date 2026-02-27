@@ -3,11 +3,12 @@ import Card from '../../components/Card/Card';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import Checkbox from '../../components/Checkbox/Checkbox';
+import { FiAlertCircle } from 'react-icons/fi';
 import './Login.css';
 import authService from '../../api/authService';
 
 const Login = ({ onNavigate, onForgotPassword }) => {
-    const [email, setEmail] = useState('your.email@example.com');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -28,14 +29,15 @@ const Login = ({ onNavigate, onForgotPassword }) => {
 
             if (err.response) {
                 if (err.response.status === 401) {
-                    setError(err.response.data?.message || 'Invalid email or password.');
+                    setError('Please enter valid credentials.');
+                } else if (err.response.status === 403) {
+                    setError(err.response.data?.message || 'Your account is still under review. Please wait 24-48 hours.');
                 } else if (err.response.status === 404) {
                     setError('Account not found.');
                 } else {
                     setError(err.response.data?.message || 'Login failed. Please try again.');
                 }
             } else if (err.request) {
-                // The request was made but no response was received
                 setError('Network error: Server is unreachable or CORS blocked.');
             } else {
                 setError('Error: ' + err.message);
@@ -58,13 +60,18 @@ const Login = ({ onNavigate, onForgotPassword }) => {
     return (
         <div className="login-container">
             <div className="login-header">
-                <h1 className="login-title">Importer</h1>
+                <h1 className="login-title">Importers</h1>
                 <p className="login-subtitle">Welcome back! Please login to your account.</p>
             </div>
 
             <Card className="login-card">
                 <form className="login-form" onSubmit={handleSubmit}>
-                    {error && <div className="error-message" style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem', fontSize: '0.875rem', fontWeight: '500' }}>{error}</div>}
+                    {error && (
+                        <div className="login-error-card">
+                            <FiAlertCircle className="error-icon" />
+                            <span>{error}</span>
+                        </div>
+                    )}
                     <Input
                         label="Email"
                         type="email"

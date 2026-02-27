@@ -101,6 +101,11 @@
     color: #fff;
 }
 
+.step-dot.active.completed {
+    border-color: var(--success);
+    background-color: var(--success);
+}
+
 .step-label {
     font-size: 0.875rem;
     font-weight: 350;
@@ -548,4 +553,85 @@
 
 .retake-button {
     min-width: 200px !important;
+}
+
+/* OTP Verification Styles */
+.otp-verification {
+    padding: 3rem 2rem;
+    text-align: center;
+    background: white;
+}
+
+.otp-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.otp-icon {
+    color: #3b82f6;
+    margin-bottom: 0.5rem;
+}
+
+.otp-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.otp-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    max-width: 320px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.otp-input-container {
+    width: 100%;
+    max-width: 280px;
+    margin: 1rem 0;
+}
+
+.otp-input input {
+    text-align: center;
+    font-size: 1.5rem !important;
+    letter-spacing: 0.5rem;
+    font-weight: 600;
+}
+
+.otp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 320px;
+}
+
+.verify-button {
+    width: 100%;
+}
+
+.resend-link {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+
+.resend-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.resend-link:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: none;
 }
