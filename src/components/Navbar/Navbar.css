@@ -1,0 +1,123 @@
+.navbar {
+    height: 70px;
+    background-color: #fff;
+    border-bottom: 1.5px solid #cbd5e1;
+    /* Darker border */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex: 1;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #f8fafc;
+    border: 1px solid #94a3b8;
+    /* Matching grey color */
+    border-radius: 8px;
+    padding: 8px 16px;
+    width: 400px;
+}
+
+.search-icon {
+    color: #94a3b8;
+    font-size: 1.25rem;
+    margin-right: 12px;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    position: relative;
+    color: #64748b;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger, #ef4444);
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary, #1a56db);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.user-avatar svg {
+    width: 24px;
+    height: 24px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.user-role {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}

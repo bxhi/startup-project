@@ -55,10 +55,13 @@
 .step-item::after {
     content: '';
     position: absolute;
-    top: 25%;
+    top: 20px;
+    /* Center of 40px dot */
     transform: translateY(-50%);
-    left: calc(60% + 25px);
-    width: calc(60% - 25px);
+    left: calc(50% + 45px);
+    /* Increased gap: 20px radius + 25px gap */
+    width: calc(100% - 90px);
+    /* Gaps on both sides */
     height: 2px;
     background-color: #e2e8f0;
     z-index: 0;
