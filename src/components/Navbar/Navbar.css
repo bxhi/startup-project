@@ -12,6 +12,40 @@
     z-index: 5;
 }
 
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    background: linear-gradient(45deg,
+            #ff0000,
+            #ff7300,
+            #fffb00,
+            #48ff00,
+            #00ffd5,
+            #002bff,
+            #7a00ff,
+            #ff00c8,
+            #ff0000);
+    background-size: 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow-text-flow 6s linear infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes rainbow-text-flow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 400% 50%;
+    }
+}
+
 .navbar-left {
     display: flex;
     align-items: center;
@@ -120,4 +154,251 @@
 .navbar-right {
     display: flex;
     align-items: center;
+}
+
+/* --- Added for Rainbow Navbar --- */
+.rainbow-navbar {
+    position: sticky;
+    overflow: hidden;
+    background-color: #ffffff;
+    /* Let the blobs act as background */
+}
+
+.navbar-market-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.12;
+    overflow: hidden;
+}
+
+.navbar-market-layer .market-icon {
+    position: absolute;
+    font-size: 1.5rem;
+    /* appropriately sized for navbar */
+    color: var(--primary, #1a56db);
+    filter: blur(0.5px);
+    animation: navbar-icon-float 30s infinite linear;
+}
+
+.navbar-bg-blobs {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.navbar-bg-blobs .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(25px);
+    opacity: 0.65;
+    animation: float-blobs 15s infinite ease-in-out;
+}
+
+/* Same colors, distributed horizontally */
+.navbar-bg-blobs .blob-1 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #0056b3 0%, rgba(0, 86, 179, 0) 75%);
+    top: -100px;
+    left: 10%;
+}
+
+.navbar-bg-blobs .blob-2 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, #b1008e 0%, rgba(177, 0, 142, 0) 75%);
+    top: -50px;
+    left: 30%;
+}
+
+.navbar-bg-blobs .blob-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #4c0099 0%, rgba(76, 0, 153, 0) 75%);
+    top: -80px;
+    left: 50%;
+}
+
+.navbar-bg-blobs .blob-4 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, #cc5500 0%, rgba(204, 85, 0, 0) 75%);
+    top: -20px;
+    right: 20%;
+}
+
+.navbar-bg-blobs .blob-5 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, #006400 0%, rgba(0, 100, 0, 0) 75%);
+    top: -60px;
+    right: 5%;
+}
+
+.navbar-bg-blobs .blob-rainbow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.03), rgba(255, 0, 0, 0.03));
+    filter: blur(20px);
+}
+
+.navbar-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+@keyframes float-blobs {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(15px, -5px) scale(1.05);
+    }
+
+    66% {
+        transform: translate(-5px, 15px) scale(0.95);
+    }
+}
+
+@keyframes navbar-icon-float {
+    0% {
+        transform: translateY(100px) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Animations for icons spreading horizontally */
+.navbar-market-layer .icon-1 {
+    left: 5%;
+    animation-duration: 25s;
+    animation-delay: 0s;
+}
+
+.navbar-market-layer .icon-2 {
+    left: 10%;
+    animation-duration: 28s;
+    animation-delay: -5s;
+}
+
+.navbar-market-layer .icon-3 {
+    left: 15%;
+    animation-duration: 22s;
+    animation-delay: -10s;
+}
+
+.navbar-market-layer .icon-4 {
+    left: 20%;
+    animation-duration: 32s;
+    animation-delay: -15s;
+}
+
+.navbar-market-layer .icon-5 {
+    left: 25%;
+    animation-duration: 35s;
+    animation-delay: -3s;
+}
+
+.navbar-market-layer .icon-6 {
+    left: 30%;
+    animation-duration: 27s;
+    animation-delay: -20s;
+}
+
+.navbar-market-layer .icon-7 {
+    left: 35%;
+    animation-duration: 40s;
+    animation-delay: -7s;
+}
+
+.navbar-market-layer .icon-8 {
+    left: 40%;
+    animation-duration: 33s;
+    animation-delay: -12s;
+}
+
+.navbar-market-layer .icon-9 {
+    left: 45%;
+    animation-duration: 29s;
+    animation-delay: -1s;
+}
+
+.navbar-market-layer .icon-10 {
+    left: 50%;
+    animation-duration: 45s;
+    animation-delay: -8s;
+}
+
+.navbar-market-layer .icon-11 {
+    left: 55%;
+    animation-duration: 31s;
+    animation-delay: -14s;
+}
+
+.navbar-market-layer .icon-12 {
+    left: 60%;
+    animation-duration: 38s;
+    animation-delay: -4s;
+}
+
+.navbar-market-layer .icon-13 {
+    left: 65%;
+    animation-duration: 42s;
+    animation-delay: -11s;
+}
+
+.navbar-market-layer .icon-14 {
+    left: 70%;
+    animation-duration: 34s;
+    animation-delay: -6s;
+}
+
+.navbar-market-layer .icon-15 {
+    left: 75%;
+    animation-duration: 26s;
+    animation-delay: -17s;
+}
+
+.navbar-market-layer .icon-16 {
+    left: 80%;
+    animation-duration: 37s;
+    animation-delay: -2s;
+}
+
+.navbar-market-layer .icon-17 {
+    left: 85%;
+    animation-duration: 41s;
+    animation-delay: -9s;
+}
+
+.navbar-market-layer .icon-18 {
+    left: 90%;
+    animation-duration: 30s;
+    animation-delay: -13s;
 }

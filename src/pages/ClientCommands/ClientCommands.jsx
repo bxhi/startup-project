@@ -10,6 +10,16 @@ const ClientCommands = ({ onNavigate }) => {
     const [viewMode, setViewMode] = useState('detailed'); // 'detailed', 'list', 'grid'
     const [selectedCommand, setSelectedCommand] = useState(null);
     const [proposalCommand, setProposalCommand] = useState(null);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [category, setCategory] = useState('All Categories');
+    const [filters, setFilters] = useState({
+        date: '',
+        location: 'All Locations',
+        status: 'All Status',
+        minBudget: '',
+        maxBudget: ''
+    });
 
     const commands = [
         {
@@ -49,6 +59,36 @@ const ClientCommands = ({ onNavigate }) => {
             image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         }
     ];
+
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const filteredCommands = commands.filter(cmd => {
+        // Search term filter
+        const matchesSearch = cmd.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cmd.product.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Category filter
+        const matchesCategory = category === 'All Categories' || cmd.product.toLowerCase().includes(category.toLowerCase());
+
+        // Location filter
+        const matchesLocation = filters.location === 'All Locations' || cmd.location === filters.location;
+
+        // Status filter (logic depends on how status is defined in data)
+        // For now, let's assume 'Urgent' means deadline is within 10 days
+        const matchesStatus = filters.status === 'All Status' || (filters.status === 'Urgent' && new Date(cmd.deadline) < new Date(Date.now() + 10 * 24 * 60 * 60 * 1000));
+
+        // Budget filter (parsing the "€5,000 - €8,000" string)
+        const budgetValues = cmd.budget.match(/\d+/g);
+        const minVal = budgetValues ? parseInt(budgetValues[0].replace(/,/g, '')) : 0;
+        const maxVal = budgetValues ? parseInt(budgetValues[1].replace(/,/g, '')) : Infinity;
+
+        const matchesMinBudget = !filters.minBudget || minVal >= parseInt(filters.minBudget);
+        const matchesMaxBudget = !filters.maxBudget || maxVal <= parseInt(filters.maxBudget);
+
+        return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesMinBudget && matchesMaxBudget;
+    });
 
     return (
         <DashboardLayout onNavigate={onNavigate} activePage="commands">
@@ -95,20 +135,91 @@ const ClientCommands = ({ onNavigate }) => {
                             <div className="commands-filters-bar">
                                 <div className="search-input-wrapper">
                                     <FiSearch className="search-icon" />
-                                    <input type="text" placeholder="Search commands..." />
+                                    <input
+                                        type="text"
+                                        placeholder="Search commands..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="filter-actions">
-                                    <select className="category-select">
+                                    <select
+                                        className="category-select"
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                    >
                                         <option>All Categories</option>
                                         <option>Electronics</option>
                                         <option>Clothing</option>
                                         <option>Furniture</option>
                                     </select>
 
-                                    <button className="btn-filter">
+                                    <button
+                                        className={`btn-filter ${showAdvancedFilters ? 'active' : ''}`}
+                                        onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                                    >
                                         <FiFilter /> More Filters
                                     </button>
+                                </div>
+                            </div>
+
+                            <div className={`advanced-filters-bar ${showAdvancedFilters ? 'show' : ''}`}>
+                                <div className="filter-group">
+                                    <label><FiCalendar /> Launch Date</label>
+                                    <input
+                                        type="date"
+                                        className="filter-input"
+                                        value={filters.date}
+                                        onChange={(e) => handleFilterChange('date', e.target.value)}
+                                    />
+                                </div>
+                                <div className="filter-group">
+                                    <label><FiMapPin /> Origin (Wilaya)</label>
+                                    <select
+                                        className="filter-select"
+                                        value={filters.location}
+                                        onChange={(e) => handleFilterChange('location', e.target.value)}
+                                    >
+                                        <option>All Locations</option>
+                                        <option>Algiers</option>
+                                        <option>Oran</option>
+                                        <option>Constantine</option>
+                                        <option>Setif</option>
+                                    </select>
+                                </div>
+                                <div className="filter-group">
+                                    <label><FiWifi /> Status</label>
+                                    <select
+                                        className="filter-select"
+                                        value={filters.status}
+                                        onChange={(e) => handleFilterChange('status', e.target.value)}
+                                    >
+                                        <option>All Status</option>
+                                        <option>Urgent</option>
+                                        <option>Normal</option>
+                                        <option>New</option>
+                                    </select>
+                                </div>
+                                <div className="filter-group">
+                                    <label>Budget Range</label>
+                                    <div className="budget-inputs">
+                                        <input
+                                            type="number"
+                                            placeholder="Min"
+                                            className="filter-input-small"
+                                            value={filters.minBudget}
+                                            onChange={(e) => handleFilterChange('minBudget', e.target.value)}
+                                        />
+                                        <span>-</span>
+                                        <input
+                                            type="number"
+                                            placeholder="Max"
+                                            className="filter-input-small"
+                                            value={filters.maxBudget}
+                                            onChange={(e) => handleFilterChange('maxBudget', e.target.value)}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -119,7 +230,7 @@ const ClientCommands = ({ onNavigate }) => {
                             {/* Detailed View */}
                             {viewMode === 'detailed' && (
                                 <div className="detailed-view-container">
-                                    {commands.map((cmd) => (
+                                    {filteredCommands.map((cmd) => (
                                         <div
                                             key={cmd.id}
                                             className="detailed-card"
@@ -176,7 +287,7 @@ const ClientCommands = ({ onNavigate }) => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {commands.map((cmd) => (
+                                            {filteredCommands.map((cmd) => (
                                                 <tr
                                                     key={cmd.id}
                                                     onClick={() => setSelectedCommand(cmd)}
@@ -206,7 +317,7 @@ const ClientCommands = ({ onNavigate }) => {
                             {/* Grid View (Placeholder/Extension based on what's expected) */}
                             {viewMode === 'grid' && (
                                 <div className="grid-view-container">
-                                    {commands.map((cmd) => (
+                                    {filteredCommands.map((cmd) => (
                                         <div
                                             key={cmd.id}
                                             className="grid-card"

@@ -3,13 +3,13 @@ import Sidebar from '../Sidebar/Sidebar';
 import Navbar from '../Navbar/Navbar';
 import './DashboardLayout.css';
 
-const DashboardLayout = ({ children, onNavigate, activePage }) => {
+const DashboardLayout = ({ children, onNavigate, activePage, contentClassName }) => {
     return (
         <div className="dashboard-layout">
-            <Sidebar onNavigate={onNavigate} activePage={activePage} />
-            <div className="dashboard-main">
-                <Navbar />
-                <div className="dashboard-content">
+            <Navbar />
+            <div className="dashboard-main-content">
+                <Sidebar onNavigate={onNavigate} activePage={activePage} />
+                <div className={`dashboard-content ${contentClassName || ''}`}>
                     {children}
                 </div>
             </div>

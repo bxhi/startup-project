@@ -5,33 +5,211 @@
     justify-content: center;
     min-height: 100vh;
     padding: 2rem;
-    background-color: #f8fafc;
+    position: relative;
+    background-color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Reusing Amazing Blobs */
+.bg-blobs {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(35px);
+    opacity: 0.65;
+    animation: float-blobs 15s infinite ease-in-out;
+}
+
+.blob-1 {
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, #0056b3 0%, rgba(0, 86, 179, 0) 75%);
+    top: -15%;
+    right: -10%;
+}
+
+.blob-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #b1008e 0%, rgba(177, 0, 142, 0) 75%);
+    bottom: -15%;
+    left: -10%;
+}
+
+.blob-3 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #4c0099 0%, rgba(76, 0, 153, 0) 75%);
+    top: 15%;
+    left: 8%;
+}
+
+.blob-4 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #cc5500 0%, rgba(204, 85, 0, 0) 75%);
+    top: 45%;
+    right: 2%;
+}
+
+.blob-5 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #006400 0%, rgba(0, 100, 0, 0) 75%);
+    bottom: 15%;
+    right: 15%;
+}
+
+.blob-6 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #c49120 0%, rgba(196, 145, 32, 0) 75%);
+    top: 50%;
+    left: 20%;
+}
+
+.blob-rainbow {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.03), rgba(255, 0, 0, 0.03));
+    filter: blur(60px);
+}
+
+@keyframes float-blobs {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(20px, -10px) scale(1.02);
+    }
+
+    66% {
+        transform: translate(-10px, 20px) scale(0.98);
+    }
 }
 
 .signup-header {
+    position: relative;
+    z-index: 10;
     text-align: center;
-    color: var(--primary);
     margin-bottom: 2rem;
 }
 
 .signup-main-title {
-    font-size: 1.8rem;
-    font-weight: 550;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.025em;
+    font-weight: 950;
+    font-size: 2.2rem;
+    letter-spacing: -0.06em;
+    background: linear-gradient(45deg, #000, #444);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: lowercase;
+    margin: 0;
 }
 
 .signup-subtitle {
-    font-size: 1em;
-    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+    opacity: 0.8;
+    margin-top: 0.25rem;
 }
 
+/* --- Choice 5: Mesh-Aura Assets --- */
 .signup-card {
+    position: relative;
+    z-index: 10;
     width: 100%;
     max-width: 800px;
     padding: 2.5rem;
     height: fit-content;
+    background: rgba(255, 255, 255, 0.65) !important;
+    /* Increased transparency */
+    backdrop-filter: blur(25px) saturate(200%);
+    /* Increased blur for readability */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    /* Contain the mesh */
+}
+
+.card-mesh-aura-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(60px);
+}
+
+.aura-blob {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: aura-orbit 30s infinite linear;
+}
+
+.aura-blob-1 {
+    top: -100px;
+    left: -100px;
+    background: radial-gradient(circle, #37A7FD, transparent 70%);
+}
+
+.aura-blob-2 {
+    bottom: -100px;
+    right: -100px;
+    background: radial-gradient(circle, #ff00c8, transparent 70%);
+    animation-direction: reverse;
+    animation-duration: 40s;
+}
+
+.aura-blob-3 {
+    top: 50%;
+    left: 40%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, #ffcc00, transparent 70%);
+    animation-duration: 25s;
+    opacity: 0.1;
+}
+
+@keyframes aura-orbit {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(100px, 50px) scale(1.2);
+    }
+
+    66% {
+        transform: translate(-50px, 120px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* Ensure content is readable above the mesh */
+.signup-card>*:not(.card-mesh-aura-layer) {
+    position: relative;
+    z-index: 10;
 }
 
 .step-indicator {
@@ -292,7 +470,31 @@
 
 .camera-controls .btn {
     flex: 0 1 auto;
-    min-width: 120px;
+    min-width: 60px;
+    /* Reduced width */
+}
+
+/* Explicit style for the Cancel button in camera controls */
+.camera-controls .btn.btn--outline {
+    border: 1px solid #e2e8f0 !important;
+    background-color: transparent !important;
+    color: var(--text) !important;
+    font-weight: 500;
+}
+
+.icon-only-btn {
+    padding: 0 !important;
+    width: 44px;
+    /* Square proportions for SM size height (36px + padding/border) */
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn--sm.icon-only-btn {
+    width: 36px;
+    height: 36px;
 }
 
 .camera-input-wrapper {
@@ -392,6 +594,14 @@
 .step-actions .btn {
     flex: 1 1 0;
     min-width: 0;
+}
+
+/* Explicit style for the Back button in step actions */
+.step-actions .btn.btn--outline {
+    border: 1px solid #e2e8f0 !important;
+    background-color: transparent !important;
+    color: var(--text) !important;
+    font-weight: 500;
 }
 
 @media (max-width: 640px) {

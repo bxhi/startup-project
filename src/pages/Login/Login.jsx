@@ -3,11 +3,13 @@ import Card from '../../components/Card/Card';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import Checkbox from '../../components/Checkbox/Checkbox';
-import { FiAlertCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiX, FiShield, FiAlertTriangle, FiAlertCircle } from 'react-icons/fi';
+import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
+import { IoMdTime } from 'react-icons/io';
 import './Login.css';
 import authService from '../../api/authService';
 
-const Login = ({ onNavigate, onForgotPassword }) => {
+const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
@@ -20,7 +22,7 @@ const Login = ({ onNavigate, onForgotPassword }) => {
         setError('');
         try {
             await authService.login(email, password);
-            alert('Login successful!');
+            if (onLoginSuccess) onLoginSuccess();
         } catch (err) {
             console.error('Login error full object:', err);
             console.error('Error Response:', err.response);
@@ -57,14 +59,37 @@ const Login = ({ onNavigate, onForgotPassword }) => {
         if (error) setError('');
     };
 
+    React.useEffect(() => {
+        document.body.style.backgroundColor = '#ffffff';
+        return () => {
+            document.body.style.backgroundColor = '';
+        };
+    }, []);
+
     return (
         <div className="login-container">
+            {/* Background Animations */}
+            <div className="bg-blobs">
+                <div className="blob blob-1"></div>
+                <div className="blob blob-2"></div>
+                <div className="blob blob-3"></div>
+                <div className="blob blob-4"></div>
+                <div className="blob blob-5"></div>
+                <div className="blob blob-6"></div>
+                <div className="blob-rainbow"></div>
+            </div>
+
             <div className="login-header">
-                <h1 className="login-title">Importers</h1>
+                <h1 className="login-title">importers</h1>
                 <p className="login-subtitle">Welcome back! Please login to your account.</p>
             </div>
 
             <Card className="login-card">
+                {/* Choice 5: Mesh-Aura Internal Assets */}
+                <div className="card-mesh-aura-layer">
+                    <div className="aura-blob aura-blob-1"></div>
+                    <div className="aura-blob aura-blob-2"></div>
+                </div>
                 <form className="login-form" onSubmit={handleSubmit}>
                     {error && (
                         <div className="login-error-card">

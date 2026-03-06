@@ -42,14 +42,16 @@
 
 .btn--outline {
     background-color: transparent;
-    border-color: var(--border);
+    border: 1px solid #CBD5E1;
+    /* 1px visible border */
     color: var(--text);
 }
 
 .btn--outline:hover:not(:disabled) {
     border-color: var(--border);
     color: var(--text);
-    background-color: rgba(31, 115, 183, 0.06); /* subtle light blue tint */
+    background-color: rgba(31, 115, 183, 0.06);
+    /* subtle light blue tint */
 }
 
 .btn--ghost {

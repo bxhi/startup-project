@@ -14,8 +14,8 @@ const Sidebar = ({ onNavigate, activePage }) => {
         { name: 'Client Commands', icon: <FiFileText />, active: activePage === 'commands', action: () => onNavigate('commands') },
         { name: 'Negotiations', icon: <HiOutlineChatBubbleOvalLeftEllipsis />, active: activePage === 'negotiations', action: () => onNavigate('negotiations') },
         { name: 'My Offers', icon: <FiBox />, active: activePage === 'offers', action: () => onNavigate('offers') },
-        { name: 'Orders', icon: <FiShoppingCart /> },
-        { name: 'Wallet', icon: <IoWalletOutline /> },
+        { name: 'Orders', icon: <FiShoppingCart />, active: activePage === 'orders', action: () => onNavigate('orders') },
+        { name: 'Wallet', icon: <IoWalletOutline />, active: activePage === 'wallet', action: () => onNavigate('wallet') },
         { name: 'Settings', icon: <FiSettings /> },
         { name: 'Design System', icon: <IoColorPaletteOutline /> },
         { name: 'RTL Demo', icon: <TbAlphabetArabic /> },
@@ -24,10 +24,6 @@ const Sidebar = ({ onNavigate, activePage }) => {
 
     return (
         <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-header">
-                <h2 className={`brand ${collapsed ? 'hidden' : ''}`}>Importer</h2>
-            </div>
-
             <nav className="sidebar-nav">
                 <ul>
                     {menuItems.map((item, index) => (

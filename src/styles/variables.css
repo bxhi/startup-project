@@ -11,7 +11,7 @@
   --text: #1A1A1A;
   --muted: #6B7280;
   --border: rgba(128, 128, 128, 0.305);
-  --input:rgba(128, 128, 128, 0.063);
+  --input: rgba(128, 128, 128, 0.063);
 
   /* Typography */
   --font-h1: 28px;
@@ -36,6 +36,10 @@
 
   /* Layout */
   --radius: 8px;
+  --radius-sm: 4px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
   --card-padding: 20px;
   --page-padding: 24px;
   --sidebar-width: 240px;
@@ -47,10 +51,10 @@
   --input-height-desktop: 44px;
   --btn-height-small: 36px;
   --btn-height-large: 52px;
-  
+
   /* Shadows */
   --card-shadow: 0 6px 18px rgba(31, 115, 183, 0.06);
-  
+
   /* Utilities */
   --transition-fast: 0.2s ease;
 }

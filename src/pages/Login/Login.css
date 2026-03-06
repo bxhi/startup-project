@@ -1,34 +1,179 @@
-/* Login.css */
 .login-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: var(--page-padding);
-    background-color: var(--bg);
+    padding: 2rem;
+    position: relative;
+    background-color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Shared Amazing Assets */
+.bg-blobs {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(35px);
+    opacity: 0.65;
+    animation: float-blobs 15s infinite ease-in-out;
+}
+
+.blob-1 {
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, #0056b3 0%, rgba(0, 86, 179, 0) 75%);
+    top: -15%;
+    right: -10%;
+}
+
+.blob-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #b1008e 0%, rgba(177, 0, 142, 0) 75%);
+    bottom: -15%;
+    left: -10%;
+}
+
+.blob-3 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #4c0099 0%, rgba(76, 0, 153, 0) 75%);
+    top: 15%;
+    left: 8%;
+}
+
+.blob-4 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #cc5500 0%, rgba(204, 85, 0, 0) 75%);
+    top: 45%;
+    right: 2%;
+}
+
+.blob-rainbow {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.03), rgba(255, 0, 0, 0.03));
+    filter: blur(60px);
+}
+
+@keyframes float-blobs {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(20px, -10px) scale(1.02);
+    }
+
+    66% {
+        transform: translate(-10px, 20px) scale(0.98);
+    }
 }
 
 .login-header {
+    position: relative;
+    z-index: 10;
     text-align: center;
-    margin-bottom: var(--spacing-4);
+    margin-bottom: 2rem;
 }
 
 .login-title {
-    color: var(--primary);
-    margin-bottom: var(--spacing-1);
-    font-weight: 550;
+    font-weight: 950;
+    font-size: 2.2rem;
+    letter-spacing: -0.06em;
+    background: linear-gradient(45deg, #000, #444);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: lowercase;
+    margin: 0;
 }
 
 .login-subtitle {
-    color: var(--muted);
-    font-size: medium;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+    opacity: 0.8;
+    margin-top: 0.25rem;
 }
 
 .login-card {
+    position: relative;
+    z-index: 10;
     width: 100%;
     max-width: 440px;
-    background-color: var(--card);
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(25px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* Choice 5: Mesh-Aura Assets */
+.card-mesh-aura-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(50px);
+}
+
+.aura-blob {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    opacity: 0.12;
+    animation: aura-orbit 25s infinite linear;
+}
+
+.aura-blob-1 {
+    top: -50px;
+    left: -50px;
+    background: radial-gradient(circle, #37A7FD, transparent 70%);
+}
+
+.aura-blob-2 {
+    bottom: -50px;
+    right: -50px;
+    background: radial-gradient(circle, #ff00c8, transparent 70%);
+    animation-direction: reverse;
+}
+
+@keyframes aura-orbit {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(50px, 30px) scale(1.1);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* Ensure form content is above mesh */
+.login-card>*:not(.card-mesh-aura-layer) {
+    position: relative;
+    z-index: 10;
 }
 
 .login-form {
@@ -58,7 +203,7 @@
 }
 
 .register-link {
-    margin-top: var(--spacing-4);
+    margin-top: 10px;
     text-align: center;
     font-size: 14px;
     font-weight: 400;
@@ -72,10 +217,16 @@
 }
 
 .login-footer {
-    margin-top: var(--spacing-6);
+    position: relative;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
     text-align: center;
-    font-size: var(--font-small);
-    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.3;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    z-index: 10;
 }
 
 .login-error-card {

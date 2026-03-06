@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiCheckCircle, FiX, FiShield } from 'react-icons/fi';
-import { LuUpload } from 'react-icons/lu';
+import { LuUpload, LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
 import { PiCamera } from 'react-icons/pi';
 import { IoMdTime } from 'react-icons/io';
 import Card from '../../components/Card/Card';
@@ -63,49 +63,49 @@ const SignUp = ({ onNavigate }) => {
             errSteps.push(1);
         }
 
-        // Step 2 Validation
+        // Step 2 Validation (Documents)
+        if (!data.idFront) {
+            errors.push('ID Front image is required.');
+            errSteps.push(2);
+        }
+        if (!data.importLicense) {
+            errors.push('Import License is required.');
+            errSteps.push(2);
+        }
+        if (!data.commercialRegister) {
+            errors.push('Commercial Register is required.');
+            errSteps.push(2);
+        }
+
+        // Step 3 Validation (Selfie)
+        if (!selfie) {
+            errors.push('Selfie photo is required.');
+            errSteps.push(3);
+        }
+
+        // Step 4 Validation (Credential)
         if (!data.email?.trim()) {
             errors.push('Email is required.');
-            errSteps.push(2);
+            errSteps.push(4);
         } else if (!/\S+@\S+\.\S+/.test(data.email)) {
             errors.push('Email format is invalid.');
-            errSteps.push(2);
+            errSteps.push(4);
         }
         if (!data.phone?.trim() || data.phone === '+213 ') {
             errors.push('Phone number is required.');
-            errSteps.push(2);
+            errSteps.push(4);
         } else {
-            const digits = data.phone.replace(/\D/g, '').slice(3); // Remove +213
+            const digits = data.phone.replace(/\D/g, '');
             if (digits.length !== 9) {
                 errors.push('Phone number must have 9 digits after the prefix.');
-                errSteps.push(2);
+                errSteps.push(4);
             }
         }
         if (!data.password) {
             errors.push('Password is required.');
-            errSteps.push(2);
+            errSteps.push(4);
         } else if (data.password !== data.confirmPassword) {
             errors.push('Passwords do not match.');
-            errSteps.push(2);
-        }
-
-        // Step 3 Validation
-        if (!data.idFront) {
-            errors.push('ID Front image is required.');
-            errSteps.push(3);
-        }
-        if (!data.importLicense) {
-            errors.push('Import License is required.');
-            errSteps.push(3);
-        }
-        if (!data.commercialRegister) {
-            errors.push('Commercial Register is required.');
-            errSteps.push(3);
-        }
-
-        // Step 4 Validation
-        if (!selfie) {
-            errors.push('Selfie photo is required.');
             errSteps.push(4);
         }
 
@@ -122,9 +122,9 @@ const SignUp = ({ onNavigate }) => {
 
         switch (stepNumber) {
             case 1: return formData.businessName && formData.ownerFullName && formData.commerceNumber && formData.nin;
-            case 2: return formData.email && formData.phone && formData.password && formData.password === formData.confirmPassword;
-            case 3: return formData.idFront && formData.importLicense && formData.commercialRegister;
-            case 4: return !!selfiePhoto;
+            case 2: return formData.idFront && formData.importLicense && formData.commercialRegister;
+            case 3: return !!selfiePhoto;
+            case 4: return formData.email && formData.phone && formData.password && formData.password === formData.confirmPassword;
             default: return false;
         }
     };
@@ -138,7 +138,14 @@ const SignUp = ({ onNavigate }) => {
 
         if (field === 'phone') {
             // Formatting: XXX XX XX XX
-            const digits = value.replace(/\D/g, '').slice(0, 9);
+            let digits = value.replace(/\D/g, '');
+            if (digits.startsWith('213')) {
+                digits = digits.slice(3);
+            } else if (digits.startsWith('0')) {
+                digits = digits.slice(1);
+            }
+            digits = digits.slice(0, 9);
+
             let formatted = '';
             if (digits.length > 0) {
                 formatted += digits.slice(0, 3);
@@ -260,7 +267,7 @@ const SignUp = ({ onNavigate }) => {
             const fd = new FormData();
 
             // Normalize phone number (keep digits only including the prefix)
-            const normalizedPhone = '+' + formData.phone.replace(/\D/g, '');
+            const normalizedPhone = '+213' + formData.phone.replace(/\D/g, '');
 
             // Map to the structure expected by the backend
             fd.append('user[fullName]', formData.ownerFullName);
@@ -348,9 +355,9 @@ const SignUp = ({ onNavigate }) => {
                 cleanedMessages.forEach(msg => {
                     const lowMsg = msg.toLowerCase();
                     if (lowMsg.includes('full name') || lowMsg.includes('business name') || lowMsg.includes('nin')) backendErrSteps.push(1);
-                    if (lowMsg.includes('email') || lowMsg.includes('password') || lowMsg.includes('phone')) backendErrSteps.push(2);
-                    if (lowMsg.includes('license') || lowMsg.includes('register') || lowMsg.includes('id card')) backendErrSteps.push(3);
-                    if (lowMsg.includes('selfie')) backendErrSteps.push(4);
+                    if (lowMsg.includes('license') || lowMsg.includes('register') || lowMsg.includes('id card')) backendErrSteps.push(2);
+                    if (lowMsg.includes('selfie')) backendErrSteps.push(3);
+                    if (lowMsg.includes('email') || lowMsg.includes('password') || lowMsg.includes('phone')) backendErrSteps.push(4);
                 });
 
                 if (backendErrSteps.length > 0) {
@@ -386,12 +393,10 @@ const SignUp = ({ onNavigate }) => {
         }
     };
 
-    // Cleanup camera stream on component unmount
     useEffect(() => {
+        document.body.style.backgroundColor = '#ffffff';
         return () => {
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-            }
+            document.body.style.backgroundColor = '';
         };
     }, []);
 
@@ -400,7 +405,6 @@ const SignUp = ({ onNavigate }) => {
             case 1:
                 return (
                     <div className="step-content">
-
                         <div className="inputs-grid">
                             <Input
                                 label="Business Name"
@@ -430,45 +434,6 @@ const SignUp = ({ onNavigate }) => {
                     </div>
                 );
             case 2:
-                return (
-                    <div className="step-content">
-
-                        <div className="inputs-grid">
-                            <Input
-                                label="Email"
-                                type="email"
-                                placeholder="your.email@example.com"
-                                value={formData.email}
-                                onChange={(e) => handleChange('email', e.target.value)}
-                            />
-                            <Input
-                                label="Phone"
-                                type="tel"
-                                prefix="+213"
-                                placeholder="XXX XX XX XX"
-                                inputMode="tel"
-                                maxLength={12}
-                                value={formData.phone}
-                                onChange={(e) => handleChange('phone', e.target.value)}
-                            />
-                            <Input
-                                label="Password"
-                                type="password"
-                                placeholder="Enter password"
-                                value={formData.password}
-                                onChange={(e) => handleChange('password', e.target.value)}
-                            />
-                            <Input
-                                label="Confirm Password"
-                                type="password"
-                                placeholder="Confirm your password"
-                                value={formData.confirmPassword}
-                                onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                            />
-                        </div>
-                    </div>
-                );
-            case 3:
                 return (
                     <div className="step-content">
                         <div className="file-uploads-grid">
@@ -543,7 +508,7 @@ const SignUp = ({ onNavigate }) => {
                         </div>
                     </div>
                 );
-            case 4:
+            case 3:
                 return (
                     <div className="step-content">
                         <div className="selfie-header">
@@ -564,12 +529,20 @@ const SignUp = ({ onNavigate }) => {
                                     <div className="camera-controls">
                                         <Button
                                             variant="outline"
+                                            size="sm"
                                             onClick={stopCamera}
+                                            title="Cancel"
+                                            className="icon-only-btn"
                                         >
-                                            Cancel
+                                            <FiX size={20} />
                                         </Button>
-                                        <Button onClick={capturePhoto}>
-                                            Take Photo
+                                        <Button
+                                            size="sm"
+                                            onClick={capturePhoto}
+                                            title="Take Photo"
+                                            className="icon-only-btn"
+                                        >
+                                            <PiCamera size={20} />
                                         </Button>
                                     </div>
                                 </div>
@@ -608,6 +581,45 @@ const SignUp = ({ onNavigate }) => {
                         </div>
                     </div>
                 );
+            case 4:
+                return (
+                    <div className="step-content">
+
+                        <div className="inputs-grid">
+                            <Input
+                                label="Email"
+                                type="email"
+                                placeholder="your.email@example.com"
+                                value={formData.email}
+                                onChange={(e) => handleChange('email', e.target.value)}
+                            />
+                            <Input
+                                label="Phone"
+                                type="tel"
+                                prefix="+213"
+                                placeholder="XXX XX XX XX"
+                                inputMode="tel"
+                                maxLength={12}
+                                value={formData.phone}
+                                onChange={(e) => handleChange('phone', e.target.value)}
+                            />
+                            <Input
+                                label="Password"
+                                type="password"
+                                placeholder="Enter password"
+                                value={formData.password}
+                                onChange={(e) => handleChange('password', e.target.value)}
+                            />
+                            <Input
+                                label="Confirm Password"
+                                type="password"
+                                placeholder="Confirm your password"
+                                value={formData.confirmPassword}
+                                onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                            />
+                        </div>
+                    </div>
+                );
             default:
                 return null;
         }
@@ -615,12 +627,30 @@ const SignUp = ({ onNavigate }) => {
 
     return (
         <div className="signup-container">
+            {/* Background Animations */}
+            <div className="bg-blobs">
+                <div className="blob blob-1"></div>
+                <div className="blob blob-2"></div>
+                <div className="blob blob-3"></div>
+                <div className="blob blob-4"></div>
+                <div className="blob blob-5"></div>
+                <div className="blob blob-6"></div>
+                <div className="blob-rainbow"></div>
+            </div>
+
             <div className="signup-header">
-                <h1 className="signup-main-title">Importers</h1>
+                <h1 className="signup-main-title">importers</h1>
                 <p className="signup-subtitle">Register your business account</p>
             </div>
 
             <Card className="signup-card">
+                {/* Choice 5: Mesh-Aura Internal Assets */}
+                <div className="card-mesh-aura-layer">
+                    <div className="aura-blob aura-blob-1"></div>
+                    <div className="aura-blob aura-blob-2"></div>
+                    <div className="aura-blob aura-blob-3"></div>
+                </div>
+
                 {error && Array.isArray(error) && error.length > 0 && (
                     <div className="error-message-container">
                         <div className="error-title">
@@ -637,7 +667,7 @@ const SignUp = ({ onNavigate }) => {
                 {!isVerificationPending && (
                     <div className="step-indicator">
                         {[1, 2, 3, 4].map((s) => {
-                            const labels = ['Register', 'Credential', 'Documents', 'Selfie'];
+                            const labels = ['Register', 'Documents', 'Selfie', 'Credential'];
                             const isActive = step === s && !isOtpStep && !isVerificationPending;
                             const hasError = errorSteps.includes(s);
                             const isCompleted = (isOtpStep || isVerificationPending) ? !hasError : isStepValid(s);
@@ -720,11 +750,11 @@ const SignUp = ({ onNavigate }) => {
                             <Button variant="outline" onClick={prevStep}>Back</Button>
                         )}
                         {step < 4 ? (
-                            <Button onClick={nextStep} disabled={loading}>Continue to {['Credential', 'Documents', 'Selfie'][step - 1]}</Button>
+                            <Button onClick={nextStep} disabled={loading}>Continue to {['Documents', 'Selfie', 'Credential'][step - 1]}</Button>
                         ) : (
                             <Button
                                 onClick={handleSubmit}
-                                disabled={!selfiePhoto || loading}
+                                disabled={loading}
                             >
                                 {loading ? 'Submitting...' : 'Submit for Verification'}
                             </Button>

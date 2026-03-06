@@ -1,5 +1,5 @@
 .my-offers-container {
-    background-color: #f8fafc;
+    width: 100%;
     min-height: 100vh;
 }
 
@@ -7,14 +7,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 32px;
+    margin-top: 24px;
     margin-bottom: 32px;
 }
 
 .header-left h1 {
-    font-size: 1.60rem;
+    font-size: 24px;
     font-weight: 600;
     color: #1e293b;
-    margin: 0 0 4px 0;
+    margin-bottom: 4px;
 }
 
 .header-left p {
@@ -48,8 +50,9 @@
     background: white;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(31, 115, 183, 0.12);
     overflow: hidden;
+    margin: 0 32px 32px 32px;
 }
 
 .offers-table-body {
@@ -64,27 +67,22 @@
 }
 
 .offers-table th {
-    padding: 12px 24px;
-    /* Smaller row height */
-    font-size: 0.75rem;
-    /* Smaller text */
+    padding: 10px 24px;
+    font-size: 11px;
     font-weight: 600;
     color: #64748b;
     background-color: #fafbfc;
     border-bottom: 1.5px solid #cbd5e1;
-    /* Darker border */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .offers-table td {
     padding: 8px 24px;
-    /* Smaller row height */
     vertical-align: middle;
     border-bottom: 1px solid #f1f5f9;
-    /* Slightly more visible border */
     color: #475569;
-    font-size: 0.85rem;
+    font-size: 12px;
     transition: background-color 0.2s ease;
 }
 
@@ -433,7 +431,8 @@ input:checked+.slider:before {
 .form-group textarea:focus {
     background-color: #fff;
     border-color: var(--primary, #1F73B7);
-    box-shadow: 0 0 0 4px rgba(31, 115, 183, 0.1);
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .form-group textarea {

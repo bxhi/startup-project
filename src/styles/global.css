@@ -76,12 +76,17 @@ select {
 }
 
 /* Vendor prefixes for broader support */
-:-ms-input-placeholder { /* Internet Explorer 10-11 */
+:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
     font-weight: 500;
 }
-::-ms-input-placeholder { /* Microsoft Edge */
+
+::-ms-input-placeholder {
+    /* Microsoft Edge */
     font-weight: 500;
 }
-::-webkit-input-placeholder { /* WebKit browsers */
+
+::-webkit-input-placeholder {
+    /* WebKit browsers */
     font-weight: 500;
 }

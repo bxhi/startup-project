@@ -125,10 +125,28 @@ const ForgotPassword = ({ onNavigate }) => {
         }
     };
 
+    React.useEffect(() => {
+        document.body.style.backgroundColor = '#ffffff';
+        return () => {
+            document.body.style.backgroundColor = '';
+        };
+    }, []);
+
     return (
         <div className="forgot-container">
+            {/* Background Animations */}
+            <div className="bg-blobs">
+                <div className="blob blob-1"></div>
+                <div className="blob blob-2"></div>
+                <div className="blob blob-3"></div>
+                <div className="blob blob-4"></div>
+                <div className="blob blob-5"></div>
+                <div className="blob blob-6"></div>
+                <div className="blob-rainbow"></div>
+            </div>
+
             <div className="forgot-header">
-                <h1 className="forgot-main-title">Importers</h1>
+                <h1 className="forgot-main-title">importers</h1>
                 <p className="forgot-main-subtitle">Forgot your password?</p>
             </div>
 

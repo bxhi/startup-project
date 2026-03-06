@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Dashboard.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
-import { FiFileText, FiShoppingCart, FiBox } from 'react-icons/fi';
+import CreateOfferModal from '../../components/CreateOfferModal/CreateOfferModal';
+import { FiFileText, FiShoppingCart, FiBox, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
 import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
 import { IoWalletOutline } from 'react-icons/io5';
-import { FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
+import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const Dashboard = ({ onNavigate }) => {
+    const [isCreateOfferOpen, setIsCreateOfferOpen] = useState(false);
     const statCards = [
         {
             title: 'Active Commands',
@@ -181,7 +183,7 @@ const Dashboard = ({ onNavigate }) => {
                     <div className="dashboard-section-card quick-actions-card">
                         <h3>Quick Actions</h3>
                         <div className="actions-buttons">
-                            <button className="btn btn-primary">
+                            <button className="btn btn-primary" onClick={() => setIsCreateOfferOpen(true)}>
                                 <FiBox /> Create Offer
                             </button>
                             <button className="btn btn-outline">
@@ -246,6 +248,11 @@ const Dashboard = ({ onNavigate }) => {
                     </table>
                 </div>
             </div>
+
+            <CreateOfferModal
+                isOpen={isCreateOfferOpen}
+                onClose={() => setIsCreateOfferOpen(false)}
+            />
         </DashboardLayout>
     );
 };

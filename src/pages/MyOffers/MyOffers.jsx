@@ -40,12 +40,12 @@ const MyOffers = ({ onNavigate }) => {
     };
 
     return (
-        <DashboardLayout onNavigate={onNavigate} activePage="offers">
+        <DashboardLayout onNavigate={onNavigate} activePage="offers" contentClassName="orders-layout">
             <div className="my-offers-container">
                 {/* Header outside the card */}
                 <div className="my-offers-header">
                     <div className="header-left">
-                        <h1 style={{ fontSize: '1.6rem', fontWeight: 600 }}>My Offers</h1>
+                        <h1>My Offers</h1>
                         <p>Manage your product offerings</p>
                     </div>
                     <button className="btn-create-offer" onClick={() => setShowCreateModal(true)}>
@@ -142,8 +142,16 @@ const MyOffers = ({ onNavigate }) => {
                             {currentStep === 1 && (
                                 <div className="step-content">
                                     <div className="form-group">
+                                        <label>Title</label>
+                                        <input type="text" placeholder="e.g., Premium Leather Jackets Offer" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description</label>
+                                        <textarea placeholder="Detailed product description..."></textarea>
+                                    </div>
+                                    <div className="form-group">
                                         <label>Product Name</label>
-                                        <input type="text" placeholder="e.g., Premium Leather Jackets" />
+                                        <input type="text" placeholder="e.g., Leather Jacket model X" />
                                     </div>
                                     <div className="form-group">
                                         <label>Category</label>
@@ -156,10 +164,6 @@ const MyOffers = ({ onNavigate }) => {
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Description</label>
-                                        <textarea placeholder="Detailed product description..."></textarea>
-                                    </div>
                                 </div>
                             )}
 
@@ -171,48 +175,12 @@ const MyOffers = ({ onNavigate }) => {
                                             <input type="text" className="price-input-primary" placeholder="0.00" />
                                         </div>
                                         <div className="form-group">
-                                            <label>Minimum Order Quantity</label>
+                                            <label>Available Quantity</label>
                                             <input type="number" placeholder="0" />
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Available Quantity</label>
-                                        <input type="number" placeholder="0" />
-                                    </div>
 
-                                    <div className="bulk-discount-section">
-                                        <label className="section-label">Bulk Discount Table</label>
-                                        <div className="bulk-table-container">
-                                            <table className="bulk-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Quantity</th>
-                                                        <th>Discount %</th>
-                                                        <th>Price</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>100-500 units</td>
-                                                        <td>5%</td>
-                                                        <td className="discount-price">€0.00</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>500-1000 units</td>
-                                                        <td>10%</td>
-                                                        <td className="discount-price">€0.00</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>1000+ units</td>
-                                                        <td>15%</td>
-                                                        <td className="discount-price">€0.00</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <div className="negotiable-item">
+                                    <div className="negotiable-item" style={{ marginTop: '20px' }}>
                                         <input
                                             type="checkbox"
                                             id="price-negotiable"
@@ -243,22 +211,9 @@ const MyOffers = ({ onNavigate }) => {
                                         <p className="upload-hint">Upload up to 8 images (120x90 thumbnails)</p>
                                     </div>
 
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Origin Country</label>
-                                            <input type="text" placeholder="e.g., Italy, China" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Delivery Estimate (days)</label>
-                                            <div className="select-wrapper">
-                                                <select>
-                                                    <option value="">Select estimate</option>
-                                                    <option value="3-5">3-5 days</option>
-                                                    <option value="7-14">7-14 days</option>
-                                                    <option value="15-30">15-30 days</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    <div className="form-group">
+                                        <label>Origin Country</label>
+                                        <input type="text" placeholder="e.g., Italy, China" />
                                     </div>
 
                                     <div className="preview-section">

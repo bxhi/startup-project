@@ -1,15 +1,16 @@
 .dashboard-layout {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100vh;
     overflow: hidden;
     background-color: #f8fafc;
 }
 
-.dashboard-main {
+.dashboard-main-content {
     flex: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     overflow: hidden;
 }
 

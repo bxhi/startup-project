@@ -1,0 +1,1250 @@
+/* Onboarding.css - Simple & Amazing (Rainbow Aesthetic) */
+
+.onboarding-page {
+    background-color: #ffffff;
+    color: #000000;
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Market-Vibe Animated Layer (Full Screen) --- */
+.onboarding-market-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.12;
+    overflow: hidden;
+}
+
+.onboarding-market-layer .market-icon {
+    position: absolute;
+    font-size: 3rem;
+    color: var(--primary);
+    filter: blur(1px);
+    animation: icon-float 30s infinite linear;
+}
+
+/* 18 Icons distributed across the full viewport */
+.icon-1 {
+    top: 5%;
+    left: 10%;
+    animation-duration: 25s;
+}
+
+.icon-2 {
+    top: 15%;
+    right: 15%;
+    animation-duration: 28s;
+    animation-delay: -5s;
+}
+
+.icon-3 {
+    bottom: 10%;
+    left: 5%;
+    animation-duration: 22s;
+    animation-delay: -10s;
+}
+
+.icon-4 {
+    bottom: 20%;
+    right: 8%;
+    animation-duration: 32s;
+    animation-delay: -15s;
+}
+
+.icon-5 {
+    top: 40%;
+    left: 20%;
+    animation-duration: 35s;
+}
+
+.icon-6 {
+    top: 50%;
+    right: 25%;
+    animation-duration: 27s;
+    animation-delay: -20s;
+}
+
+.icon-7 {
+    bottom: 40%;
+    left: 30%;
+    animation-duration: 40s;
+    opacity: 0.05;
+}
+
+.icon-8 {
+    top: 70%;
+    right: 40%;
+    animation-duration: 33s;
+    animation-delay: -3s;
+}
+
+.icon-9 {
+    top: 25%;
+    right: 45%;
+    animation-duration: 29s;
+    animation-delay: -7s;
+}
+
+.icon-10 {
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    animation-duration: 45s;
+}
+
+.icon-11 {
+    top: 60%;
+    left: 10%;
+    animation-duration: 31s;
+    opacity: 0.04;
+}
+
+.icon-12 {
+    top: 80%;
+    right: 10%;
+    animation-duration: 38s;
+    opacity: 0.06;
+}
+
+.icon-13 {
+    top: 10%;
+    left: 40%;
+    animation-duration: 42s;
+    opacity: 0.03;
+}
+
+.icon-14 {
+    bottom: 25%;
+    left: 45%;
+    animation-duration: 34s;
+    opacity: 0.05;
+}
+
+.icon-15 {
+    top: 55%;
+    right: 5%;
+    animation-duration: 26s;
+    opacity: 0.04;
+}
+
+.icon-16 {
+    bottom: 55%;
+    left: 15%;
+    animation-duration: 37s;
+    opacity: 0.07;
+}
+
+.icon-17 {
+    top: 85%;
+    left: 40%;
+    animation-duration: 41s;
+    opacity: 0.03;
+}
+
+.icon-18 {
+    top: 45%;
+    left: 80%;
+    animation-duration: 39s;
+    opacity: 0.05;
+}
+
+/* Vibrant Mesh Backgrounds */
+.bg-blobs {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(35px);
+    /* Even sharper */
+    opacity: 0.65;
+    /* Darker & Clearer */
+    animation: float-blobs 15s infinite ease-in-out;
+}
+
+.blob-1 {
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, #0056b3 0%, rgba(0, 86, 179, 0) 75%);
+    /* Deeper Blue */
+    top: -15%;
+    right: -10%;
+}
+
+.blob-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #b1008e 0%, rgba(177, 0, 142, 0) 75%);
+    /* Deeper Magenta */
+    bottom: -15%;
+    left: -10%;
+}
+
+.blob-3 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #4c0099 0%, rgba(76, 0, 153, 0) 75%);
+    /* Deeper Purple */
+    top: 15%;
+    left: 8%;
+}
+
+.blob-4 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #cc5500 0%, rgba(204, 85, 0, 0) 75%);
+    /* Deeper Burnt Orange */
+    top: 45%;
+    right: 2%;
+}
+
+.blob-5 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #006400 0%, rgba(0, 100, 0, 0) 75%);
+    /* Deep Forest Green */
+    bottom: 15%;
+    right: 15%;
+}
+
+.blob-6 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #c49120 0%, rgba(196, 145, 32, 0) 75%);
+    /* Deep Gold */
+    top: 50%;
+    left: 20%;
+}
+
+.blob-rainbow {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: conic-gradient(from 0deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.03), rgba(255, 0, 0, 0.03));
+    filter: blur(60px);
+}
+
+.onboarding-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    opacity: 0.4;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #000;
+    white-space: nowrap;
+}
+
+/* Meteor Streak Asset */
+.meteor-container {
+    position: absolute;
+    top: 25%;
+    right: 15%;
+    width: 200px;
+    height: 200px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.meteor-streak {
+    position: absolute;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(180deg, #ffffff, rgba(55, 167, 253, 0.8), transparent);
+    border-radius: 999px;
+    transform: rotate(45deg);
+    box-shadow: 0 0 20px rgba(55, 167, 253, 0.5);
+    animation: meteor-float 6s infinite ease-in-out;
+}
+
+.streak-1 {
+    top: 0;
+    right: 0;
+    opacity: 1;
+}
+
+.streak-2 {
+    top: 20px;
+    right: 30px;
+    height: 60px;
+    opacity: 0.6;
+    animation-delay: 1s;
+}
+
+.streak-3 {
+    top: -15px;
+    right: -25px;
+    height: 80px;
+    opacity: 0.4;
+    animation-delay: 0.5s;
+}
+
+@keyframes meteor-float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(45deg);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(-20px, 20px) rotate(45deg);
+        opacity: 1;
+    }
+}
+
+@keyframes float-blobs {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+
+    33% {
+        transform: translate(30px, -15px) scale(1.05) rotate(3deg);
+    }
+
+    66% {
+        transform: translate(-15px, 30px) scale(0.95) rotate(-3deg);
+    }
+}
+
+@keyframes rotate-rainbow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Navigation - Condensed */
+.onboarding-nav {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 5%;
+    /* Thinner padding */
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    /* Increased gap */
+    cursor: pointer;
+}
+
+.logo-icon-wrap {
+    position: relative;
+    padding: 3px;
+    /* Slightly more padding for the gradient */
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    background-size: 400%;
+    border-radius: 16px;
+    /* Enhanced super-ellipse look */
+    animation: rainbow-border 10s linear infinite;
+}
+
+.logo-box {
+    width: 3.5rem;
+    /* Bigger box */
+    height: 3.5rem;
+    /* Bigger box */
+    background-color: #000;
+    color: white;
+    border-radius: 13px;
+    /* Refined radius for the box */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 950;
+    font-size: 1.75rem;
+    /* Bigger icon */
+}
+
+.logo-text {
+    font-weight: 950;
+    font-size: 2.2rem;
+    /* Bigger text */
+    letter-spacing: -0.05em;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-link {
+    background: none;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    color: #444;
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.nav-link:hover {
+    color: #000;
+}
+
+/* Hero Section - Condensed */
+.hero-container {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px 5% 40px;
+    /* Highly condensed */
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    /* Slightly smaller */
+    font-weight: 950;
+    line-height: 1.0;
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    /* Slightly smaller */
+    font-weight: 600;
+    color: #555;
+    max-width: 550px;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+    letter-spacing: -0.01em;
+}
+
+/* BIG Rainbow Buttons - SCALED DOWN */
+.rainbow-button-container {
+    position: relative;
+    display: inline-block;
+    padding: 2px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    background-size: 400%;
+    border-radius: 12px;
+    animation: rainbow-border 8s linear infinite;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+/* 40 Icons distributed across the full viewport */
+.icon-1 {
+    top: 5%;
+    left: 10%;
+    animation-duration: 25s;
+}
+
+.icon-2 {
+    top: 15%;
+    right: 15%;
+    animation-duration: 28s;
+    animation-delay: -5s;
+}
+
+.icon-3 {
+    bottom: 10%;
+    left: 5%;
+    animation-duration: 22s;
+    animation-delay: -10s;
+}
+
+.icon-4 {
+    bottom: 20%;
+    right: 8%;
+    animation-duration: 32s;
+    animation-delay: -15s;
+}
+
+.icon-5 {
+    top: 40%;
+    left: 20%;
+    animation-duration: 35s;
+}
+
+.icon-6 {
+    top: 50%;
+    right: 25%;
+    animation-duration: 27s;
+    animation-delay: -20s;
+}
+
+.icon-7 {
+    bottom: 40%;
+    left: 30%;
+    animation-duration: 40s;
+    opacity: 0.05;
+}
+
+.icon-8 {
+    top: 70%;
+    right: 40%;
+    animation-duration: 33s;
+    animation-delay: -3s;
+}
+
+.icon-9 {
+    top: 25%;
+    right: 45%;
+    animation-duration: 29s;
+    animation-delay: -7s;
+}
+
+.icon-10 {
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    animation-duration: 45s;
+}
+
+.icon-11 {
+    top: 60%;
+    left: 10%;
+    animation-duration: 31s;
+    opacity: 0.04;
+}
+
+.icon-12 {
+    top: 80%;
+    right: 10%;
+    animation-duration: 38s;
+    opacity: 0.06;
+}
+
+.icon-13 {
+    top: 10%;
+    left: 40%;
+    animation-duration: 42s;
+    opacity: 0.03;
+}
+
+.icon-14 {
+    bottom: 25%;
+    left: 45%;
+    animation-duration: 34s;
+    opacity: 0.05;
+}
+
+.icon-15 {
+    top: 55%;
+    right: 5%;
+    animation-duration: 26s;
+    opacity: 0.04;
+}
+
+.icon-16 {
+    bottom: 55%;
+    left: 15%;
+    animation-duration: 37s;
+    opacity: 0.07;
+}
+
+.icon-17 {
+    top: 85%;
+    left: 40%;
+    animation-duration: 41s;
+    opacity: 0.03;
+}
+
+.icon-18 {
+    top: 45%;
+    left: 80%;
+    animation-duration: 39s;
+    opacity: 0.05;
+}
+
+.icon-19 {
+    top: 2%;
+    left: 25%;
+    animation-duration: 46s;
+    opacity: 0.04;
+}
+
+.icon-20 {
+    top: 12%;
+    right: 35%;
+    animation-duration: 48s;
+    opacity: 0.05;
+}
+
+.icon-21 {
+    bottom: 12%;
+    left: 15%;
+    animation-duration: 42s;
+    opacity: 0.06;
+}
+
+.icon-22 {
+    bottom: 22%;
+    right: 18%;
+    animation-duration: 52s;
+    opacity: 0.04;
+}
+
+.icon-23 {
+    top: 42%;
+    left: 5%;
+    animation-duration: 45s;
+    opacity: 0.03;
+}
+
+.icon-24 {
+    top: 52%;
+    right: 15%;
+    animation-duration: 47s;
+    opacity: 0.05;
+}
+
+.icon-25 {
+    bottom: 42%;
+    left: 20%;
+    animation-duration: 55s;
+    opacity: 0.04;
+}
+
+.icon-26 {
+    top: 72%;
+    right: 30%;
+    animation-duration: 43s;
+    opacity: 0.06;
+}
+
+.icon-27 {
+    top: 35%;
+    right: 5%;
+    animation-duration: 49s;
+    opacity: 0.04;
+}
+
+.icon-28 {
+    bottom: 15%;
+    left: 30%;
+    animation-duration: 51s;
+    opacity: 0.05;
+}
+
+.icon-29 {
+    top: 65%;
+    left: 50%;
+    opacity: 0.04;
+    animation-duration: 53s;
+}
+
+.icon-30 {
+    top: 85%;
+    right: 25%;
+    opacity: 0.05;
+    animation-duration: 48s;
+}
+
+.icon-31 {
+    top: 15%;
+    left: 60%;
+    opacity: 0.03;
+    animation-duration: 54s;
+}
+
+.icon-32 {
+    bottom: 35%;
+    right: 50%;
+    opacity: 0.04;
+    animation-duration: 51s;
+}
+
+.icon-33 {
+    top: 5%;
+    right: 5%;
+    opacity: 0.05;
+    animation-duration: 56s;
+}
+
+.icon-34 {
+    bottom: 5%;
+    left: 5%;
+    opacity: 0.04;
+    animation-duration: 57s;
+}
+
+.icon-35 {
+    top: 95%;
+    left: 15%;
+    opacity: 0.03;
+    animation-duration: 58s;
+}
+
+.icon-36 {
+    top: 95%;
+    right: 15%;
+    opacity: 0.04;
+    animation-duration: 59s;
+}
+
+.icon-37 {
+    top: 50%;
+    left: 50%;
+    opacity: 0.02;
+    animation-duration: 60s;
+}
+
+.icon-38 {
+    top: 30%;
+    left: 70%;
+    opacity: 0.03;
+    animation-duration: 61s;
+}
+
+.icon-39 {
+    bottom: 30%;
+    left: 70%;
+    opacity: 0.04;
+    animation-duration: 62s;
+}
+
+.icon-40 {
+    top: 10%;
+    left: 10%;
+    opacity: 0.02;
+    animation-duration: 63s;
+}
+
+.icon-41 {
+    top: 12%;
+    left: 42%;
+    animation-duration: 45s;
+    opacity: 0.04;
+}
+
+.icon-42 {
+    top: 22%;
+    right: 52%;
+    animation-duration: 47s;
+    opacity: 0.05;
+}
+
+.icon-43 {
+    bottom: 32%;
+    left: 72%;
+    animation-duration: 49s;
+    opacity: 0.03;
+}
+
+.icon-44 {
+    bottom: 42%;
+    right: 22%;
+    animation-duration: 51s;
+    opacity: 0.04;
+}
+
+.icon-45 {
+    top: 52%;
+    left: 12%;
+    animation-duration: 53s;
+    opacity: 0.05;
+}
+
+.icon-46 {
+    top: 62%;
+    right: 42%;
+    animation-duration: 55s;
+    opacity: 0.03;
+}
+
+.icon-47 {
+    bottom: 72%;
+    left: 22%;
+    animation-duration: 57s;
+    opacity: 0.04;
+}
+
+.icon-48 {
+    bottom: 82%;
+    right: 62%;
+    animation-duration: 59s;
+    opacity: 0.05;
+}
+
+.icon-49 {
+    top: 2%;
+    left: 82%;
+    animation-duration: 61s;
+    opacity: 0.03;
+}
+
+.icon-50 {
+    bottom: 12%;
+    right: 12%;
+    animation-duration: 63s;
+    opacity: 0.04;
+}
+
+.icon-51 {
+    top: 8%;
+    left: 18%;
+    animation-duration: 44s;
+    opacity: 0.03;
+}
+
+.icon-52 {
+    top: 18%;
+    right: 28%;
+    animation-duration: 46s;
+    opacity: 0.04;
+}
+
+.icon-53 {
+    bottom: 28%;
+    left: 38%;
+    animation-duration: 48s;
+    opacity: 0.05;
+}
+
+.icon-54 {
+    bottom: 38%;
+    right: 48%;
+    animation-duration: 50s;
+    opacity: 0.03;
+}
+
+.icon-55 {
+    top: 48%;
+    left: 58%;
+    animation-duration: 52s;
+    opacity: 0.04;
+}
+
+.icon-56 {
+    top: 58%;
+    right: 18%;
+    animation-duration: 54s;
+    opacity: 0.05;
+}
+
+.icon-57 {
+    bottom: 68%;
+    left: 38%;
+    animation-duration: 56s;
+    opacity: 0.03;
+}
+
+.icon-58 {
+    top: 78%;
+    left: 8%;
+    animation-duration: 58s;
+    opacity: 0.04;
+}
+
+.icon-59 {
+    top: 8%;
+    right: 18%;
+    animation-duration: 60s;
+    opacity: 0.05;
+}
+
+.icon-60 {
+    bottom: 18%;
+    left: 68%;
+    animation-duration: 62s;
+    opacity: 0.03;
+}
+
+.icon-61 {
+    top: 25%;
+    left: 35%;
+    animation-duration: 45s;
+    opacity: 0.04;
+}
+
+.icon-62 {
+    top: 55%;
+    right: 25%;
+    animation-duration: 47s;
+    opacity: 0.05;
+}
+
+.icon-63 {
+    bottom: 35%;
+    left: 65%;
+    animation-duration: 49s;
+    opacity: 0.03;
+}
+
+.icon-64 {
+    bottom: 65%;
+    right: 15%;
+    animation-duration: 51s;
+    opacity: 0.04;
+}
+
+.icon-65 {
+    top: 75%;
+    left: 5%;
+    animation-duration: 53s;
+    opacity: 0.05;
+}
+
+.icon-66 {
+    top: 85%;
+    right: 45%;
+    animation-duration: 55s;
+    opacity: 0.03;
+}
+
+.icon-67 {
+    bottom: 95%;
+    left: 25%;
+    animation-duration: 57s;
+    opacity: 0.04;
+}
+
+.icon-68 {
+    bottom: 45%;
+    right: 75%;
+    animation-duration: 59s;
+    opacity: 0.05;
+}
+
+.icon-69 {
+    top: 35%;
+    left: 85%;
+    animation-duration: 61s;
+    opacity: 0.03;
+}
+
+.icon-70 {
+    top: 95%;
+    right: 95%;
+    animation-duration: 63s;
+    opacity: 0.04;
+}
+
+.icon-71 {
+    bottom: 5%;
+    left: 95%;
+    animation-duration: 40s;
+    opacity: 0.03;
+}
+
+.icon-72 {
+    top: 95%;
+    right: 5%;
+    animation-duration: 42s;
+    opacity: 0.04;
+}
+
+.icon-73 {
+    bottom: 50%;
+    left: 95%;
+    animation-duration: 44s;
+    opacity: 0.05;
+}
+
+.icon-74 {
+    top: 50%;
+    right: 95%;
+    animation-duration: 46s;
+    opacity: 0.03;
+}
+
+.icon-75 {
+    bottom: 95%;
+    left: 50%;
+    animation-duration: 48s;
+    opacity: 0.04;
+}
+
+.icon-76 {
+    top: 95%;
+    right: 50%;
+    animation-duration: 50s;
+    opacity: 0.05;
+}
+
+.icon-77 {
+    bottom: 5%;
+    left: 5%;
+    animation-duration: 52s;
+    opacity: 0.03;
+}
+
+.icon-78 {
+    top: 5%;
+    right: 5%;
+    animation-duration: 54s;
+    opacity: 0.04;
+}
+
+.icon-79 {
+    bottom: 25%;
+    left: 75%;
+    animation-duration: 56s;
+    opacity: 0.05;
+}
+
+.icon-80 {
+    top: 75%;
+    right: 25%;
+    animation-duration: 58s;
+    opacity: 0.03;
+}
+
+.rainbow-button-container:hover {
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+}
+
+.big-black-btn {
+    background-color: #000 !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    font-weight: 950;
+    padding: 0.9rem 2.8rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    white-space: nowrap;
+    width: 100%;
+    height: 100%;
+}
+
+.nav-btn-wrap {
+    padding: 2px;
+    border-radius: 10px;
+}
+
+.nav-btn-black {
+    padding: 0.5rem 1.8rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+}
+
+/* --- Rainbow Shadow & Text System --- */
+.rainbow-text {
+    background: linear-gradient(90deg, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #9400D3, #FF0000);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: flow-accent 4s linear infinite;
+}
+
+/* --- Premium Store Cards --- */
+.store-section {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    perspective: 1000px;
+    z-index: 20;
+}
+
+.premium-store-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1rem 1.8rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Initial subtle shadow */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    min-width: 220px;
+}
+
+.premium-store-card:hover {
+    transform: translateY(-12px) scale(1.05);
+    /* THE GREAT RAINBOW SHADOW - MULTI-LAYERED SPECTRAL GLOW */
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.12),
+        0 5px 25px rgba(255, 0, 0, 0.3),
+        8px 8px 30px rgba(0, 255, 0, 0.25),
+        -8px 8px 30px rgba(0, 0, 255, 0.25),
+        0 -10px 30px rgba(255, 255, 0, 0.2),
+        10px -5px 30px rgba(255, 0, 255, 0.2),
+        -10px -5px 30px rgba(0, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.99);
+}
+
+/* Pseudo-element for the animated rainbow border on hover */
+.premium-store-card::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(90deg, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #9400D3, #FF0000);
+    background-size: 300% 100%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: flow-accent 2.5s linear infinite;
+}
+
+.premium-store-card:hover::before {
+    opacity: 1;
+}
+
+.store-card-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(55, 167, 253, 0.25), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.premium-store-card:hover .store-card-glow {
+    opacity: 1;
+}
+
+.store-icon-silver {
+    color: #222;
+    transition: all 0.4s ease;
+}
+
+.premium-store-card:hover .store-icon-silver {
+    color: #000;
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
+    transform: scale(1.2) rotate(5deg);
+}
+
+.store-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.store-card-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.store-card-title {
+    font-size: 1.3rem;
+    font-weight: 950;
+    color: #000;
+    letter-spacing: -0.03em;
+}
+
+/* Animations from previous choices */
+@keyframes icon-float {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    33% {
+        transform: translate(20px, 40px) rotate(15deg);
+    }
+
+    66% {
+        transform: translate(-30px, 20px) rotate(-10deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+}
+
+@keyframes rainbow-border {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Cool Animations */
+.animate-entrance {
+    opacity: 0;
+    transform: translateY(50px);
+    animation: entrance-anim 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes entrance-anim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    .onboarding-nav {
+        padding: 1.5rem 5%;
+    }
+
+    .nav-actions {
+        display: none;
+    }
+
+    .hero-title {
+        line-height: 1.0;
+    }
+
+    .hero-container {
+        padding-top: 60px;
+    }
+
+    .big-black-btn {
+        padding: 1.5rem 3rem;
+        font-size: 1.3rem;
+    }
+}
