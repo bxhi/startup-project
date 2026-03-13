@@ -113,6 +113,12 @@ const Onboarding = ({ onNavigate }) => {
                 <div className="blob blob-4"></div>
                 <div className="blob blob-5"></div>
                 <div className="blob blob-6"></div>
+                <div className="blob blob-7"></div>
+                <div className="blob blob-8"></div>
+                <div className="blob blob-9"></div>
+                <div className="blob blob-10"></div>
+                <div className="blob blob-11"></div>
+                <div className="blob blob-12"></div>
                 <div className="blob-rainbow"></div>
 
                 {/* Meteor Asset */}

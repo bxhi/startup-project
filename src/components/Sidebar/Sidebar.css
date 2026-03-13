@@ -45,16 +45,32 @@
 
 .nav-item a:hover {
     background-color: #f8fafc;
-    color: #1e293b;
+    color: #1d4ed8;
+    transform: translateX(4px);
 }
 
 .nav-item.active a {
-    background-color: var(--primary, #1a56db) !important;
-    color: white !important;
+    color: #1d4ed8 !important;
+    background: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(29, 78, 216, 0.08), 0 0 10px rgba(168, 85, 247, 0.05);
+    position: relative;
+    border: 1px solid rgba(29, 78, 216, 0.1);
+}
+
+.nav-item.active a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+    border-radius: 4px 0 0 4px;
 }
 
 .nav-item.active .icon {
-    color: white !important;
+    color: #1d4ed8 !important;
 }
 
 .nav-item .icon {

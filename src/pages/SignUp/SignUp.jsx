@@ -8,10 +8,12 @@ import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import authService from '../../api/authService';
 import './SignUp.css';
+import LoadingPage from '../../components/LoadingPage/LoadingPage';
 
 const SignUp = ({ onNavigate }) => {
     const [step, setStep] = useState(1);
     const [isVerificationPending, setIsVerificationPending] = useState(false);
+    // ... rest of state ...
     const [cameraActive, setCameraActive] = useState(false);
     const [selfiePhoto, setSelfiePhoto] = useState(null);
     const [isOtpStep, setIsOtpStep] = useState(false);
@@ -21,6 +23,7 @@ const SignUp = ({ onNavigate }) => {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
+    const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     const [formData, setFormData] = useState({
         businessName: '',
@@ -373,6 +376,39 @@ const SignUp = ({ onNavigate }) => {
         }
     };
 
+    const handleOtpChange = (index, value) => {
+        const digit = value.replace(/\D/g, '').slice(-1);
+        if (digit || value === '') {
+            const newOtp = otpCode.split('');
+            newOtp[index] = digit;
+            const updatedOtp = newOtp.join('');
+            setOtpCode(updatedOtp);
+
+            // Move to next input
+            if (digit && index < 5) {
+                otpRefs.current[index + 1].current.focus();
+            }
+        }
+    };
+
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
+            otpRefs.current[index - 1].current.focus();
+        }
+    };
+
+    const handleResendOtp = async () => {
+        try {
+            setLoading(true);
+            await authService.sendOtp(userId);
+            // Could add a toast here
+        } catch (err) {
+            setError(['Failed to resend OTP. Please try again.']);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleOtpSubmit = async () => {
         if (!otpCode || otpCode.length !== 6) {
             setError(['Please enter a valid 6-digit OTP code.']);
@@ -394,7 +430,7 @@ const SignUp = ({ onNavigate }) => {
     };
 
     useEffect(() => {
-        document.body.style.backgroundColor = '#ffffff';
+        // Removed forced white background to allow blobs and aura to show
         return () => {
             document.body.style.backgroundColor = '';
         };
@@ -627,6 +663,7 @@ const SignUp = ({ onNavigate }) => {
 
     return (
         <div className="signup-container">
+            {loading && <LoadingPage message="Processing your request..." />}
             {/* Background Animations */}
             <div className="bg-blobs">
                 <div className="blob blob-1"></div>
@@ -651,20 +688,7 @@ const SignUp = ({ onNavigate }) => {
                     <div className="aura-blob aura-blob-3"></div>
                 </div>
 
-                {error && Array.isArray(error) && error.length > 0 && (
-                    <div className="error-message-container">
-                        <div className="error-title">
-                            <FiX size={18} />
-                            Please correct the following errors:
-                        </div>
-                        <ul className="error-list">
-                            {error.map((err, index) => (
-                                <li key={index} className="error-list-item">{err}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                {!isVerificationPending && (
+                {!isVerificationPending && !isOtpStep && (
                     <div className="step-indicator">
                         {[1, 2, 3, 4].map((s) => {
                             const labels = ['Register', 'Documents', 'Selfie', 'Credential'];
@@ -690,45 +714,71 @@ const SignUp = ({ onNavigate }) => {
                     </div>
                 )}
 
+                {error && Array.isArray(error) && error.length > 0 && (
+                    <div className="error-message-container">
+                        <div className="error-title">
+                            <FiX size={18} />
+                            Please correct the following errors:
+                        </div>
+                        <ul className="error-list">
+                            {error.map((err, index) => (
+                                <li key={index} className="error-list-item">{err}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
                 {isOtpStep ? (
-                    <div className="otp-verification">
-                        <div className="otp-content">
-                            <FiShield size={62} className="otp-icon" />
-                            <h2 className="otp-title">Verify Your Email</h2>
-                            <p className="otp-subtitle">We've sent a 6-digit code to {formData.email}. Please enter it below to continue.</p>
-                            <div className="otp-input-container">
-                                <Input
-                                    placeholder="000 000"
-                                    value={otpCode}
-                                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                    className="otp-input"
-                                    maxLength={6}
-                                    style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px' }}
-                                />
+                    <div className="otp-verification-modern">
+                        <div className="otp-card-internal">
+                            <div className="otp-header">
+                                <div className="otp-icon-wrapper">
+                                    <FiShield size={32} className="otp-icon-new" />
+                                    <div className="icon-pulse"></div>
+                                </div>
+                                <h2 className="otp-title-new">Security Verification</h2>
+                                <p className="otp-subtitle-new">
+                                    We've sent a 6-digit code to <span className="user-email">{formData.email}</span>
+                                </p>
                             </div>
-                            <div className="otp-actions">
+
+                            <div className="otp-digits-container">
+                                {[...Array(6)].map((_, i) => (
+                                    <input
+                                        key={i}
+                                        ref={otpRefs.current[i]}
+                                        type="text"
+                                        maxLength={1}
+                                        inputMode="numeric"
+                                        value={otpCode[i] || ''}
+                                        onChange={(e) => handleOtpChange(i, e.target.value)}
+                                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                        className={`otp-digit-input ${otpCode[i] ? 'filled' : ''}`}
+                                        autoFocus={i === 0}
+                                    />
+                                ))}
+                            </div>
+
+                            <div className="otp-footer">
                                 <Button
-                                    onClick={handleOtpSubmit}
+                                    onClick={() => handleOtpSubmit()}
                                     disabled={loading || otpCode.length !== 6}
-                                    className="verify-button"
+                                    className="otp-submit-btn"
                                 >
-                                    {loading ? 'Verifying...' : 'Verify & Continue'}
+                                    {loading ? 'Verifying...' : 'Verify Identity'}
                                 </Button>
-                                <button
-                                    className="resend-link"
-                                    onClick={() => authService.sendOtp(userId)}
-                                    disabled={loading}
-                                >
-                                    Resend Code
-                                </button>
-                                <button
-                                    className="resend-link"
-                                    onClick={() => { setIsOtpStep(false); setStep(2); }}
-                                    disabled={loading}
-                                    style={{ marginTop: '5px' }}
-                                >
-                                    Wrong email? Change it
-                                </button>
+
+                                <div className="otp-helper-actions">
+                                    <p className="resend-text">
+                                        Didn't receive the code?
+                                        <button className="text-btn" onClick={handleResendOtp} disabled={loading}>
+                                            Resend
+                                        </button>
+                                    </p>
+                                    <button className="change-email-btn" onClick={() => { setIsOtpStep(false); setStep(4); }}>
+                                        Change email address
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -752,12 +802,19 @@ const SignUp = ({ onNavigate }) => {
                         {step < 4 ? (
                             <Button onClick={nextStep} disabled={loading}>Continue to {['Documents', 'Selfie', 'Credential'][step - 1]}</Button>
                         ) : (
-                            <Button
+                            <button
+                                className="btn-fly"
                                 onClick={handleSubmit}
                                 disabled={loading}
                             >
-                                {loading ? 'Submitting...' : 'Submit for Verification'}
-                            </Button>
+                                <div className="svg-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                        <path fill="none" d="M0 0h24v24H0z"></path>
+                                        <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
+                                    </svg>
+                                </div>
+                                <span>{loading ? 'Submitting...' : 'Submit for Verification'}</span>
+                            </button>
                         )}
                     </div>
                 )}

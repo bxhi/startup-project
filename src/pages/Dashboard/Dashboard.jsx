@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Dashboard.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import CreateOfferModal from '../../components/CreateOfferModal/CreateOfferModal';
-import { FiFileText, FiShoppingCart, FiBox, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
+import { FiFileText, FiShoppingCart, FiBox, FiArrowUpRight, FiArrowDownRight, FiPlus } from 'react-icons/fi';
 import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
 import { IoWalletOutline } from 'react-icons/io5';
 import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
@@ -183,10 +183,10 @@ const Dashboard = ({ onNavigate }) => {
                     <div className="dashboard-section-card quick-actions-card">
                         <h3>Quick Actions</h3>
                         <div className="actions-buttons">
-                            <button className="btn btn-primary" onClick={() => setIsCreateOfferOpen(true)}>
-                                <FiBox /> Create Offer
+                            <button className="btn-create-offer" onClick={() => setIsCreateOfferOpen(true)}>
+                                <FiPlus size={22} /> Create Offer
                             </button>
-                            <button className="btn btn-outline">
+                            <button className="btn btn-outline" onClick={() => onNavigate('commands')}>
                                 <FiFileText /> Browse Commands
                             </button>
                         </div>

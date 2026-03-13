@@ -23,10 +23,9 @@
     align-items: center;
     height: 17px;
     width: 17px;
-    background-color: rgba(0, 0, 0, 0.753);
-    border-color: rgba(0, 0, 0, 0.753);
-    border: 2px solid var(--border);
-    border-radius: 3px;
+    background-color: #fff;
+    border: 2px solid var(--border, #cbd5e1);
+    border-radius: 4px;
     /* Slightly rounded for checkboxes */
     margin-right: var(--spacing-1);
     transition: all var(--transition-fast);
@@ -35,8 +34,8 @@
 
 
 .checkbox-container input:checked~.checkmark {
-    background-color: var(--danger);
-    border-color: var(--danger);
+    background-color: #000;
+    border-color: #000;
 }
 
 .checkmark:after {
@@ -45,7 +44,7 @@
     display: none;
     right: 4px;
     top: 0px;
-    width:4px;
+    width: 4px;
     height: 10px;
     border: solid white;
     border-width: 0 3px 3px 0;

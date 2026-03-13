@@ -3,8 +3,7 @@ import './Sidebar.css';
 import { MdOutlineDashboard } from 'react-icons/md';
 import { FiFileText, FiBox, FiShoppingCart, FiSettings, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
-import { IoWalletOutline, IoColorPaletteOutline } from 'react-icons/io5';
-import { TbAlphabetArabic } from 'react-icons/tb';
+import { IoWalletOutline } from 'react-icons/io5';
 
 const Sidebar = ({ onNavigate, activePage }) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -16,10 +15,7 @@ const Sidebar = ({ onNavigate, activePage }) => {
         { name: 'My Offers', icon: <FiBox />, active: activePage === 'offers', action: () => onNavigate('offers') },
         { name: 'Orders', icon: <FiShoppingCart />, active: activePage === 'orders', action: () => onNavigate('orders') },
         { name: 'Wallet', icon: <IoWalletOutline />, active: activePage === 'wallet', action: () => onNavigate('wallet') },
-        { name: 'Settings', icon: <FiSettings /> },
-        { name: 'Design System', icon: <IoColorPaletteOutline /> },
-        { name: 'RTL Demo', icon: <TbAlphabetArabic /> },
-        { name: 'Logout (Test Login)', icon: <FiChevronLeft />, action: () => onNavigate('login') }
+        { name: 'Settings', icon: <FiSettings />, active: activePage === 'settings', action: () => onNavigate('settings') }
     ];
 
     return (

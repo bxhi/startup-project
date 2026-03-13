@@ -9,6 +9,7 @@ import MyOffers from './pages/MyOffers/MyOffers'
 import Onboarding from './pages/Onboarding/Onboarding'
 import Orders from './pages/Orders/Orders'
 import Wallet from './pages/Wallet/Wallet'
+import Settings from './pages/Settings/Settings'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('onboarding');
@@ -48,6 +49,9 @@ function App() {
       )}
       {currentPage === 'wallet' && (
         <Wallet onNavigate={(page) => setCurrentPage(page)} />
+      )}
+      {currentPage === 'settings' && (
+        <Settings onNavigate={(page) => setCurrentPage(page)} />
       )}
     </div>
   )

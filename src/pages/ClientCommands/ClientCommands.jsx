@@ -258,12 +258,14 @@ const ClientCommands = ({ onNavigate }) => {
                                                         <span><strong>Qty:</strong> {cmd.quantity} units</span>
                                                         <span><strong>Deadline:</strong> {cmd.deadline}</span>
                                                     </div>
-                                                    <button
-                                                        className="btn-send-proposal"
-                                                        onClick={(e) => { e.stopPropagation(); setProposalCommand(cmd); }}
-                                                    >
-                                                        <LuSend /> Send Proposal
-                                                    </button>
+                                                    <div className="detailed-actions">
+                                                        <button
+                                                            className="btn-see-more"
+                                                            onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}
+                                                        >
+                                                            <span>See more</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -335,10 +337,10 @@ const ClientCommands = ({ onNavigate }) => {
                                                     <span><FiCalendar /> {cmd.deadline}</span>
                                                 </div>
                                                 <button
-                                                    className="btn-send-proposal full-width"
-                                                    onClick={(e) => { e.stopPropagation(); setProposalCommand(cmd); }}
+                                                    className="btn-see-more full-width"
+                                                    onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}
                                                 >
-                                                    <LuSend /> Send Proposal
+                                                    See more
                                                 </button>
                                             </div>
                                         </div>
@@ -408,7 +410,13 @@ const ClientCommands = ({ onNavigate }) => {
                                         className="btn-send-proposal full-width"
                                         onClick={(e) => { e.stopPropagation(); setProposalCommand(selectedCommand); }}
                                     >
-                                        <LuSend /> Send Proposal
+                                        <div className="svg-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                                <path fill="none" d="M0 0h24v24H0z"></path>
+                                                <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
+                                            </svg>
+                                        </div>
+                                        <span>Send Proposal</span>
                                     </button>
                                 </div>
                             </div>
@@ -463,7 +471,15 @@ const ClientCommands = ({ onNavigate }) => {
 
                         <div className="proposal-modal-footer">
                             <button className="btn-secondary" onClick={() => setProposalCommand(null)}>Save Draft</button>
-                            <button className="btn-send-proposal">Send Proposal</button>
+                            <button className="btn-send-proposal">
+                                <div className="svg-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                        <path fill="none" d="M0 0h24v24H0z"></path>
+                                        <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
+                                    </svg>
+                                </div>
+                                <span>Send Proposal</span>
+                            </button>
                         </div>
                     </div>
                 </div>

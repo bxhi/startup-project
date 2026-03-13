@@ -22,6 +22,18 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
         setError('');
         try {
             await authService.login(email, password);
+            
+            // Handle Remember Me logic
+            if (rememberMe) {
+                localStorage.setItem('rememberedEmail', email);
+                localStorage.setItem('rememberedPassword', password); // User requested saving login infos
+                localStorage.setItem('rememberMeChecked', 'true');
+            } else {
+                localStorage.removeItem('rememberedEmail');
+                localStorage.removeItem('rememberedPassword');
+                localStorage.removeItem('rememberMeChecked');
+            }
+
             if (onLoginSuccess) onLoginSuccess();
         } catch (err) {
             console.error('Login error full object:', err);
@@ -60,7 +72,18 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
     };
 
     React.useEffect(() => {
-        document.body.style.backgroundColor = '#ffffff';
+        // Load remembered credentials
+        const savedEmail = localStorage.getItem('rememberedEmail');
+        const savedPassword = localStorage.getItem('rememberedPassword');
+        const isChecked = localStorage.getItem('rememberMeChecked') === 'true';
+
+        if (isChecked && savedEmail) {
+            setEmail(savedEmail);
+            setPassword(savedPassword || '');
+            setRememberMe(true);
+        }
+
+        // Removed forced white background to allow blobs and aura to show
         return () => {
             document.body.style.backgroundColor = '';
         };
@@ -115,7 +138,7 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
                         disabled={loading}
                     />
 
-                    <div className="form-actions ">
+                    <div className="form-actions">
                         <Checkbox
                             label="Remember me"
                             checked={rememberMe}

@@ -574,8 +574,10 @@
 }
 
 .popular-plan .btn-subscribe:not([disabled]) {
-    background: var(--primary, #0ea5e9);
-    color: white;
+    color: #fff;
+    background-color: #000;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .popular-plan .btn-subscribe:not([disabled]):hover {

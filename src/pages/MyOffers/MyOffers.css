@@ -7,8 +7,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 32px;
-    margin-top: 24px;
     margin-bottom: 32px;
 }
 
@@ -26,23 +24,91 @@
 }
 
 .btn-create-offer {
-    background-color: var(--primary, #1F73B7);
-    color: white;
+    padding: 0.6em 2em;
     border: none;
-    padding: 0 24px;
-    height: 48px;
-    border-radius: 8px;
+    outline: none;
+    color: rgb(255, 255, 255);
+    background: transparent; /* Show the glow */
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
     font-weight: 600;
     font-size: 0.95rem;
     display: flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    height: 48px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.btn-create-offer:before {
+    content: "";
+    background: linear-gradient(45deg,
+            #ff0000,
+            #ff7300,
+            #fffb00,
+            #48ff00,
+            #00ffd5,
+            #002bff,
+            #7a00ff,
+            #ff00c8,
+            #ff0000);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing-button-85 20s linear infinite;
+    transition: opacity 0.3s ease-in-out;
+    border-radius: 12px;
+    opacity: 0.8;
+}
+
+.btn-create-offer:after {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
 }
 
 .btn-create-offer:hover {
-    background-color: #1a629d;
+    transform: scale(1.05);
+}
+
+.btn-create-offer:hover:before {
+    opacity: 1;
+}
+
+.btn-create-offer:hover svg {
+    transform: scale(1.1);
+}
+
+@keyframes glowing-button-85 {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
 }
 
 /* Table Card styling */
@@ -110,13 +176,24 @@
     font-weight: 600;
 }
 
+.image-stack {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 50px; /* Slightly taller for scattered look */
+    width: fit-content;
+    padding-left: 10px;
+}
+
 .product-image-small {
-    width: 40px;
-    /* Smaller image */
-    height: 40px;
-    /* Smaller image */
-    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: #f1f5f9;
 }
 
 .product-image-small img {
@@ -125,12 +202,56 @@
     object-fit: cover;
 }
 
+.image-stack .product-image-small {
+    position: relative;
+}
+
+.image-stack .product-image-small:nth-child(1) {
+    transform: rotate(-2deg);
+    z-index: 3;
+}
+
+.image-stack .product-image-small:nth-child(2) {
+    margin-left: -28px;
+    transform: rotate(1deg) translateY(1px);
+    z-index: 2;
+}
+
+.image-stack .product-image-small:nth-child(3) {
+    margin-left: -28px;
+    transform: rotate(-1deg) translateY(-1px);
+    z-index: 1;
+}
+
+.image-stack .product-image-small:hover {
+    transform: scale(1.4) rotate(0deg) translateY(-5px) !important;
+    z-index: 10 !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+.image-stack-more {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+    z-index: 4;
+}
+
 /* Toggle Switch Styling */
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 36px;
-    height: 20px;
+    width: 40px;
+    height: 22px;
 }
 
 .toggle-switch input {
@@ -148,33 +269,28 @@
     bottom: 0;
     background-color: #cbd5e1;
     transition: .4s;
+    border-radius: 34px;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 14px;
-    width: 14px;
+    height: 16px;
+    width: 16px;
     left: 3px;
     bottom: 3px;
     background-color: white;
     transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 input:checked+.slider {
-    background-color: var(--primary, #1F73B7);
+    background-color: #000; /* Back to Black */
 }
 
 input:checked+.slider:before {
-    transform: translateX(16px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
+    transform: translateX(18px);
 }
 
 /* Status Badge */
@@ -193,9 +309,16 @@ input:checked+.slider:before {
 
 /* Actions */
 .cell-actions {
-    display: flex;
-    gap: 12px;
+    /* Remove previous flex/alignment to allow table cell to behave naturally */
+    text-align: center;
+}
+
+.actions-wrapper {
+    display: inline-flex;
+    gap: 8px;
     align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
 .action-btn {
@@ -351,11 +474,11 @@ input:checked+.slider:before {
 }
 
 .step-dot.active {
-    border-color: var(--primary, #1F73B7);
-    background-color: var(--primary, #1F73B7);
     color: #fff;
+    background-color: #000;
     transform: scale(1.1);
-    box-shadow: 0 0 0 3px rgba(31, 115, 183, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    /* Standardized soft blurred shadow */
 }
 
 .step-dot.completed {
@@ -565,19 +688,23 @@ input:checked+.slider:before {
 }
 
 .btn-continue {
-    background-color: var(--primary, #1F73B7);
-    color: white;
-    border: none;
+    color: #fff;
+    background: linear-gradient(#000, #000) padding-box,
+        linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) border-box;
+    border: 2px solid transparent;
+    background-size: 100% 100%, 400% 100%;
+    animation: rainbow-border-btn 8s linear infinite;
     padding: 12px 32px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
 }
 
 .btn-continue:hover {
-    background-color: #1a629d;
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
 }
 
 /* Step 3 Specifics */

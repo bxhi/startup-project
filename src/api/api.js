@@ -1,24 +1,36 @@
 import axios from 'axios';
 
-const api = axios.create({
-    baseURL: 'http://127.0.0.1:5001',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+// Base API configuration
+const createAPI = (baseURL) => {
+    const instance = axios.create({
+        baseURL,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
-// Add a request interceptor to include the Bearer token
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+    // Add a request interceptor to include the Bearer token
+    instance.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
         }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+    );
 
-export default api;
+    return instance;
+};
+
+// Auth Microservice (Port 5001)
+export const authApi = createAPI('http://localhost:5001');
+
+// Offers Microservice (Port 5002)
+export const offersApi = createAPI('http://localhost:5002');
+
+// Default export for backward compatibility (pointing to auth)
+export default authApi;

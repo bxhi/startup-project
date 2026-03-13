@@ -21,13 +21,29 @@
 
 /* Modifiers */
 .btn--primary {
-    background-color: var(--primary);
-    color: white;
-    border-color: var(--primary);
+    color: #fff !important;
+    background-color: #000 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes rainbow-border-btn {
+    0% {
+        background-position: 0% 0%, 0% 50%;
+    }
+
+    50% {
+        background-position: 0% 0%, 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 0%, 0% 50%;
+    }
 }
 
 .btn--primary:hover:not(:disabled) {
-    filter: brightness(0.9);
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
 }
 
 .btn--secondary {
