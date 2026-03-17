@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import './Onboarding.css';
 import { FaApple, FaGooglePlay } from 'react-icons/fa';
 import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Onboarding = ({ onNavigate }) => {
     useEffect(() => {
@@ -10,6 +11,13 @@ const Onboarding = ({ onNavigate }) => {
             document.body.style.backgroundColor = '';
         };
     }, []);
+    const { language, setLanguage, t } = useLanguage();
+
+    const languages = [
+        { code: 'en', label: 'EN', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/gb.svg' },
+        { code: 'ar', label: 'AR', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/sa.svg' },
+        { code: 'fr', label: 'FR', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/fr.svg' }
+    ];
 
     const RainbowButton = ({ onClick, children, className = '', buttonClass = '' }) => (
         <div className={`rainbow-button-container ${className}`} onClick={onClick}>
@@ -131,18 +139,34 @@ const Onboarding = ({ onNavigate }) => {
 
             {/* Nav */}
             <header className="onboarding-nav">
-                <div className="nav-logo" onClick={() => window.location.reload()}>
-                    <span className="logo-text">importers</span>
+                <div className="nav-logo">
+                    <div className="creative-lang-selector">
+                        <div className="lang-glider" style={{
+                            transform: `translateX(${
+                                language === 'en' ? '0' : language === 'ar' ? '100%' : '200%'
+                            })`
+                        }}></div>
+                        {languages.map(lang => (
+                            <button
+                                key={lang.code}
+                                className={`lang-btn ${language === lang.code ? 'active' : ''}`}
+                                onClick={() => setLanguage(lang.code)}
+                            >
+                                <img src={lang.flagUrl} alt={`${lang.code} flag`} className="lang-flag-icon" />
+                                {lang.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 <div className="nav-actions">
-                    <button onClick={() => onNavigate('dashboard')} className="nav-link">Dashboard</button>
-                    <button onClick={() => onNavigate('login')} className="nav-link">Login</button>
+                    <button onClick={() => onNavigate('dashboard')} className="nav-link">{t.navDashboard || 'Dashboard'}</button>
+                    <button onClick={() => onNavigate('login')} className="nav-link">{t.navLogin || 'Login'}</button>
                     <RainbowButton
                         onClick={() => onNavigate('signup')}
                         className="nav-btn-wrap"
                         buttonClass="nav-btn-black"
                     >
-                        Get Started
+                        {t.navGetStarted || 'Get Started'}
                     </RainbowButton>
                 </div>
             </header>
@@ -150,18 +174,18 @@ const Onboarding = ({ onNavigate }) => {
             {/* Main Content */}
             <main className="hero-container">
                 <h1 className="hero-title animate-entrance">
-                    Global Trade <br />
-                    Made <span className="rainbow-text">Simple.</span>
+                    {t.heroTitle1 || 'Global Trade'} <br />
+                    {t.heroTitle2 || 'Made'} <span className="rainbow-text">{t.heroTitle3 || 'Simple.'}</span>
                 </h1>
 
                 <p className="hero-subtitle animate-entrance delay-100">
-                    The most powerful platform for modern importers. <br />
-                    Secure, high-speed, and designed for your growth.
+                    {t.heroSubtitle1 || 'The most powerful platform for modern importers.'} <br />
+                    {t.heroSubtitle2 || 'Secure, high-speed, and designed for your growth.'}
                 </p>
 
                 <div className="animate-entrance delay-200" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <RainbowButton onClick={() => onNavigate('signup')}>
-                        Create Your Free Account
+                        {t.createFreeAccount || 'Create Your Free Account'}
                     </RainbowButton>
                 </div>
 
@@ -170,16 +194,16 @@ const Onboarding = ({ onNavigate }) => {
                         <div className="store-card-glow"></div>
                         <FaApple size={28} className="store-icon-silver" />
                         <div className="store-card-content">
-                            <span className="store-card-label">Download on the</span>
-                            <span className="store-card-title">App Store</span>
+                            <span className="store-card-label">{t.downloadOnThe || 'Download on the'}</span>
+                            <span className="store-card-title">{t.appStore || 'App Store'}</span>
                         </div>
                     </button>
                     <button className="premium-store-card">
                         <div className="store-card-glow"></div>
                         <FaGooglePlay size={24} className="store-icon-silver" />
                         <div className="store-card-content">
-                            <span className="store-card-label">Get it on</span>
-                            <span className="store-card-title">Google Play</span>
+                            <span className="store-card-label">{t.getItOn || 'Get it on'}</span>
+                            <span className="store-card-title">{t.googlePlay || 'Google Play'}</span>
                         </div>
                     </button>
                 </div>
@@ -187,7 +211,7 @@ const Onboarding = ({ onNavigate }) => {
 
             {/* Simple Footer Meta */}
             <footer className="onboarding-footer">
-                © 2026 IMPORTERS APPLICATION. ALL RIGHTS RESERVED.
+                {t.footerRights || '© 2026 IMPORTERS APPLICATION. ALL RIGHTS RESERVED.'}
             </footer>
         </div>
     );

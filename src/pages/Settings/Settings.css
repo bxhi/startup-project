@@ -597,3 +597,82 @@ input:checked+.slider:before {
         grid-column: span 1;
     }
 }
+
+/* ============================================
+   RTL (Arabic) Overrides — Settings Page
+   ============================================ */
+[dir="rtl"] .header-wallet-style {
+    flex-direction: row;
+}
+
+[dir="rtl"] .header-wallet-style h1,
+[dir="rtl"] .header-wallet-style p {
+    text-align: right;
+}
+
+[dir="rtl"] .card-actions-right {
+    justify-content: flex-start;
+}
+
+[dir="rtl"] .doc-icon-badge {
+    margin-right: 0;
+    margin-left: 1.25rem;
+}
+
+[dir="rtl"] .document-item-modern {
+    flex-direction: row;
+}
+
+[dir="rtl"] .doc-info h4,
+[dir="rtl"] .doc-info p {
+    text-align: right;
+}
+
+[dir="rtl"] .doc-actions-right {
+    flex-direction: row;
+}
+
+[dir="rtl"] .card-header,
+[dir="rtl"] .card-header.no-border {
+    flex-direction: row;
+}
+
+[dir="rtl"] .header-info {
+    text-align: right;
+}
+
+[dir="rtl"] .settings-grid {
+    direction: rtl;
+}
+
+[dir="rtl"] .form-group label {
+    text-align: right;
+}
+
+[dir="rtl"] .settings-input {
+    text-align: right;
+}
+
+[dir="rtl"] .radio-label {
+    text-align: right;
+}
+
+[dir="rtl"] .radio-mark {
+    margin-right: 0;
+    margin-left: -4px;
+}
+
+[dir="rtl"] .security-btn {
+    text-align: right;
+    padding-left: 0.75rem;
+    padding-right: 1.25rem;
+}
+
+[dir="rtl"] .channel-title,
+[dir="rtl"] .notif-tile {
+    flex-direction: row;
+}
+
+[dir="rtl"] .tile-label {
+    text-align: right;
+}

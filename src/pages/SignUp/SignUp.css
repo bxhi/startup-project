@@ -115,14 +115,23 @@
 .signup-header {
     position: relative;
     z-index: 10;
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: center !important;
+    margin-bottom: 1.2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .signup-main-title {
+    display: block;
+    width: 100%;
+    text-align: center !important;
     font-size: 2.2rem;
     font-weight: 950;
     margin: 0;
+    margin-bottom: -0.2rem; /* Pull subtitle closer */
     text-transform: uppercase;
     letter-spacing: -0.06em;
     background: linear-gradient(45deg,
@@ -154,11 +163,14 @@
 }
 
 .signup-subtitle {
+    display: block;
+    width: 100%;
+    text-align: center !important;
     font-size: 0.9rem;
     font-weight: 500;
     color: #666;
     opacity: 0.8;
-    margin-top: 0.25rem;
+    margin: 0;
 }
 
 /* --- Choice 5: Mesh-Aura Assets --- */
@@ -167,6 +179,7 @@
     z-index: 10;
     width: 100%;
     max-width: 800px;
+    margin: 0 auto;
     padding: 2.5rem;
     height: fit-content;
     background: rgba(255, 255, 255, 0.75) !important;
@@ -268,15 +281,17 @@
     content: '';
     position: absolute;
     top: 20px;
-    /* Center of 40px dot */
     transform: translateY(-50%);
-    left: calc(50% + 45px);
-    /* Increased gap: 20px radius + 25px gap */
     width: calc(100% - 90px);
-    /* Gaps on both sides */
     height: 2px;
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 0;
+    left: calc(50% + 45px);
+}
+
+[dir="rtl"] .step-item::after {
+    right: calc(50% + 45px);
+    left: auto;
 }
 
 .step-item:last-child::after {
@@ -685,6 +700,7 @@
     padding: 0.7em 1.5em;
     display: flex;
     align-items: center;
+    gap: 0.75rem;
     border: none;
     border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -732,7 +748,6 @@
 
 .btn-fly span {
     display: block;
-    margin-left: 0.5em;
     transition: all 0.3s ease-in-out;
     font-weight: 600;
 }

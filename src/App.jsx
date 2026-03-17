@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import Login from './pages/Login/Login'
 import SignUp from './pages/SignUp/SignUp'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
@@ -11,11 +12,12 @@ import Orders from './pages/Orders/Orders'
 import Wallet from './pages/Wallet/Wallet'
 import Settings from './pages/Settings/Settings'
 
-function App() {
+function AppContent() {
   const [currentPage, setCurrentPage] = useState('onboarding');
+  const { dir, language } = useLanguage();
 
   return (
-    <div className="app">
+    <div className="app" dir={dir} lang={language}>
       {currentPage === 'onboarding' && (
         <Onboarding onNavigate={(page) => setCurrentPage(page)} />
       )}
@@ -54,6 +56,14 @@ function App() {
         <Settings onNavigate={(page) => setCurrentPage(page)} />
       )}
     </div>
+  )
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   )
 }
 

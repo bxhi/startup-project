@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 @import './variables.css';
 
 * {
@@ -90,3 +91,52 @@ select {
     /* WebKit browsers */
     font-weight: 500;
 }
+
+/* ============================================
+   RTL / Arabic Global Overrides
+   ============================================ */
+[dir="rtl"] body {
+    font-family: 'Noto Kufi Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
+}
+
+[dir="rtl"] * {
+    font-family: 'Noto Kufi Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
+    letter-spacing: 0 !important; /* Arabic doesn't use letter-spacing */
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] p,
+[dir="rtl"] label,
+[dir="rtl"] span,
+[dir="rtl"] button,
+[dir="rtl"] td,
+[dir="rtl"] th,
+[dir="rtl"] li {
+    text-align: right;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+    text-align: right;
+    direction: rtl;
+}
+
+/* Numbers and codes should stay LTR */
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="email"] {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Improved Arabic line height */
+[dir="rtl"] p,
+[dir="rtl"] li,
+[dir="rtl"] .body-text {
+    line-height: 1.8;
+}
+

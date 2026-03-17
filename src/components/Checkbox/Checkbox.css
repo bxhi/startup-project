@@ -54,3 +54,9 @@
 .checkbox-container input:checked~.checkmark:after {
     display: block;
 }
+
+/* RTL Override */
+[dir="rtl"] .checkmark {
+    margin-right: 0;
+    margin-left: var(--spacing-1);
+}

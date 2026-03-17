@@ -2,7 +2,9 @@ import React from 'react';
 import './Navbar.css';
 import { FiSearch, FiBell } from 'react-icons/fi';
 import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
+import { useLanguage } from '../../context/LanguageContext';
 const Navbar = () => {
+    const { t, language } = useLanguage();
     return (
         <header className="navbar rainbow-navbar">
             {/* Market-Vibe Animated Layer */}
@@ -39,12 +41,14 @@ const Navbar = () => {
 
             <div className="navbar-content">
                 <div className="navbar-left">
-                    <h2 className="brand navbar-brand">Importer</h2>
+                    <h2 className="brand navbar-brand">{t.brandLogo}</h2>
                     <div className="search-container">
                         <FiSearch className="search-icon" />
-                        <input type="text" placeholder="Search..." className="search-input" />
+                        <input type="text" placeholder={t.searchPlaceholder} className="search-input" />
                     </div>
+                </div>
 
+                <div className="navbar-right">
                     <button className="notification-btn">
                         <FiBell />
                         <span className="notification-dot"></span>
@@ -58,13 +62,9 @@ const Navbar = () => {
                         </div>
                         <div className="user-info">
                             <span className="user-name">Business Name</span>
-                            <span className="user-role">Importer</span>
+                            <span className="user-role">{language === 'ar' ? 'مستورد' : language === 'fr' ? 'Importateur' : 'Importer'}</span>
                         </div>
                     </div>
-                </div>
-
-                <div className="navbar-right">
-                    {/* Space for future items */}
                 </div>
             </div>
         </header>

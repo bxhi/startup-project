@@ -91,13 +91,18 @@
 .step-item::after {
     content: '';
     position: absolute;
-    top: 16px; /* Half of 32px dot */
-    left: calc(100% - 10px); /* Half of 20px gap */
-    width: 20px;
+    top: 20px;
+    left: calc(50% + 15px);
+    width: calc(100% - 30px);
     height: 2px;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 0;
+    background: #e2e8f0;
+    z-index: 1;
     transform: translateY(-50%);
+}
+
+[dir="rtl"] .step-item::after {
+    left: auto;
+    right: calc(50% + 15px);
 }
 
 .step-item:last-child::after {
@@ -264,6 +269,12 @@
     outline: none;
 }
 
+[dir="rtl"] .form-group input,
+[dir="rtl"] .form-group textarea,
+[dir="rtl"] .form-group select {
+    text-align: right;
+}
+
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
@@ -357,6 +368,10 @@
     border-radius: 12px;
     background-color: #fff;
     margin-top: 12px;
+}
+
+[dir="rtl"] .preview-card {
+    flex-direction: row-reverse;
 }
 
 .preview-image-box {

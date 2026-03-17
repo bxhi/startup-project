@@ -303,11 +303,10 @@
 .glass-stat-box span {
     display: block;
     font-size: 0.75rem;
-    /* Down from 0.9rem */
     font-weight: 600;
     opacity: 0.9;
     margin-bottom: 2px;
-    white-space: normal;
+    line-height: 1.2;
     overflow: visible;
 }
 
@@ -495,14 +494,20 @@
 
 .current-badge {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 12px;
+    right: 12px;
     background: #dcfce7;
     color: #16a34a;
-    padding: 4px 10px;
+    padding: 2px 8px;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
+    z-index: 5;
+}
+
+[dir="rtl"] .current-badge {
+    right: auto;
+    left: 12px;
 }
 
 .plan-header {

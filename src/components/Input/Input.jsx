@@ -12,6 +12,7 @@ const Input = ({
     icon,
     onIconClick,
     prefix,
+    containerDir,
     ...props
 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +26,7 @@ const Input = ({
     return (
         <div className="input-wrapper">
             {label && <label className="input-label">{label}</label>}
-            <div className={`input-container ${prefix ? 'input-container--with-prefix' : ''}`}>
+            <div className={`input-container ${prefix ? 'input-container--with-prefix' : ''}`} dir={containerDir}>
                 {prefix && <span className="input-prefix">{prefix}</span>}
                 <input
                     type={inputType}

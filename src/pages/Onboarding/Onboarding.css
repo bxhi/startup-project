@@ -439,28 +439,71 @@
     /* Bigger icon */
 }
 
-.logo-text {
-    font-size: 2.2rem;
-    font-weight: 950;
-    letter-spacing: -0.02em;
-    margin: 0;
-    text-transform: uppercase;
-    background: linear-gradient(45deg,
-            #ff0000,
-            #ff7300,
-            #fffb00,
-            #48ff00,
-            #00ffd5,
-            #002bff,
-            #7a00ff,
-            #ff00c8,
-            #ff0000);
-    background-size: 400%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: rainbow-text-flow 6s linear infinite;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+/* =========================================
+   Creative Animated Language Selector Pill (Replacing Logo)
+   ========================================= */
+.creative-lang-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(241, 245, 249, 0.45); /* slighly less transparent so text remains completely visible */
+    backdrop-filter: blur(4px); /* Reduced blur effect per user request */
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    border-radius: 999px; /* classic exact pill/capsule shape is often best */
+    padding: 4px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* just shadow */
+    width: 200px;
+}
+
+.creative-lang-selector .lang-btn {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b; /* slate-500 */
+    cursor: pointer;
+    padding: 6px 0;
+    border-radius: 999px;
+    transition: color 0.3s ease, font-weight 0.1s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.lang-flag-icon {
+    width: 16px;
+    height: 12px;
+    border-radius: 2px;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.creative-lang-selector .lang-btn.active {
+    color: #0f172a; /* highest contrast slate */
+    font-weight: 800;
+}
+
+/* The animated sliding background pill */
+.creative-lang-selector .lang-glider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: calc(100% - 8px);
+    width: calc((100% - 8px) / 3);
+    border-radius: 999px;
+    
+    /* Clean, Apple-like white glider */
+    background: #ffffff; 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* bouncy transition */
 }
 
 @keyframes rainbow-text-flow {
@@ -1333,4 +1376,35 @@
         padding: 1.5rem 3rem;
         font-size: 1.3rem;
     }
+}
+
+/* =========================================
+   RTL / ARABIC Typography & Sizing Adjustments 
+   ========================================= */
+[dir="rtl"] .hero-title {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    line-height: 1.2;
+    padding-bottom: 0.5rem;
+}
+
+[dir="rtl"] .hero-subtitle {
+    font-size: clamp(0.9rem, 1.2vw, 1rem);
+    line-height: 1.6;
+}
+
+[dir="rtl"] .big-black-btn {
+    padding: 0.7rem 2.2rem;
+    font-size: 1rem;
+}
+
+[dir="rtl"] .nav-link {
+    font-size: 0.85rem;
+}
+
+[dir="rtl"] .store-card-title {
+    font-size: 1.1rem;
+}
+
+[dir="rtl"] .store-card-label {
+    font-size: 0.7rem;
 }

@@ -9,27 +9,18 @@ import {
     FiLogOut,
     FiCamera,
     FiCheck,
-    FiRefreshCw,
     FiFileText,
     FiBriefcase
 } from 'react-icons/fi';
-import { MdOutlineSecurity } from 'react-icons/md';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Settings = ({ onNavigate }) => {
-    const [notifications, setNotifications] = useState({
-        email: {
-            orders: true,
-            negotiations: true,
-            promotions: false
-        },
-        push: {
-            orders: true,
-            negotiations: true,
-            promotions: false
-        }
-    });
+    const { t, language, setLanguage } = useLanguage();
 
-    const [language, setLanguage] = useState('en');
+    const [notifications, setNotifications] = useState({
+        email: { orders: true, negotiations: true, promotions: false },
+        push: { orders: true, negotiations: true, promotions: false }
+    });
 
     const handleToggle = (type, category) => {
         setNotifications(prev => ({
@@ -52,8 +43,8 @@ const Settings = ({ onNavigate }) => {
         <DashboardLayout onNavigate={onNavigate} activePage="settings">
             <div className="settings-header header-wallet-style">
                 <div className="header-text">
-                    <h1>Settings & Profile</h1>
-                    <p>Manage your account and preferences</p>
+                    <h1>{t.settingsTitle}</h1>
+                    <p>{t.settingsSubtitle}</p>
                 </div>
             </div>
 
@@ -66,41 +57,41 @@ const Settings = ({ onNavigate }) => {
                             <div className="icon-badge light-blue">
                                 <FiBriefcase />
                             </div>
-                            <h3>Business Profile</h3>
+                            <h3>{t.businessProfile}</h3>
                         </div>
                         <div className="card-content">
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Business Name</label>
+                                    <label>{t.businessName}</label>
                                     <input type="text" defaultValue="Premium Imports Co." className="settings-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Owner Full Name</label>
+                                    <label>{t.ownerFullName}</label>
                                     <input type="text" defaultValue="John Doe" className="settings-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Email</label>
+                                    <label>{t.email}</label>
                                     <input type="email" defaultValue="john@premiumimports.com" className="settings-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Phone</label>
+                                    <label>{t.phone}</label>
                                     <input type="text" defaultValue="+213 555 123 456" className="settings-input" />
                                 </div>
                                 <div className="form-group full-width">
-                                    <label>Business Address</label>
+                                    <label>{t.businessAddress}</label>
                                     <input type="text" defaultValue="123 Business Street, Algiers" className="settings-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Tax ID</label>
+                                    <label>{t.taxId}</label>
                                     <input type="text" defaultValue="ALG-123456789" className="settings-input" />
                                 </div>
                                 <div className="form-group">
-                                    <label>Website</label>
+                                    <label>{t.website}</label>
                                     <input type="text" defaultValue="www.premiumimports.com" className="settings-input" />
                                 </div>
                             </div>
                             <div className="card-actions-right">
-                                <button className="settings-btn-primary rounded">Save Changes</button>
+                                <button className="settings-btn-primary rounded">{t.saveChanges}</button>
                             </div>
                         </div>
                     </div>
@@ -111,7 +102,7 @@ const Settings = ({ onNavigate }) => {
                             <div className="icon-badge light-blue">
                                 <FiShield />
                             </div>
-                            <h3>Verification Documents</h3>
+                            <h3>{t.verificationDocs}</h3>
                         </div>
                         <div className="card-content">
                             <div className="documents-list-modern">
@@ -122,11 +113,11 @@ const Settings = ({ onNavigate }) => {
                                         </div>
                                         <div className="doc-info">
                                             <h4>{doc.name}</h4>
-                                            <p>Uploaded: {doc.date}</p>
+                                            <p>{t.uploaded}: {doc.date}</p>
                                         </div>
                                         <div className="doc-actions-right">
-                                            <span className="status-badge-green">approved</span>
-                                            <button className="reupload-link">Reupload</button>
+                                            <span className="status-badge-green">{t.approved}</span>
+                                            <button className="reupload-link">{t.reupload}</button>
                                         </div>
                                     </div>
                                 ))}
@@ -134,15 +125,15 @@ const Settings = ({ onNavigate }) => {
                         </div>
                     </div>
 
-                    {/* Notification Preferences Redesign */}
+                    {/* Notification Preferences */}
                     <div className="settings-card highlight">
                         <div className="card-header">
                             <div className="icon-badge pink">
                                 <FiBell />
                             </div>
                             <div className="header-info">
-                                <h3>Notification Preferences</h3>
-                                <p>Stay updated with what matters most to you</p>
+                                <h3>{t.notificationPrefs}</h3>
+                                <p>{t.stayUpdated}</p>
                             </div>
                         </div>
                         <div className="card-content">
@@ -152,14 +143,14 @@ const Settings = ({ onNavigate }) => {
                                     <div className="channel-header">
                                         <div className="channel-title">
                                             <div className="mini-icon blue"><FiGlobe /></div>
-                                            <span>Email Notifications</span>
+                                            <span>{t.emailNotifications}</span>
                                         </div>
                                     </div>
                                     <div className="channel-items">
                                         {[
-                                            { id: 'orders', label: 'Order Updates', icon: <FiFileText /> },
-                                            { id: 'negotiations', label: 'Negotiation messages', icon: <FiBell /> },
-                                            { id: 'promotions', label: 'Promotions and updates', icon: <FiBriefcase /> }
+                                            { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
+                                            { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
+                                            { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
                                         ].map((item) => (
                                             <div key={item.id} className="notif-tile">
                                                 <div className="tile-icon">{item.icon}</div>
@@ -182,14 +173,14 @@ const Settings = ({ onNavigate }) => {
                                     <div className="channel-header">
                                         <div className="channel-title">
                                             <div className="mini-icon purple"><FiBell /></div>
-                                            <span>Push Notifications</span>
+                                            <span>{t.pushNotifications}</span>
                                         </div>
                                     </div>
                                     <div className="channel-items">
                                         {[
-                                            { id: 'orders', label: 'Order Updates', icon: <FiFileText /> },
-                                            { id: 'negotiations', label: 'Negotiation messages', icon: <FiBell /> },
-                                            { id: 'promotions', label: 'Promotions and updates', icon: <FiBriefcase /> }
+                                            { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
+                                            { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
+                                            { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
                                         ].map((item) => (
                                             <div key={item.id} className="notif-tile">
                                                 <div className="tile-icon">{item.icon}</div>
@@ -216,14 +207,14 @@ const Settings = ({ onNavigate }) => {
                     {/* Profile Picture */}
                     <div className="settings-card centered">
                         <div className="card-header no-border">
-                            <h3>Profile Picture</h3>
+                            <h3>{t.profilePicture}</h3>
                         </div>
                         <div className="card-content">
                             <div className="profile-avatar-large">
                                 <FiUser />
                             </div>
                             <button className="settings-btn-upload">
-                                <FiCamera /> Upload New
+                                <FiCamera /> {t.uploadNew}
                             </button>
                         </div>
                     </div>
@@ -234,7 +225,7 @@ const Settings = ({ onNavigate }) => {
                             <div className="icon-badge light-blue">
                                 <FiGlobe />
                             </div>
-                            <h3>Language</h3>
+                            <h3>{t.language}</h3>
                         </div>
                         <div className="card-content">
                             <div className="language-list">
@@ -261,20 +252,15 @@ const Settings = ({ onNavigate }) => {
                     {/* Security */}
                     <div className="settings-card">
                         <div className="card-header">
-                            <h3>Security</h3>
+                            <h3>{t.security}</h3>
                         </div>
                         <div className="card-content">
                             <div className="security-buttons">
-                                <button className="security-btn">Change Password</button>
-                                <button className="security-btn">Two-Factor Auth</button>
+                                <button className="security-btn">{t.changePassword}</button>
+                                <button className="security-btn">{t.twoFactorAuth}</button>
                             </div>
                         </div>
                     </div>
-
-                    {/* Logout */}
-                    <button className="settings-logout-btn" onClick={() => onNavigate('login')}>
-                        <FiLogOut /> Logout
-                    </button>
                 </div>
             </div>
         </DashboardLayout>

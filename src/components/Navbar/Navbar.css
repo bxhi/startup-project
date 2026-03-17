@@ -49,7 +49,7 @@
 .navbar-left {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 86px;
     flex: 1;
 }
 
@@ -154,6 +154,7 @@
 .navbar-right {
     display: flex;
     align-items: center;
+    gap: 24px;
 }
 
 /* --- Added for Rainbow Navbar --- */
@@ -401,4 +402,52 @@
     left: 90%;
     animation-duration: 30s;
     animation-delay: -13s;
+}
+
+/* ============================================
+   RTL (Arabic) Overrides — Navbar
+   ============================================ */
+[dir="rtl"] .navbar-content {
+    flex-direction: row; /* Logo/Search Right, User Left */
+}
+
+[dir="rtl"] .navbar-left {
+    flex-direction: row;
+    margin-right: 0;
+    margin-left: auto;
+}
+
+[dir="rtl"] .navbar-right {
+    flex-direction: row;
+    margin-left: 0;
+    margin-right: auto;
+}
+
+[dir="rtl"] .search-container {
+    margin-right: 20px; /* Small gap between logo and search */
+    margin-left: 0;
+}
+
+[dir="rtl"] .search-icon {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+[dir="rtl"] .notification-dot {
+    right: auto;
+    left: 2px;
+}
+
+[dir="rtl"] .user-profile {
+    flex-direction: row;
+}
+
+[dir="rtl"] .user-info {
+    text-align: right;
+    margin-right: 12px;
+    margin-left: 0;
+}
+
+[dir="rtl"] .navbar-actions {
+    flex-direction: row;
 }

@@ -8,8 +8,10 @@ import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } 
 import { IoMdTime } from 'react-icons/io';
 import './Login.css';
 import authService from '../../api/authService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
@@ -43,16 +45,16 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
 
             if (err.response) {
                 if (err.response.status === 401) {
-                    setError('Please enter valid credentials.');
+                    setError(t.errInvalidCreds || 'Please enter valid credentials.');
                 } else if (err.response.status === 403) {
-                    setError(err.response.data?.message || 'Your account is still under review. Please wait 24-48 hours.');
+                    setError(t.errAccountReview || 'Your account is still under review. Please wait 24-48 hours.');
                 } else if (err.response.status === 404) {
-                    setError('Account not found.');
+                    setError(t.errAccountNotFound || 'Account not found.');
                 } else {
-                    setError(err.response.data?.message || 'Login failed. Please try again.');
+                    setError(t.errLoginFailed || 'Login failed. Please try again.');
                 }
             } else if (err.request) {
-                setError('Network error: Server is unreachable or CORS blocked.');
+                setError(t.errNetwork || 'Network error: Server is unreachable or CORS blocked.');
             } else {
                 setError('Error: ' + err.message);
             }
@@ -103,8 +105,8 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
             </div>
 
             <div className="login-header">
-                <h1 className="login-title">importers</h1>
-                <p className="login-subtitle">Welcome back! Please login to your account.</p>
+                <h1 className="login-title">{t.loginTitle || 'importers'}</h1>
+                <p className="login-subtitle">{t.loginSubtitle || 'Welcome back! Please login to your account.'}</p>
             </div>
 
             <Card className="login-card">
@@ -121,18 +123,18 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
                         </div>
                     )}
                     <Input
-                        label="Email"
+                        label={t.emailLabel || "Email"}
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder={t.emailPlaceholder || "your.email@example.com"}
                         value={email}
                         onChange={handleEmailChange}
                         disabled={loading}
                     />
 
                     <Input
-                        label="Password"
+                        label={t.passwordLabel || "Password"}
                         type="password"
-                        placeholder="Enter your password"
+                        placeholder={t.passwordPlaceholder || "Enter your password"}
                         value={password}
                         onChange={handlePasswordChange}
                         disabled={loading}
@@ -140,24 +142,24 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
 
                     <div className="form-actions">
                         <Checkbox
-                            label="Remember me"
+                            label={t.rememberMe || "Remember me"}
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
                             disabled={loading}
                         />
-                        <a href="#" className="forgot-password" onClick={(e) => { e.preventDefault(); onForgotPassword(); }}>Forgot password?</a>
+                        <a href="#" className="forgot-password" onClick={(e) => { e.preventDefault(); onForgotPassword(); }}>{t.forgotPassword || 'Forgot password?'}</a>
                     </div>
                     <Button type="submit" fullWidth disabled={loading}>
-                        {loading ? 'Logging in...' : 'Login'}
+                        {loading ? (t.loggingInButton || 'Logging in...') : (t.loginButton || 'Login')}
                     </Button>
                     <div className="register-link">
-                        Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Register as Business</a>
+                        {t.noAccount || "Don't have an account?"} <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>{t.registerAsBusiness || 'Register as Business'}</a>
                     </div>
                 </form>
             </Card>
 
             <div className="login-footer">
-                © 2026 Importers. All rights reserved.
+                {t.loginFooter || '© 2026 Importers. All rights reserved.'}
             </div>
         </div>
     );

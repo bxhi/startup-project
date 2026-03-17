@@ -88,14 +88,23 @@
 .login-header {
     position: relative;
     z-index: 10;
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: center !important;
+    margin-bottom: 1.2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .login-title {
+    display: block;
+    width: 100%;
+    text-align: center !important;
     font-size: 2.2rem;
     font-weight: 950;
     margin: 0;
+    margin-bottom: -0.2rem;
     text-transform: uppercase;
     letter-spacing: -0.06em;
     background: linear-gradient(45deg,
@@ -127,11 +136,14 @@
 }
 
 .login-subtitle {
+    display: block;
+    width: 100%;
+    text-align: center !important;
     font-size: 0.9rem;
     font-weight: 500;
     color: #666;
     opacity: 0.8;
-    margin-top: 0.25rem;
+    margin: 0;
 }
 
 .login-card {
@@ -139,6 +151,7 @@
     z-index: 10;
     width: 100%;
     max-width: 440px;
+    margin: 0 auto;
     background: rgba(255, 255, 255, 0.65) !important;
     backdrop-filter: blur(25px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.5);

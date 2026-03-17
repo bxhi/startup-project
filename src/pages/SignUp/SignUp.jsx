@@ -9,8 +9,10 @@ import Button from '../../components/Button/Button';
 import authService from '../../api/authService';
 import './SignUp.css';
 import LoadingPage from '../../components/LoadingPage/LoadingPage';
+import { useLanguage } from '../../context/LanguageContext';
 
 const SignUp = ({ onNavigate }) => {
+    const { t } = useLanguage();
     const [step, setStep] = useState(1);
     const [isVerificationPending, setIsVerificationPending] = useState(false);
     // ... rest of state ...
@@ -47,68 +49,68 @@ const SignUp = ({ onNavigate }) => {
 
         // Step 1 Validation
         if (!data.businessName?.trim()) {
-            errors.push('Business Name is required.');
+            errors.push(t.errReqBusinessName || 'Business Name is required.');
             errSteps.push(1);
         }
         if (!data.ownerFullName?.trim()) {
-            errors.push('Owner Full Name is required.');
+            errors.push(t.errReqOwnerName || 'Owner Full Name is required.');
             errSteps.push(1);
         }
         if (!data.commerceNumber?.trim()) {
-            errors.push('Register Commerce Number is required.');
+            errors.push(t.errReqCommerceNum || 'Register Commerce Number is required.');
             errSteps.push(1);
         }
         if (!data.nin?.trim()) {
-            errors.push('NIN is required.');
+            errors.push(t.errReqNin || 'NIN is required.');
             errSteps.push(1);
         } else if (data.nin.length !== 18) {
-            errors.push('NIN must be exactly 18 digits.');
+            errors.push(t.errNinLength || 'NIN must be exactly 18 digits.');
             errSteps.push(1);
         }
 
         // Step 2 Validation (Documents)
         if (!data.idFront) {
-            errors.push('ID Front image is required.');
+            errors.push(t.errReqIdFront || 'ID Front image is required.');
             errSteps.push(2);
         }
         if (!data.importLicense) {
-            errors.push('Import License is required.');
+            errors.push(t.errReqImportLicense || 'Import License is required.');
             errSteps.push(2);
         }
         if (!data.commercialRegister) {
-            errors.push('Commercial Register is required.');
+            errors.push(t.errReqCommRegister || 'Commercial Register is required.');
             errSteps.push(2);
         }
 
         // Step 3 Validation (Selfie)
         if (!selfie) {
-            errors.push('Selfie photo is required.');
+            errors.push(t.errReqSelfie || 'Selfie photo is required.');
             errSteps.push(3);
         }
 
         // Step 4 Validation (Credential)
         if (!data.email?.trim()) {
-            errors.push('Email is required.');
+            errors.push(t.errReqEmail || 'Email is required.');
             errSteps.push(4);
         } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-            errors.push('Email format is invalid.');
+            errors.push(t.errInvalidEmail || 'Email format is invalid.');
             errSteps.push(4);
         }
         if (!data.phone?.trim() || data.phone === '+213 ') {
-            errors.push('Phone number is required.');
+            errors.push(t.errReqPhone || 'Phone number is required.');
             errSteps.push(4);
         } else {
             const digits = data.phone.replace(/\D/g, '');
             if (digits.length !== 9) {
-                errors.push('Phone number must have 9 digits after the prefix.');
+                errors.push(t.errPhoneLength || 'Phone number must have 9 digits after the prefix.');
                 errSteps.push(4);
             }
         }
         if (!data.password) {
-            errors.push('Password is required.');
+            errors.push(t.errReqPassword || 'Password is required.');
             errSteps.push(4);
         } else if (data.password !== data.confirmPassword) {
-            errors.push('Passwords do not match.');
+            errors.push(t.errPasswordMismatch || 'Passwords do not match.');
             errSteps.push(4);
         }
 
@@ -314,13 +316,13 @@ const SignUp = ({ onNavigate }) => {
                 if (selfieFile) {
                     fd.append('selfieImage', selfieFile);
                 } else {
-                    setError(['Error processing selfie photo. Please try retaking it.']);
+                    setError([t.errSelfieProcess || 'Error processing selfie photo. Please try retaking it.']);
                     setErrorSteps([4]);
                     setLoading(false);
                     return;
                 }
             } else {
-                setError(['Selfie photo is missing or invalid.']);
+                setError([t.errSelfieMissing || 'Selfie photo is missing or invalid.']);
                 setErrorSteps([4]);
                 setLoading(false);
                 return;
@@ -340,10 +342,10 @@ const SignUp = ({ onNavigate }) => {
         } catch (err) {
             console.error('Registration error details:', err.response?.data);
             if (!err.response) {
-                setError(['Network error: Unable to connect to the server.']);
+                setError([t.errNetwork || 'Network error: Unable to connect to the server.']);
             } else if (err.response.status >= 400 && err.response.status < 500) {
                 let rawMessage = err.response.data?.message;
-                let messages = Array.isArray(rawMessage) ? rawMessage : [rawMessage || 'Invalid data. Please check your inputs.'];
+                let messages = Array.isArray(rawMessage) ? rawMessage : [rawMessage || t.errInvalidData || 'Invalid data. Please check your inputs.'];
 
                 // Clean up and format messages
                 const cleanedMessages = messages.map(msg =>
@@ -369,7 +371,7 @@ const SignUp = ({ onNavigate }) => {
                     setStep(Math.min(...uniqueSteps));
                 }
             } else {
-                setError([err.response.data?.message || 'An error occurred during registration.']);
+                setError([err.response.data?.message || t.errOccurredDuringReg || 'An error occurred during registration.']);
             }
         } finally {
             setLoading(false);
@@ -403,7 +405,7 @@ const SignUp = ({ onNavigate }) => {
             await authService.sendOtp(userId);
             // Could add a toast here
         } catch (err) {
-            setError(['Failed to resend OTP. Please try again.']);
+            setError([t.errOtpResendFailed || 'Failed to resend OTP. Please try again.']);
         } finally {
             setLoading(false);
         }
@@ -411,7 +413,7 @@ const SignUp = ({ onNavigate }) => {
 
     const handleOtpSubmit = async () => {
         if (!otpCode || otpCode.length !== 6) {
-            setError(['Please enter a valid 6-digit OTP code.']);
+            setError([t.errInvalidOtpMsg || 'Please enter a valid 6-digit OTP code.']);
             return;
         }
 
@@ -423,7 +425,7 @@ const SignUp = ({ onNavigate }) => {
             setIsVerificationPending(true);
         } catch (err) {
             console.error('OTP verification error:', err.response?.data);
-            setError([err.response?.data?.message || 'Invalid OTP. Please try again.']);
+            setError([err.response?.data?.message || t.errVerifyOtp || 'Invalid OTP. Please try again.']);
         } finally {
             setLoading(false);
         }
@@ -441,28 +443,28 @@ const SignUp = ({ onNavigate }) => {
             case 1:
                 return (
                     <div className="step-content">
-                        <div className="inputs-grid">
+                <div className="inputs-grid">
                             <Input
-                                label="Business Name"
-                                placeholder="Enter business name"
+                                label={t.businessNameLabel || "Business Name"}
+                                placeholder={t.businessNamePlaceholder || "Enter business name"}
                                 value={formData.businessName}
                                 onChange={(e) => handleChange('businessName', e.target.value)}
                             />
                             <Input
-                                label="Owner Full Name"
-                                placeholder="Enter owner's full name"
+                                label={t.ownerNameLabel || "Owner Full Name"}
+                                placeholder={t.ownerNamePlaceholder || "Enter owner's full name"}
                                 value={formData.ownerFullName}
                                 onChange={(e) => handleChange('ownerFullName', e.target.value)}
                             />
                             <Input
-                                label="Register Commerce Number"
-                                placeholder="Enter commerce number"
+                                label={t.commerceNumLabel || "Register Commerce Number"}
+                                placeholder={t.commerceNumPlaceholder || "Enter commerce number"}
                                 value={formData.commerceNumber}
                                 onChange={(e) => handleChange('commerceNumber', e.target.value)}
                             />
                             <Input
-                                label="NIN (National Identification Number)"
-                                placeholder="Enter NIN"
+                                label={t.ninLabel || "NIN (National Identification Number)"}
+                                placeholder={t.ninPlaceholder || "Enter NIN"}
                                 value={formData.nin}
                                 onChange={(e) => handleChange('nin', e.target.value)}
                             />
@@ -474,7 +476,7 @@ const SignUp = ({ onNavigate }) => {
                     <div className="step-content">
                         <div className="file-uploads-grid">
                             <div className="file-upload-field">
-                                <label htmlFor="importLicense" className="file-label">Import License</label>
+                                <label htmlFor="importLicense" className="file-label">{t.importLicenseLabel || "Import License"}</label>
                                 <div className="file-input-wrapper">
                                     <input
                                         id="importLicense"
@@ -485,13 +487,13 @@ const SignUp = ({ onNavigate }) => {
                                     />
                                     <div className="upload-content">
                                         <LuUpload size={32} className="upload-icon" />
-                                        <span className="upload-text">Click to upload</span>
+                                        <span className="upload-text">{t.clickToUpload || "Click to upload"}</span>
                                     </div>
                                 </div>
                                 {formData.importLicense && <span className="file-name">{formData.importLicense.name}</span>}
                             </div>
                             <div className="file-upload-field">
-                                <label htmlFor="commercialRegister" className="file-label">Commercial Register</label>
+                                <label htmlFor="commercialRegister" className="file-label">{t.commRegisterLabel || "Commercial Register"}</label>
                                 <div className="file-input-wrapper">
                                     <input
                                         id="commercialRegister"
@@ -502,13 +504,13 @@ const SignUp = ({ onNavigate }) => {
                                     />
                                     <div className="upload-content">
                                         <LuUpload size={32} className="upload-icon" />
-                                        <span className="upload-text">Click to upload</span>
+                                        <span className="upload-text">{t.clickToUpload || "Click to upload"}</span>
                                     </div>
                                 </div>
                                 {formData.commercialRegister && <span className="file-name">{formData.commercialRegister.name}</span>}
                             </div>
                             <div className="file-upload-field">
-                                <label htmlFor="idFront" className="file-label">ID Front</label>
+                                <label htmlFor="idFront" className="file-label">{t.idFrontLabel || "ID Front"}</label>
                                 <div className="file-input-wrapper">
                                     <input
                                         id="idFront"
@@ -519,13 +521,13 @@ const SignUp = ({ onNavigate }) => {
                                     />
                                     <div className="upload-content">
                                         <LuUpload size={32} className="upload-icon" />
-                                        <span className="upload-text">Click to upload</span>
+                                        <span className="upload-text">{t.clickToUpload || "Click to upload"}</span>
                                     </div>
                                 </div>
                                 {formData.idFront && <span className="file-name">{formData.idFront.name}</span>}
                             </div>
                             <div className="file-upload-field">
-                                <label htmlFor="idBack" className="file-label">ID Back</label>
+                                <label htmlFor="idBack" className="file-label">{t.idBackLabel || "ID Back"}</label>
                                 <div className="file-input-wrapper">
                                     <input
                                         id="idBack"
@@ -536,7 +538,7 @@ const SignUp = ({ onNavigate }) => {
                                     />
                                     <div className="upload-content">
                                         <LuUpload size={32} className="upload-icon" />
-                                        <span className="upload-text">Click to upload</span>
+                                        <span className="upload-text">{t.clickToUpload || "Click to upload"}</span>
                                     </div>
                                 </div>
                                 {formData.idBack && <span className="file-name">{formData.idBack.name}</span>}
@@ -548,8 +550,8 @@ const SignUp = ({ onNavigate }) => {
                 return (
                     <div className="step-content">
                         <div className="selfie-header">
-                            <h2 className="selfie-title">Live Selfie Verification</h2>
-                            <p className="selfie-subtitle">Please capture a clear photo of yourself</p>
+                            <h2 className="selfie-title">{t.liveSelfieVerif || "Live Selfie Verification"}</h2>
+                            <p className="selfie-subtitle">{t.liveSelfieDesc || "Please capture a clear photo of yourself"}</p>
                         </div>
 
                         <div className="camera-container">
@@ -590,14 +592,14 @@ const SignUp = ({ onNavigate }) => {
                                     <div className="photo-actions">
                                         <div className="success-badge">
                                             <FiCheckCircle size={20} className="success-icon" />
-                                            <span className="success-text">Ready to submit</span>
+                                            <span className="success-text">{t.readyToSubmit || "Ready to submit"}</span>
                                         </div>
                                         <Button
                                             variant="outline"
                                             onClick={startCamera}
                                             className="retake-button"
                                         >
-                                            Retake Photo
+                                            {t.retakePhoto || "Retake Photo"}
                                         </Button>
                                     </div>
                                 </div>
@@ -609,7 +611,7 @@ const SignUp = ({ onNavigate }) => {
                                     >
                                         <div className="camera-content">
                                             <PiCamera size={40} className="camera-icon" />
-                                            <span className="camera-text">Click to open camera</span>
+                                            <span className="camera-text">{t.clickToOpenCam || "Click to open camera"}</span>
                                         </div>
                                     </button>
                                 </div>
@@ -623,33 +625,34 @@ const SignUp = ({ onNavigate }) => {
 
                         <div className="inputs-grid">
                             <Input
-                                label="Email"
+                                label={t.emailLabel || "Email"}
                                 type="email"
-                                placeholder="your.email@example.com"
+                                placeholder={t.emailPlaceholder || "your.email@example.com"}
                                 value={formData.email}
                                 onChange={(e) => handleChange('email', e.target.value)}
                             />
                             <Input
-                                label="Phone"
+                                label={t.phoneLabel || "Phone"}
                                 type="tel"
-                                prefix="+213"
+                                prefix="+213 "
                                 placeholder="XXX XX XX XX"
                                 inputMode="tel"
                                 maxLength={12}
+                                containerDir="ltr"
                                 value={formData.phone}
                                 onChange={(e) => handleChange('phone', e.target.value)}
                             />
                             <Input
-                                label="Password"
+                                label={t.passwordLabel || "Password"}
                                 type="password"
-                                placeholder="Enter password"
+                                placeholder={t.passwordPlaceholder || "Enter password"}
                                 value={formData.password}
                                 onChange={(e) => handleChange('password', e.target.value)}
                             />
                             <Input
-                                label="Confirm Password"
+                                label={t.confirmPasswordLabel || "Confirm Password"}
                                 type="password"
-                                placeholder="Confirm your password"
+                                placeholder={t.confirmPasswordPlaceholder || "Confirm your password"}
                                 value={formData.confirmPassword}
                                 onChange={(e) => handleChange('confirmPassword', e.target.value)}
                             />
@@ -676,8 +679,8 @@ const SignUp = ({ onNavigate }) => {
             </div>
 
             <div className="signup-header">
-                <h1 className="signup-main-title">importers</h1>
-                <p className="signup-subtitle">Register your business account</p>
+                <h1 className="signup-main-title">{t.signupMainTitle || 'importers'}</h1>
+                <p className="signup-subtitle">{t.signupSubtitle || 'Register your business account'}</p>
             </div>
 
             <Card className="signup-card">
@@ -691,7 +694,7 @@ const SignUp = ({ onNavigate }) => {
                 {!isVerificationPending && !isOtpStep && (
                     <div className="step-indicator">
                         {[1, 2, 3, 4].map((s) => {
-                            const labels = ['Register', 'Documents', 'Selfie', 'Credential'];
+                            const labels = [t.step1 || 'Register', t.step2 || 'Documents', t.step3 || 'Selfie', t.step4 || 'Credential'];
                             const isActive = step === s && !isOtpStep && !isVerificationPending;
                             const hasError = errorSteps.includes(s);
                             const isCompleted = (isOtpStep || isVerificationPending) ? !hasError : isStepValid(s);
@@ -718,7 +721,7 @@ const SignUp = ({ onNavigate }) => {
                     <div className="error-message-container">
                         <div className="error-title">
                             <FiX size={18} />
-                            Please correct the following errors:
+                            {t.errRegistrationData || 'Please correct the following errors:'}
                         </div>
                         <ul className="error-list">
                             {error.map((err, index) => (
@@ -736,9 +739,9 @@ const SignUp = ({ onNavigate }) => {
                                     <FiShield size={32} className="otp-icon-new" />
                                     <div className="icon-pulse"></div>
                                 </div>
-                                <h2 className="otp-title-new">Security Verification</h2>
+                                <h2 className="otp-title-new">{t.errSecurityVerif || 'Security Verification'}</h2>
                                 <p className="otp-subtitle-new">
-                                    We've sent a 6-digit code to <span className="user-email">{formData.email}</span>
+                                    {t.errSentCodeTo || "We've sent a 6-digit code to"} <span className="user-email">{formData.email}</span>
                                 </p>
                             </div>
 
@@ -797,10 +800,15 @@ const SignUp = ({ onNavigate }) => {
                 {!isVerificationPending && !isOtpStep && (
                     <div className="step-actions">
                         {step > 1 && (
-                            <Button variant="outline" onClick={prevStep}>Back</Button>
+                            <Button variant="outline" onClick={prevStep}>{t.backButton || 'Back'}</Button>
                         )}
                         {step < 4 ? (
-                            <Button onClick={nextStep} disabled={loading}>Continue to {['Documents', 'Selfie', 'Credential'][step - 1]}</Button>
+                            <Button
+                                onClick={nextStep}
+                                className={step === 1 ? 'full-width' : ''}
+                            >
+                                {t.nextButton || 'Next'}
+                            </Button>
                         ) : (
                             <button
                                 className="btn-fly"
@@ -813,7 +821,7 @@ const SignUp = ({ onNavigate }) => {
                                         <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
                                     </svg>
                                 </div>
-                                <span>{loading ? 'Submitting...' : 'Submit for Verification'}</span>
+                                <span>{loading ? (t.loggingInButton || 'Submitting...') : (t.registerButton || 'Submit for Verification')}</span>
                             </button>
                         )}
                     </div>
@@ -821,7 +829,7 @@ const SignUp = ({ onNavigate }) => {
 
             </Card>
             <div className="login-redirect">
-                Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Login here</a>
+                {t.haveAccount || 'Already have an account?'} <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>{t.loginLink || 'Login here'}</a>
             </div>
         </div>
     );

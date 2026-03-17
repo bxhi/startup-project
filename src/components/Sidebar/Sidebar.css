@@ -114,3 +114,30 @@
 .collapse-btn:hover {
     background-color: #f8fafc;
 }
+
+/* ============================================
+   RTL (Arabic) Overrides
+   ============================================ */
+[dir="rtl"] .sidebar {
+    border-right: none;
+    border-left: 1px solid #cbd5e1;
+}
+
+[dir="rtl"] .nav-item a:hover {
+    transform: translateX(-4px);
+}
+
+[dir="rtl"] .nav-item.active a::before {
+    left: auto;
+    right: 0;
+    border-radius: 0 4px 4px 0;
+}
+
+[dir="rtl"] .nav-item .text {
+    margin-left: 0;
+    margin-right: 12px;
+}
+
+[dir="rtl"] .sidebar-footer {
+    border-top: 1.5px solid #cbd5e1;
+}

@@ -388,3 +388,77 @@
         transform: translateY(0);
     }
 }
+
+/* ============================================
+   RTL (Arabic) Overrides — Orders
+   ============================================ */
+[dir="rtl"] .orders-header h1,
+[dir="rtl"] .orders-header p {
+    text-align: right;
+}
+
+[dir="rtl"] .orders-table {
+    text-align: right;
+}
+
+[dir="rtl"] .orders-table th,
+[dir="rtl"] .orders-table td {
+    text-align: right;
+}
+
+[dir="rtl"] .orders-table-wrapper {
+    margin: 0 0 32px 32px;
+}
+
+[dir="rtl"] .order-detail-header {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .header-status {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .order-item {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .item-info h4,
+[dir="rtl"] .item-info p {
+    text-align: right;
+}
+
+[dir="rtl"] .total-row {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .escrow-stat label,
+[dir="rtl"] .escrow-stat .value,
+[dir="rtl"] .escrow-stat .value-primary,
+[dir="rtl"] .escrow-stat .value-success {
+    text-align: right;
+}
+
+[dir="rtl"] .escrow-progress-container label {
+    text-align: right;
+}
+
+[dir="rtl"] .order-items-card h3,
+[dir="rtl"] .shipment-proof-card h3,
+[dir="rtl"] .inspection-video-card h3,
+[dir="rtl"] .escrow-details-card h3,
+[dir="rtl"] .actions-card h3 {
+    text-align: right;
+}
+
+[dir="rtl"] .order-detail-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .back-btn {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .header-main h1,
+[dir="rtl"] .header-main p {
+    text-align: right;
+}

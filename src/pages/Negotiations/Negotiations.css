@@ -335,6 +335,9 @@
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     transition: all 0.2s;
 }
@@ -413,4 +416,81 @@
 .btn-send-message:hover {
     transform: scale(1.03) translateY(-2px);
     box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   RTL (Arabic) Overrides — Negotiations
+   ============================================ */
+[dir="rtl"] .negotiations-sidebar {
+    border-right: none;
+    border-left: 1px solid #e2e8f0;
+}
+
+[dir="rtl"] .negotiations-sidebar-header h2,
+[dir="rtl"] .negotiations-sidebar-header p {
+    text-align: right;
+}
+
+[dir="rtl"] .negotiation-item.active {
+    border-left: none;
+    border-right: 3px solid var(--primary, #1a56db);
+}
+
+[dir="rtl"] .contact-avatar {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+[dir="rtl"] .unread-badge {
+    margin-left: 0;
+    margin-right: 8px;
+}
+
+[dir="rtl"] .contact-header {
+    flex-direction: row;
+}
+
+[dir="rtl"] .contact-info {
+    text-align: right;
+}
+
+[dir="rtl"] .chat-contact-details {
+    flex-direction: row;
+}
+
+[dir="rtl"] .chat-contact-info h3,
+[dir="rtl"] .chat-command-ref {
+    text-align: right;
+}
+
+/* Message bubbles -- corner radii for RTL */
+[dir="rtl"] .message-group.incoming .message-bubble {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 4px;
+}
+
+[dir="rtl"] .message-group.outgoing .message-bubble {
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 4px;
+}
+
+[dir="rtl"] .proposal-summary-card {
+    align-self: flex-start;
+    text-align: right;
+}
+
+[dir="rtl"] .proposal-row {
+    flex-direction: row;
+}
+
+[dir="rtl"] .proposal-actions {
+    flex-direction: row;
+}
+
+[dir="rtl"] .chat-header {
+    flex-direction: row;
+}
+
+[dir="rtl"] .chat-input-area {
+    flex-direction: row;
 }
