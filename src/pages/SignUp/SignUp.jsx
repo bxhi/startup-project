@@ -284,12 +284,13 @@ const SignUp = ({ onNavigate }) => {
             fd.append('profile[registerCommerceNumber]', formData.commerceNumber);
             fd.append('profile[NIN]', formData.nin);
             fd.append('profile[wilaya]', 'Not Specified');
-            fd.append('profile[adress]', 'Not Specified');
+            fd.append('profile[address]', 'Not Specified');
 
             // Files
             fd.append('registerCommerceImage', formData.commercialRegister);
             fd.append('licenseImage', formData.importLicense);
-            fd.append('idCardImage', formData.idFront);
+            fd.append('idFrontCardImage', formData.idFront);
+            fd.append('idBackCardImage', formData.idBack);
 
             // Camera selfie
             if (selfiePhoto && typeof selfiePhoto === 'string' && selfiePhoto.includes(',')) {
@@ -396,6 +397,19 @@ const SignUp = ({ onNavigate }) => {
     const handleOtpKeyDown = (index, e) => {
         if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
             otpRefs.current[index - 1].current.focus();
+        }
+    };
+
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (pastedData) {
+            setOtpCode(pastedData);
+            // Focus the correct input based on pasted length
+            const nextIndex = Math.min(pastedData.length, 5);
+            if (otpRefs.current[nextIndex] && otpRefs.current[nextIndex].current) {
+                otpRefs.current[nextIndex].current.focus();
+            }
         }
     };
 
@@ -756,6 +770,7 @@ const SignUp = ({ onNavigate }) => {
                                         value={otpCode[i] || ''}
                                         onChange={(e) => handleOtpChange(i, e.target.value)}
                                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                        onPaste={handleOtpPaste}
                                         className={`otp-digit-input ${otpCode[i] ? 'filled' : ''}`}
                                         autoFocus={i === 0}
                                     />

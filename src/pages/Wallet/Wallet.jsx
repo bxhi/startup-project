@@ -1,53 +1,126 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Wallet.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
-import Button from '../../components/Button/Button';
-import { FiPlus, FiDownload, FiCheckCircle } from 'react-icons/fi';
+import { FiShield, FiZap, FiAward, FiCpu } from 'react-icons/fi';
 import { MdOutlineCallMade, MdOutlineCallReceived } from 'react-icons/md';
-import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
+import { LuPackage, LuBox, LuShoppingBag, LuTrendingUp, LuStore, LuDollarSign, LuGift, LuCreditCard, LuShoppingCart } from 'react-icons/lu';
 import { useLanguage } from '../../context/LanguageContext';
+import { walletApi } from '../../api/api';
+import { toast } from 'react-hot-toast';
 
 const Wallet = ({ onNavigate }) => {
     const { t, language } = useLanguage();
+    const [balance, setBalance] = useState(0);
+    const [packs, setPacks] = useState([]);
+    const [purchaseType, setPurchaseType] = useState('custom'); // 'pack' or 'custom'
+    const [customPoints, setCustomPoints] = useState('');
+    const [selectedPack, setSelectedPack] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState('chargily');
+
+    useEffect(() => {
+        fetchBalance();
+        fetchPacks();
+    }, []);
+
+    const fetchBalance = async () => {
+        try {
+            const response = await walletApi.get('/wallet/balance');
+            setBalance(response.data.pointBalance || 0);
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+            setBalance(0);
+        }
+    };
+
+    const fetchPacks = async () => {
+        try {
+            const response = await walletApi.get('/wallet/packs');
+            const data = response.data || [];
+            setPacks(data);
+            const popular = data.find(p => p.isPopular);
+            if (popular) {
+                setSelectedPack(popular);
+                setTimeout(() => setPurchaseType('pack'), 600);
+            }
+        } catch (error) {
+            const fallbackPacks = [
+                { id: 1, name: language === 'ar' ? 'باقة البداية' : 'Starter Pack', points: 100, priceDzd: 500, icon: <FiZap /> },
+                { id: 2, name: language === 'ar' ? 'باقة المحترفين' : 'Pro Pack', points: 500, priceDzd: 2000, icon: <FiAward />, isPopular: true },
+                { id: 3, name: language === 'ar' ? 'الباقة القصوى' : 'Ultimate Pack', points: 2000, priceDzd: 7000, icon: <FiCpu /> }
+            ];
+            setPacks(fallbackPacks);
+            setSelectedPack(fallbackPacks[1]); // Select Pro Pack by default
+            setTimeout(() => setPurchaseType('pack'), 600);
+        }
+    };
+
+    const handlePurchase = async () => {
+        if (purchaseType === 'pack' && !selectedPack) {
+            toast.error(language === 'ar' ? 'يرجى اختيار باقة أولاً' : 'Please select a pack first');
+            return;
+        }
+        if (purchaseType === 'custom' && (!customPoints || customPoints <= 0)) {
+            toast.error(language === 'ar' ? 'يرجى إدخال عدد نقاط صحيح' : 'Please enter a valid amount of points');
+            return;
+        }
+
+        try {
+            toast.loading(language === 'ar' ? 'جاري تحويلك للدفع...' : 'Redirecting to payment...');
+
+            let response;
+            if (purchaseType === 'pack') {
+                response = await walletApi.post('/wallet/purchase/pack', {
+                    packId: selectedPack.id
+                });
+            } else {
+                response = await walletApi.post('/wallet/purchase/custom', {
+                    points: parseInt(customPoints),
+                    paymentMethod: paymentMethod === 'chargily' ? 'CHARGILY_APP' : paymentMethod.toUpperCase()
+                });
+            }
+
+            const checkoutUrl = response.data?.checkoutUrl || response.data?.paymentUrl;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                toast.dismiss();
+                toast.success(language === 'ar' ? 'تمت عملية الشراء بنجاح' : 'Purchase successful');
+                fetchBalance();
+            }
+        } catch (error) {
+            toast.dismiss();
+            console.error('Purchase error:', error);
+            toast.error(language === 'ar' ? 'فشلت عملية الشراء' : 'Purchase failed');
+        }
+    };
 
     const transactions = [
-        { id: 'TXN-101', date: '2026-02-14', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'الإفراج عن دفعة الطلب - ORD-2026-002' : 'Order Payment Released - ORD-2026-002', amount: '+€4 500', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
-        { id: 'TXN-102', date: '2026-02-12', type: language === 'ar' ? 'خصم' : 'Debit', description: language === 'ar' ? 'تجديد الاشتراك - الباقة الممتازة' : 'Subscription Renewal - Premium Plan', amount: '-€99', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: false },
-        { id: 'TXN-103', date: '2026-02-10', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'شراء نقاط' : 'Points Purchase', amount: '+€1 000', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
-        { id: 'TXN-104', date: '2026-02-08', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'الإفراج عن دفعة الطلب - ORD-2026-001' : 'Order Payment Released - ORD-2026-001', amount: '+€7 500', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
-        { id: 'TXN-105', date: '2026-02-05', type: language === 'ar' ? 'خصم' : 'Debit', description: language === 'ar' ? 'سحب إلى الحساب البنكي' : 'Withdrawal to Bank Account', amount: '-€5 000', status: language === 'ar' ? 'معلق' : 'pending', isPositive: false }
-    ];
+        { id: 'TXN-101', date: '2026-02-14', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'الإفراج عن دفعة الطلب - ORD-2026-002' : 'Order Payment Released - ORD-2026-002', amount: '+4 500', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
+        { id: 'TXN-102', date: '2026-02-12', type: language === 'ar' ? 'خصم' : 'Debit', description: language === 'ar' ? 'تجديد الاشتراك - الباقة الممتازة' : 'Subscription Renewal - Premium Plan', amount: '-99', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: false },
+        { id: 'TXN-103', date: '2026-02-10', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'شراء نقاط' : 'Points Purchase', amount: '+1 000', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
 
-    const plans = language === 'ar' ? [
-        { name: 'أساسي', price: '€0', features: ['10 عروض نشطة', '50 مقترحاً شهرياً', 'تحليلات أساسية', 'دعم بالبريد', 'رسوم معاملة 5%'], isPopular: false, isCurrent: false },
-        { name: 'ممتاز', price: '€99', features: ['عروض نشطة غير محدودة', 'مقترحات غير محدودة', 'تحليلات متقدمة', 'دعم ذو أولوية', 'رسوم معاملة 3%', 'قوائم مميزة'], isPopular: true, isCurrent: true },
-        { name: 'مؤسسي', price: '€299', features: ['كل مزايا الممتاز', 'مدير حساب مخصص', 'تكاملات مخصصة', 'وصول API', 'رسوم معاملة 2%', 'خيارات علامة بيضاء'], isPopular: false, isCurrent: false }
-    ] : [
-        { name: 'Basic', price: '€0', features: ['10 active offers', '50 proposals per month', 'Basic analytics', 'Email support', '5% transaction fee'], isPopular: false, isCurrent: false },
-        { name: 'Premium', price: '€99', features: ['Unlimited active offers', 'Unlimited proposals', 'Advanced analytics', 'Priority support', '3% transaction fee', 'Featured listings'], isPopular: true, isCurrent: true },
-        { name: 'Enterprise', price: '€299', features: ['Everything in Premium', 'Dedicated account manager', 'Custom integrations', 'API access', '2% transaction fee', 'White-label options'], isPopular: false, isCurrent: false }
     ];
 
     const labels = {
-        walletTitle: language === 'ar' ? 'المحفظة والاشتراك' : 'Wallet & Subscription',
-        walletSubtitle: language === 'ar' ? 'إدارة رصيدك واشتراكك' : 'Manage your balance and subscription',
-        availableBalance: language === 'ar' ? 'الرصيد المتاح' : 'Available Balance',
-        lastUpdated: language === 'ar' ? 'آخر تحديث: اليوم، 10:30 ص' : 'Last updated: Today, 10:30 AM',
-        buyPoints: language === 'ar' ? 'شراء نقاط' : 'Buy Points',
-        withdraw: language === 'ar' ? 'سحب' : 'Withdraw',
-        thisMonthEarnings: language === 'ar' ? 'أرباح هذا الشهر' : 'This Month Earnings',
-        pendingEscrow: language === 'ar' ? 'ضمان معلق' : 'Pending Escrow',
-        totalWithdrawn: language === 'ar' ? 'إجمالي المسحوب' : 'Total Withdrawn',
+        walletTitle: language === 'ar' ? 'المحفظة' : 'Wallet',
+        walletSubtitle: language === 'ar' ? 'إدارة رصيدك وشراء النقاط' : 'Manage your balance and buy points',
+        availableBalance: language === 'ar' ? 'رصيد النقاط' : 'Points Balance',
+        lastUpdated: language === 'ar' ? 'آخر تحديث: الآن' : 'Last updated: Just now',
+        buyPoints: language === 'ar' ? 'شراء نقاط مخصصة' : 'Buy Custom Points',
         txHistory: language === 'ar' ? 'سجل المعاملات' : 'Transaction History',
         date: language === 'ar' ? 'التاريخ' : 'Date',
         type: language === 'ar' ? 'النوع' : 'Type',
         description: language === 'ar' ? 'الوصف' : 'Description',
-        amount: language === 'ar' ? 'المبلغ' : 'Amount',
-        subPlans: language === 'ar' ? 'خطط الاشتراك' : 'Subscription Plans',
+        amount: language === 'ar' ? 'النقاط' : 'Points',
         mostPopular: language === 'ar' ? 'الأكثر شيوعاً' : 'Most Popular',
-        currentPlan: language === 'ar' ? 'الخطة الحالية' : 'Current Plan',
-        perMonth: language === 'ar' ? '/شهر' : '/month',
-        upgrade: language === 'ar' ? 'ترقية' : 'Upgrade',
+        customPurchase: language === 'ar' ? 'شراء مخصص' : 'Custom Purchase',
+        packsPurchase: language === 'ar' ? 'باقات النقاط' : 'Points Packs',
+        customPointsTitle: language === 'ar' ? 'نقاط مخصصة' : 'Custom Points',
+        customPointsSubtitle: language === 'ar' ? 'أدخل أي مبلغ تريده' : 'Enter any amount you want',
+        enterAmount: language === 'ar' ? 'أدخل عدد النقاط' : 'Enter points amount',
+        pts: language === 'ar' ? 'نقطة' : 'pts',
+        acceptedMethods: language === 'ar' ? 'طرق الدفع المقبولة' : 'Accepted Payment Methods',
+        dzd: language === 'ar' ? 'دج' : 'DZD'
     };
 
     return (
@@ -60,36 +133,223 @@ const Wallet = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <div className="balance-showcase">
-                    <div className="wallet-market-layer">
-                        {[LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox, LuShoppingBag, LuTrendingUp, LuStore, LuPackage, LuBox, LuDollarSign, LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuBox, LuDollarSign].map((Icon, i) => (
-                            <div key={i} className={`market-icon icon-${i + 1}`}><Icon /></div>
-                        ))}
-                    </div>
+                <div className="balance-showcase mini-card">
                     <div className="balance-background-mesh">
+                        <div className="blob-rainbow"></div>
                         <div className="blob blob-1"></div>
                         <div className="blob blob-2"></div>
-                        <div className="blob blob-3"></div>
-                        <div className="blob blob-4"></div>
-                        <div className="blob blob-5"></div>
-                        <div className="blob-rainbow"></div>
                     </div>
+
+                    {/* Floating Market Icons Layer */}
+                    <div className="balance-market-layer">
+                        <div className="market-icon icon-1"><LuShoppingBag /></div>
+                        <div className="market-icon icon-2"><LuPackage /></div>
+                        <div className="market-icon icon-3"><LuTrendingUp /></div>
+                        <div className="market-icon icon-4"><LuStore /></div>
+                        <div className="market-icon icon-5"><LuDollarSign /></div>
+                        <div className="market-icon icon-6"><LuBox /></div>
+                        <div className="market-icon icon-7"><LuShoppingBag /></div>
+                        <div className="market-icon icon-8"><LuTrendingUp /></div>
+                        <div className="market-icon icon-9"><LuStore /></div>
+                        <div className="market-icon icon-10"><LuPackage /></div>
+                    </div>
+
                     <div className="balance-content">
-                        <div className="balance-top-row">
-                            <div className="main-balance">
-                                <span>{labels.availableBalance}</span>
-                                <h2>€24 580</h2>
-                                <p className="last-updated">{labels.lastUpdated}</p>
+                        <div className="main-balance">
+                            <span>{labels.availableBalance}</span>
+                            <h2>{balance.toLocaleString()} {labels.pts}</h2>
+                            <p className="last-updated">{labels.lastUpdated}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="purchase-section">
+                    <div className="purchase-switch-container">
+                        <div className={`purchase-switch-slider ${purchaseType === 'pack' ? 'right' : 'left'}`}></div>
+                        <button
+                            className={`switch-btn ${purchaseType === 'custom' ? 'active' : ''}`}
+                            onClick={() => setPurchaseType('custom')}
+                        >
+                            <LuShoppingCart className="switch-icon" />
+                            <span>{labels.customPurchase}</span>
+                        </button>
+                        <button
+                            className={`switch-btn ${purchaseType === 'pack' ? 'active' : ''}`}
+                            onClick={() => setPurchaseType('pack')}
+                        >
+                            <LuPackage className="switch-icon" />
+                            <span>{labels.packsPurchase}</span>
+                        </button>
+                    </div>
+
+                    {purchaseType === 'custom' ? (
+                        <div className="custom-purchase-card">
+                            <div className="card-left">
+                                <div className="custom-header">
+                                    <div className="custom-icon-wrapper">
+                                        <LuGift />
+                                    </div>
+                                    <div>
+                                        <h3>{labels.customPointsTitle}</h3>
+                                        <p>{labels.customPointsSubtitle}</p>
+                                    </div>
+                                </div>
+
+                                <div className="input-row-wrapper">
+                                    <div className="input-container">
+                                        <LuShoppingCart className="input-icon" />
+                                        <input
+                                            type="number"
+                                            placeholder={labels.enterAmount}
+                                            value={customPoints}
+                                            onChange={(e) => setCustomPoints(e.target.value)}
+                                            dir="ltr"
+                                        />
+                                    </div>
+                                    <span className="unit-badge">{labels.pts}</span>
+                                </div>
+
+                                <button
+                                    className="btn-buy-primary"
+                                    onClick={handlePurchase}
+                                    disabled={!customPoints}
+                                >
+                                    {labels.buyPoints}
+                                </button>
                             </div>
-                            <div className="balance-actions">
-                                <Button className="btn-buy-points" variant="outline"><FiPlus /> {labels.buyPoints}</Button>
-                                <Button className="btn-withdraw" variant="primary"><FiDownload /> {labels.withdraw}</Button>
+
+                            <div className="card-right">
+                                <div className="turning-cards-container">
+                                    <div className="turning-cards-inner">
+
+                                        {/* FRONT: Edahabia Card */}
+                                        <div className="turning-card-front">
+                                            <div className="floating-edahabia-card">
+                                                <div className="edahabia-bg">
+                                                    <div className="edahabia-wireframe"></div>
+                                                </div>
+                                                <div className="edahabia-content">
+                                                    <div className="edahabia-top">
+                                                        <span className="edahabia-ar-gold">الذهبية</span>
+                                                        <img src="/edahabia-logo.png" className="edahabia-post-logo-gold" alt="Algerie Poste" />
+                                                    </div>
+                                                    <div className="edahabia-center-text">
+                                                        <span>بريد الجزائر</span>
+                                                    </div>
+                                                    <div className="edahabia-chip-hologram-row">
+                                                        <FiCpu className="edahabia-chip" />
+                                                        <div className="edahabia-hologram"></div>
+                                                    </div>
+                                                    <div className="edahabia-middle">
+                                                        <div className="edahabia-number">
+                                                            <span>6752</span>
+                                                            <span>5682</span>
+                                                            <span>8726</span>
+                                                            <span className="edahabia-dynamic-pts">{customPoints ? customPoints.padStart(4, '0').slice(-4) : '9034'}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="edahabia-bottom">
+                                                        <div className="edahabia-arrow"></div>
+                                                        <div className="edahabia-user-info">
+                                                            <div className="edahabia-exp">
+                                                                <span className="exp-val">06/29</span>
+                                                                <span className="exp-label-ar">تنتهي بتاريخ</span>
+                                                            </div>
+                                                            <div className="edahabia-user">NOM ET PRÉNOM</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* BACK: Premium Black Glass Card */}
+                                        <div className="turning-card-back">
+                                            <div className="premium-black-card">
+                                                <div className="card-glass-layer">
+                                                    <div className="card-top">
+                                                        <FiCpu className="card-chip-icon" />
+                                                        <span className="card-type">CUSTOM PACK</span>
+                                                    </div>
+                                                    <div className="card-middle">
+                                                        <div className="card-amount">
+                                                            {customPoints ? customPoints : '0'} <span className="card-pts">PTS</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="card-bottom">
+                                                        <div className="card-user">IMPORTERS USER</div>
+                                                        <div className="card-network">
+                                                            <div className="circle-solid"></div>
+                                                            <div className="circle-glass"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div className="card-shadow"></div>
+                                </div>
                             </div>
                         </div>
-                        <div className="balance-stats-row">
-                            <div className="glass-stat-box"><span>{labels.thisMonthEarnings}</span><h3>€31,240</h3></div>
-                            <div className="glass-stat-box"><span>{labels.pendingEscrow}</span><h3>€7,500</h3></div>
-                            <div className="glass-stat-box"><span>{labels.totalWithdrawn}</span><h3>€45,000</h3></div>
+                    ) : (
+                        <div className="packs-grid">
+                            {packs.map((pack) => (
+                                <div
+                                    key={pack.id}
+                                    className={`plan-card ${selectedPack?.id === pack.id ? 'selected' : ''} ${pack.isPopular ? 'popular-plan' : ''}`}
+                                    onClick={() => setSelectedPack(pack)}
+                                >
+                                    {pack.isPopular && <div className="popular-badge">{labels.mostPopular}</div>}
+                                    <div className="plan-header">
+                                        <div className="plan-icon-box">{pack.icon}</div>
+                                        <h3>{pack.name}</h3>
+                                        <div className="plan-price">
+                                            <span className="amount">{pack.points} {labels.pts}</span>
+                                            <span className="period">
+                                                {pack.priceDzd.toLocaleString()} {labels.dzd}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        className="btn-select-pack"
+                                        onClick={(e) => { e.stopPropagation(); setSelectedPack(pack); handlePurchase(); }}
+                                    >
+                                        {language === 'ar' ? 'شراء هذه الباقة' : 'Buy this pack'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="payment-methods">
+                        <div className="methods-title">
+                            <LuCreditCard /> <span>{labels.acceptedMethods}</span>
+                        </div>
+                        <div className="methods-grid">
+                            <button
+                                className={`method-badge method-cib ${paymentMethod === 'cib' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('cib')}
+                            >
+                                <div className="radio-circle"></div>
+                                <img src="/cib-logo.png" alt="CIB" className="method-logo" />
+                                <span>{language === 'ar' ? 'الدفع بـ CIB' : 'Pay with CIB'}</span>
+                            </button>
+                            <button
+                                className={`method-badge method-edahabia ${paymentMethod === 'edahabia' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('edahabia')}
+                            >
+                                <div className="radio-circle"></div>
+                                <img src="/edahabia-logo.png" alt="Edahabia" className="method-logo" />
+                                <span>{language === 'ar' ? 'الدفع بـ Edahabia' : 'Pay with Edahabia'}</span>
+                            </button>
+                            <button
+                                className={`method-badge method-chargily ${paymentMethod === 'chargily' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('chargily')}
+                            >
+                                <div className="radio-circle"></div>
+                                <img src="/chargily-logo.png" alt="Chargily" className="method-logo" />
+                                <span>{language === 'ar' ? 'الدفع بـ Chargily' : 'Pay with Chargily'}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -124,36 +384,6 @@ const Wallet = ({ onNavigate }) => {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-
-                <div className="subscriptions-section">
-                    <div className="section-header"><h2>{labels.subPlans}</h2></div>
-                    <div className="plans-grid">
-                        {plans.map((plan, idx) => (
-                            <div key={idx} className={`plan-card ${plan.isPopular ? 'popular-plan' : ''}`}>
-                                {plan.isPopular && <div className="popular-badge">{labels.mostPopular}</div>}
-                                {plan.isCurrent && <div className="current-badge">{labels.currentPlan}</div>}
-                                <div className="plan-header">
-                                    <h3>{plan.name}</h3>
-                                    <div className="plan-price">
-                                        <span className="amount">{plan.price}</span>
-                                        <span className="period">{labels.perMonth}</span>
-                                    </div>
-                                </div>
-                                <div className="plan-features">
-                                    {plan.features.map((feature, fIdx) => (
-                                        <div key={fIdx} className="feature-item">
-                                            <FiCheckCircle className="check-icon" />
-                                            <span>{feature}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <Button className="btn-subscribe" variant={plan.isCurrent ? 'outline' : 'primary'} disabled={plan.isCurrent}>
-                                    {plan.isCurrent ? labels.currentPlan : labels.upgrade}
-                                </Button>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>

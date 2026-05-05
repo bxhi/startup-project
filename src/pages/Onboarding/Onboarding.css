@@ -1152,7 +1152,6 @@
 .rainbow-but.step-dot.active {
     color: #fff;
     background-color: #000;
-    transform: scale(1.1);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     /* Standardized soft blurred shadow */
 }

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
+import { Toaster } from 'react-hot-toast'
 import Login from './pages/Login/Login'
 import SignUp from './pages/SignUp/SignUp'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
@@ -13,11 +14,22 @@ import Wallet from './pages/Wallet/Wallet'
 import Settings from './pages/Settings/Settings'
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('onboarding');
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('currentPage');
+    const token = localStorage.getItem('token');
+    if (!token) return 'onboarding';
+    return savedPage || 'dashboard';
+  });
+  
   const { dir, language } = useLanguage();
+
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage);
+  }, [currentPage]);
 
   return (
     <div className="app" dir={dir} lang={language}>
+      <Toaster position="top-center" />
       {currentPage === 'onboarding' && (
         <Onboarding onNavigate={(page) => setCurrentPage(page)} />
       )}

@@ -259,6 +259,14 @@ const Settings = ({ onNavigate }) => {
                                 <button className="security-btn">{t.changePassword}</button>
                                 <button className="security-btn">{t.twoFactorAuth}</button>
                             </div>
+                            <div className="logout-section">
+                                <button className="logout-btn-red" onClick={() => {
+                                    localStorage.clear();
+                                    onNavigate('onboarding');
+                                }}>
+                                    <FiLogOut /> {t.logout}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

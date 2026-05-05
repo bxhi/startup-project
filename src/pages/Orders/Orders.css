@@ -397,6 +397,140 @@
     text-align: right;
 }
 
+/* Premium Empty State */
+.empty-orders-view-premium {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px;
+    max-width: 600px;
+    margin: 40px auto;
+    border-radius: 24px;
+}
+
+.empty-illustration {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.blob-bg {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(31, 115, 183, 0.2), rgba(31, 115, 183, 0.05));
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    animation: blobMorph 8s linear infinite;
+}
+
+.main-icon {
+    font-size: 56px;
+    color: var(--primary);
+    z-index: 1;
+    filter: drop-shadow(0 4px 12px rgba(31, 115, 183, 0.2));
+}
+
+.dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+.dot-1 {
+    top: 20%;
+    right: 10%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.dot-2 {
+    bottom: 15%;
+    left: 15%;
+    animation: float 4s ease-in-out infinite reverse;
+    opacity: 0.5;
+}
+
+@keyframes blobMorph {
+
+    0%,
+    100% {
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+
+    33% {
+        border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%;
+    }
+
+    66% {
+        border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.empty-orders-view-premium h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.empty-orders-view-premium p {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.btn-discover {
+    background: var(--primary);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(31, 115, 183, 0.2);
+}
+
+.btn-discover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(31, 115, 183, 0.3);
+    filter: brightness(1.1);
+}
+
+.btn-discover:active {
+    transform: translateY(0);
+}
+
+/* RTL Adjustments */
+[dir="rtl"] .empty-orders-view-premium p {
+    text-align: center;
+}
+
+[dir="rtl"] .btn-discover {
+    font-family: inherit;
+}
+
 [dir="rtl"] .orders-table {
     text-align: right;
 }

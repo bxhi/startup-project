@@ -60,6 +60,11 @@ const authService = {
     verifyOtp: async (userId, code) => {
         const response = await api.post('/auth/verify-otp', { userId, code });
         return response.data;
+    },
+
+    verifyResetOtp: async (email, otp) => {
+        const response = await api.post('/auth/verify-reset-otp', { email, otp });
+        return response.data;
     }
 };
 

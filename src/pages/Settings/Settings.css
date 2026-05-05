@@ -6,7 +6,6 @@
 
 /* Wallet & Subscription style header */
 .header-wallet-style {
-    margin-top: 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -14,14 +13,14 @@
 
 .header-wallet-style h1 {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
     color: #1e293b;
     margin-bottom: 4px;
 }
 
 .header-wallet-style p {
     color: #64748b;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     margin: 0;
 }
 
@@ -534,7 +533,14 @@ input:checked+.slider:before {
 }
 
 /* Logout Button */
-.settings-logout-btn {
+.logout-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.logout-btn-red {
+    width: 100%;
     padding: 1rem;
     background: #ef4444;
     color: white;
@@ -547,14 +553,18 @@ input:checked+.slider:before {
     gap: 0.75rem;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.2s;
-    margin-top: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
-.settings-logout-btn:hover {
+.logout-btn-red:hover {
     background: #dc2626;
-    transform: scale(0.98);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.logout-btn-red:active {
+    transform: translateY(0);
 }
 
 @media (max-width: 1200px) {
