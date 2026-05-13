@@ -5,6 +5,10 @@ import { FiSearch, FiFilter, FiList, FiGrid, FiMapPin, FiCalendar, FiWifi } from
 import { TbListDetails } from 'react-icons/tb';
 import { MdClose } from 'react-icons/md';
 import { useLanguage } from '../../context/LanguageContext';
+import { negotiationService } from '../../api/negotiationService';
+import { FiAlertCircle, FiLoader, FiShield } from 'react-icons/fi';
+import { FaHandshake } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 
 const ClientCommands = ({ onNavigate }) => {
     const [viewMode, setViewMode] = useState('detailed');
@@ -14,11 +18,22 @@ const ClientCommands = ({ onNavigate }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [category, setCategory] = useState('all');
     const [filters, setFilters] = useState({ date: '', location: 'all', status: 'all', minBudget: '', maxBudget: '' });
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+
+    const [proposalData, setProposalData] = useState({ message: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showContactWarning, setShowContactWarning] = useState(false);
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let vStatus = localStorage.getItem('verificationStatus') || user.status;
+    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
     const commands = [
         {
             id: 'CMD-001',
+            clientId: 'client-abc-123',
+            clientName: 'ABC Trading',
             title: 'High-Quality Leather Jackets (100 units)',
             product: 'Leather Jackets',
             quantity: 100,
@@ -31,6 +46,8 @@ const ClientCommands = ({ onNavigate }) => {
         },
         {
             id: 'CMD-002',
+            clientId: 'client-xyz-456',
+            clientName: 'XYZ Imports',
             title: 'Electronic Components - Resistors & Capacitors',
             product: 'Electronic Components',
             quantity: 5000,
@@ -43,6 +60,8 @@ const ClientCommands = ({ onNavigate }) => {
         },
         {
             id: 'CMD-003',
+            clientId: 'client-global-789',
+            clientName: 'Global Traders',
             title: 'Modern Office Furniture Set',
             product: 'Office Furniture',
             quantity: 150,
@@ -69,6 +88,69 @@ const ClientCommands = ({ onNavigate }) => {
         const matchesMaxBudget = !filters.maxBudget || maxVal <= parseInt(filters.maxBudget);
         return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesMinBudget && matchesMaxBudget;
     });
+
+    const handleProposalMessageChange = (e) => {
+        const val = e.target.value;
+        setProposalData(prev => ({ ...prev, message: val }));
+
+        const phoneRegex = /(\+?\d{1,4}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+        if (phoneRegex.test(val) || emailRegex.test(val)) {
+            setShowContactWarning(true);
+        } else {
+            setShowContactWarning(false);
+        }
+    };
+
+    const handleSendProposal = async () => {
+        if (!proposalData.message || proposalData.message.trim().length < 5) {
+            toast.error(t.messageTooShort || 'Please enter at least 5 characters');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                toast.error('Please login first');
+                setIsSubmitting(false);
+                return;
+            }
+            const user = JSON.parse(userStr);
+
+            // 1. Create Negotiation with required fields
+            const negResponse = await negotiationService.createNegotiation(
+                proposalCommand.id,
+                proposalCommand.clientId,
+                proposalCommand.clientName,
+                user.userId
+            );
+            const negotiationId = negResponse.id;
+
+            // 2. Create Initial Proposal
+            const defaultPrice = parseFloat(proposalCommand.budget.replace(/[^0-9.]/g, '')) || 0;
+            const defaultQty = proposalCommand.quantity || 1;
+
+            await negotiationService.createProposal(
+                negotiationId,
+                defaultQty,
+                defaultPrice,
+                user.role,
+                proposalData.message
+            );
+
+            toast.success('Proposal sent successfully!');
+            setProposalCommand(null);
+            setProposalData({ message: '' });
+        } catch (err) {
+            console.error('Error sending proposal:', err);
+            const errMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to send proposal.';
+            toast.error(errMsg);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <DashboardLayout onNavigate={onNavigate} activePage="commands">
@@ -247,7 +329,7 @@ const ClientCommands = ({ onNavigate }) => {
                                     <h3 className="details-sidebar-title">{selectedCommand.title}</h3>
                                     <p className="details-sidebar-desc">{selectedCommand.description}</p>
                                     <div className="details-sidebar-info-grid">
-                                        <div className="info-row"><span className="info-label">{t.client}</span><span className="info-value">Fashion Boutique Ltd</span></div>
+                                        <div className="info-row"><span className="info-label">{t.client}</span><span className="info-value">{selectedCommand.clientName}</span></div>
                                         <div className="info-row"><span className="info-label">{t.category}</span><span className="info-value">{selectedCommand.product}</span></div>
                                         <div className="info-row"><span className="info-label">{t.quantity}</span><span className="info-value">{selectedCommand.quantity} {t.units}</span></div>
                                         <div className="info-row"><span className="info-label">{t.budgetRangeLabel}</span><span className="info-value">{selectedCommand.budget}</span></div>
@@ -256,12 +338,19 @@ const ClientCommands = ({ onNavigate }) => {
                                     </div>
                                 </div>
                                 <div className="details-sidebar-footer">
-                                    <button className="btn-send-proposal full-width" onClick={(e) => { e.stopPropagation(); setProposalCommand(selectedCommand); }}>
+                                    <button 
+                                        className={`btn-send-proposal cool-send-btn full-width ${isPending ? 'pending-disabled' : ''}`} 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            if (isPending) {
+                                                toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                                return;
+                                            }
+                                            setProposalCommand(selectedCommand); 
+                                        }}
+                                    >
                                         <div className="svg-wrapper">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                                <path fill="none" d="M0 0h24v24H0z"></path>
-                                                <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
-                                            </svg>
+                                            <FaHandshake className="handshake-icon" />
                                         </div>
                                         <span>{t.sendProposal}</span>
                                     </button>
@@ -280,43 +369,38 @@ const ClientCommands = ({ onNavigate }) => {
                             <button className="close-modal-btn" onClick={() => setProposalCommand(null)}><MdClose /></button>
                         </div>
                         <div className="proposal-modal-body">
-                            <div className="form-group">
-                                <label>{t.proposedUnitPrice}</label>
-                                <input type="number" placeholder={t.enterPricePerUnit} />
+                            <div className="form-group large-group">
+                                <label className="large-label">{t.yourProposal || 'Your Proposal Message'}</label>
+                                <textarea
+                                    rows="6"
+                                    placeholder={t.describeOffer}
+                                    value={proposalData.message}
+                                    onChange={handleProposalMessageChange}
+                                    className="proposal-textarea cool-textarea"
+                                    spellCheck={false}
+                                    data-gramm={false}
+                                ></textarea>
                             </div>
-                            <div className="form-group">
-                                <label>{t.quantityOffered}</label>
-                                <input type="number" placeholder={`Max: ${proposalCommand.quantity}`} />
-                            </div>
-                            <div className="form-group">
-                                <label>{t.deliveryTime}</label>
-                                <select defaultValue="7-10 days">
-                                    <option value="7-10 days">{t.delivery7to10Days}</option>
-                                    <option value="10-15 days">{t.delivery10to15Days}</option>
-                                    <option value="15-20 days">{t.delivery15to20Days}</option>
-                                    <option value="20-30 days">{t.delivery20to30Days}</option>
-                                    <option value="+30 days">{t.deliveryMore30Days}</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label>{t.messageToClient}</label>
-                                <textarea rows="4" placeholder={t.describeOffer}></textarea>
-                                <p className="form-help-text">
-                                    {t.beSpecific}<br />
-                                    <span className="text-warning">{t.warningContact}</span>
-                                </p>
+                            <div className="creative-warning-banner is-warning">
+                                <div className="warning-content">
+                                    <strong className="warning-title">
+                                        {language === 'ar' ? 'لضمان أمان حسابك' : 'Protect Your Account'}
+                                    </strong>
+                                    <p className="warning-text">
+                                        {language === 'ar' 
+                                            ? 'يرجى إبقاء جميع المحادثات والمعاملات داخل المنصة. مشاركة معلومات الاتصال الخارجية (رقم الهاتف، البريد الإلكتروني، إلخ) قد يؤدي إلى تعليق الحساب.' 
+                                            : 'Please keep all communications and transactions on the platform. Sharing external contact information (phone number, email, etc.) may lead to account suspension.'}
+                                    </p>
+                                </div>
+                                <div className="animated-shield-bg"></div>
                             </div>
                         </div>
                         <div className="proposal-modal-footer">
-                            <button className="btn-secondary" onClick={() => setProposalCommand(null)}>{t.saveDraft}</button>
-                            <button className="btn-send-proposal">
+                            <button className="btn-send-proposal cool-send-btn" onClick={handleSendProposal} disabled={isSubmitting}>
                                 <div className="svg-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                                        <path fill="none" d="M0 0h24v24H0z"></path>
-                                        <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
-                                    </svg>
+                                    {isSubmitting ? <FiLoader className="animate-spin" /> : <FaHandshake className="handshake-icon" />}
                                 </div>
-                                <span>{t.sendProposal}</span>
+                                <span>{isSubmitting ? 'Sending...' : t.sendProposal}</span>
                             </button>
                         </div>
                     </div>

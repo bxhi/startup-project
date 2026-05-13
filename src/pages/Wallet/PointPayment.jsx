@@ -4,7 +4,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import { walletApi } from '../../api/api';
 import { useLanguage } from '../../context/LanguageContext';
-import { FiShield, FiZap, FiAward, FiCpu, FiStar, FiChevronLeft } from 'react-icons/fi';
+import { FiShield, FiZap, FiAward, FiCpu, FiStar, FiChevronLeft, FiCreditCard } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 
 const PointPayment = ({ onNavigate }) => {
@@ -61,7 +61,7 @@ const PointPayment = ({ onNavigate }) => {
 
         try {
             toast.loading(language === 'ar' ? 'جاري تحويلك للدفع...' : 'Redirecting to payment...');
-            
+
             let response;
             if (purchaseType === 'pack') {
                 response = await walletApi.post('/wallet/purchase/pack', {
@@ -126,13 +126,13 @@ const PointPayment = ({ onNavigate }) => {
                 </div>
 
                 <div className="purchase-type-tabs">
-                    <button 
+                    <button
                         className={`tab-btn ${purchaseType === 'pack' ? 'active' : ''}`}
                         onClick={() => setPurchaseType('pack')}
                     >
                         {labels.selectPack}
                     </button>
-                    <button 
+                    <button
                         className={`tab-btn ${purchaseType === 'custom' ? 'active' : ''}`}
                         onClick={() => setPurchaseType('custom')}
                     >
@@ -144,8 +144,8 @@ const PointPayment = ({ onNavigate }) => {
                     <div className="packs-section animate-slide-up">
                         <div className="packs-grid">
                             {packs.map((pack) => (
-                                <div 
-                                    key={pack.id} 
+                                <div
+                                    key={pack.id}
                                     className={`pack-card ${selectedPack?.id === pack.id ? 'selected' : ''} ${pack.isPopular ? 'popular' : ''}`}
                                     onClick={() => setSelectedPack(pack)}
                                 >
@@ -165,16 +165,20 @@ const PointPayment = ({ onNavigate }) => {
                         <div className="custom-input-card">
                             <label>{labels.pointsToBuy}</label>
                             <div className="input-wrapper">
-                                <input 
-                                    type="number" 
-                                    placeholder="e.g. 1500" 
+                                {(language === 'en' || language === 'fr') && (
+                                    <FiCreditCard className="input-card-icon" />
+                                )}
+                                <input
+                                    type="number"
+                                    placeholder="e.g. 1500"
                                     value={customPoints}
                                     onChange={(e) => setCustomPoints(e.target.value)}
+                                    className={(language === 'en' || language === 'fr') ? 'with-icon' : ''}
                                 />
                                 <span className="unit">{labels.points}</span>
                             </div>
                             <p className="price-hint">
-                                {customPoints ? `≈ ${(customPoints * 5).toLocaleString()} DZD` : ''} 
+                                {customPoints ? `≈ ${(customPoints * 5).toLocaleString()} DZD` : ''}
                                 {language === 'ar' ? ' (تقريباً)' : ' (Estimated)'}
                             </p>
                         </div>
@@ -182,9 +186,9 @@ const PointPayment = ({ onNavigate }) => {
                 )}
 
                 <div className="payment-footer">
-                    <Button 
-                        className="btn-pay-now" 
-                        variant="primary" 
+                    <Button
+                        className="btn-pay-now"
+                        variant="primary"
                         onClick={handlePurchase}
                         disabled={purchaseType === 'pack' ? !selectedPack : !customPoints}
                     >

@@ -24,7 +24,7 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
         setError('');
         try {
             await authService.login(email, password);
-            
+
             // Handle Remember Me logic
             if (rememberMe) {
                 localStorage.setItem('rememberedEmail', email);
@@ -44,10 +44,15 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
             console.error('Error Message:', err.message);
 
             if (err.response) {
-                if (err.response.status === 401) {
+                // Choice: Prioritize the specific message from the backend
+                const backendMsg = err.response.data?.message || err.response.data?.error;
+                
+                if (backendMsg) {
+                    setError(backendMsg);
+                } else if (err.response.status === 401) {
                     setError(t.errInvalidCreds || 'Please enter valid credentials.');
                 } else if (err.response.status === 403) {
-                    setError(t.errAccountReview || 'Your account is still under review. Please wait 24-48 hours.');
+                    setError(t.errAccountBlocked || 'Access denied. Your account may be suspended.');
                 } else if (err.response.status === 404) {
                     setError(t.errAccountNotFound || 'Account not found.');
                 } else {
@@ -105,8 +110,8 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
             </div>
 
             <div className="login-header">
-                <h1 className="login-title">{t.loginTitle || 'importers'}</h1>
-                <p className="login-subtitle">{t.loginSubtitle || 'Welcome back! Please login to your account.'}</p>
+                <h1 className="login-title">Sign in</h1>
+                <p className="login-subtitle">Welcome back to the platform.</p>
             </div>
 
             <Card className="login-card">
@@ -150,10 +155,10 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
                         <a href="#" className="forgot-password" onClick={(e) => { e.preventDefault(); onForgotPassword(); }}>{t.forgotPassword || 'Forgot password?'}</a>
                     </div>
                     <Button type="submit" fullWidth disabled={loading}>
-                        {loading ? (t.loggingInButton || 'Logging in...') : (t.loginButton || 'Login')}
+                        {loading ? 'Entering...' : 'Sign in'}
                     </Button>
                     <div className="register-link">
-                        {t.noAccount || "Don't have an account?"} <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>{t.registerAsBusiness || 'Register as Business'}</a>
+                        New here? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Join us</a>
                     </div>
                 </form>
             </Card>

@@ -101,7 +101,8 @@ select {
 
 [dir="rtl"] * {
     font-family: 'Noto Kufi Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
-    letter-spacing: 0 !important; /* Arabic doesn't use letter-spacing */
+    letter-spacing: 0 !important;
+    /* Arabic doesn't use letter-spacing */
 }
 
 [dir="rtl"] h1,
@@ -139,4 +140,3 @@ select {
 [dir="rtl"] .body-text {
     line-height: 1.8;
 }
-

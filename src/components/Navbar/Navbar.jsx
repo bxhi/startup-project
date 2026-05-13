@@ -1,10 +1,38 @@
 import React from 'react';
 import './Navbar.css';
-import { FiSearch, FiBell } from 'react-icons/fi';
+import { FiSearch, FiBell, FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { LuShoppingBag, LuPackage, LuTrendingUp, LuStore, LuDollarSign, LuBox } from 'react-icons/lu';
 import { useLanguage } from '../../context/LanguageContext';
 const Navbar = () => {
     const { t, language } = useLanguage();
+    const [user, setUser] = React.useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+    const [vStatus, setVStatus] = React.useState(() => {
+        let status = localStorage.getItem('verificationStatus') || JSON.parse(localStorage.getItem('user') || '{}').status;
+        if (status === 'undefined' || status === 'null') return null;
+        return status;
+    });
+
+    React.useEffect(() => {
+        const handleStorage = () => {
+            const freshUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const freshStatus = localStorage.getItem('verificationStatus') || freshUser.status;
+            setUser(freshUser);
+            if (freshStatus !== 'undefined' && freshStatus !== 'null') {
+                setVStatus(freshStatus);
+            }
+        };
+
+        window.addEventListener('storage', handleStorage);
+        // Also check periodically or on mount in case storage event doesn't fire on same tab
+        const interval = setInterval(handleStorage, 1000);
+        
+        return () => {
+            window.removeEventListener('storage', handleStorage);
+            clearInterval(interval);
+        };
+    }, []);
+
+    const verificationStatus = vStatus || (user.userId ? 'PENDING' : null);
     return (
         <header className="navbar rainbow-navbar">
             {/* Market-Vibe Animated Layer */}
@@ -61,7 +89,17 @@ const Navbar = () => {
                             </svg>
                         </div>
                         <div className="user-info">
-                            <span className="user-name">Business Name</span>
+                            <div className="user-name-row">
+                                <span className="user-name">{user.businessName || user.fullName || 'Business Account'}</span>
+                                {verificationStatus && (
+                                    <span className={`status-badge-nav ${verificationStatus.toLowerCase()}`}>
+                                        {verificationStatus.toLowerCase() === 'pending' && <FiClock size={12} />}
+                                        {verificationStatus.toLowerCase() === 'approved' && <FiCheckCircle size={12} />}
+                                        {verificationStatus.toLowerCase() === 'rejected' && <FiAlertCircle size={12} />}
+                                        {t[`status${verificationStatus.toUpperCase()}`] || verificationStatus}
+                                    </span>
+                                )}
+                            </div>
                             <span className="user-role">{language === 'ar' ? 'مستورد' : language === 'fr' ? 'Importateur' : 'Importer'}</span>
                         </div>
                     </div>

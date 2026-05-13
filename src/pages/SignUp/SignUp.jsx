@@ -693,8 +693,8 @@ const SignUp = ({ onNavigate }) => {
             </div>
 
             <div className="signup-header">
-                <h1 className="signup-main-title">{t.signupMainTitle || 'importers'}</h1>
-                <p className="signup-subtitle">{t.signupSubtitle || 'Register your business account'}</p>
+                <h1 className="signup-main-title">Join us</h1>
+                <p className="signup-subtitle">Join our premium importer network today.</p>
             </div>
 
             <Card className="signup-card">
@@ -801,11 +801,26 @@ const SignUp = ({ onNavigate }) => {
                         </div>
                     </div>
                 ) : isVerificationPending ? (
-                    <div className="verification-pending">
-                        <div className="verification-content">
-                            <IoMdTime size={62} className="verification-icon" />
-                            <h2 className="verification-title">Verification Pending</h2>
-                            <p className="verification-subtitle">Your documents are being reviewed. This usually takes 24-48 hours.</p>
+                    <div className="verification-success-modern">
+                        <div className="success-content">
+                            <div className="check-icon-wrapper">
+                                <div className="check-icon-circle"></div>
+                                <FiCheckCircle size={80} className="check-icon-animated" />
+                            </div>
+                            <h2 className="success-title">{t.verificationSuccessTitle || 'Success! Identity Verified'}</h2>
+                            <p className="success-subtitle">
+                                {t.verificationSuccessDesc || 'Your account is now ready for exploration. You can login immediately while we validate your documents.'}
+                            </p>
+                            <div className="email-notify-card">
+                                <FiShield className="shield-icon" />
+                                <span>{t.willNotifyAt || 'We will notify you at:'} <strong>{formData.email}</strong></span>
+                            </div>
+                            <Button
+                                onClick={() => onNavigate()}
+                                className="success-login-btn"
+                            >
+                                {t.goToLogin || 'Proceed to Login'}
+                            </Button>
                         </div>
                     </div>
                 ) : (

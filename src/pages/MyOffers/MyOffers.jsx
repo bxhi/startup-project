@@ -3,9 +3,11 @@ import './MyOffers.css';
 import offerService from '../../api/offerService';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import CreateOfferModal from '../../components/CreateOfferModal/CreateOfferModal';
-import { FiPlus, FiEdit2, FiEyeOff, FiTrash2, FiX, FiCheck, FiLoader } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiEyeOff, FiEye, FiTrash2, FiX, FiCheck, FiLoader, FiImage } from 'react-icons/fi';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
+import ImageViewerModal from '../../components/ImageViewerModal/ImageViewerModal';
 import { useLanguage } from '../../context/LanguageContext';
+import { toast } from 'react-hot-toast';
 
 const MyOffers = ({ onNavigate }) => {
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -15,6 +17,12 @@ const MyOffers = ({ onNavigate }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [offerToDelete, setOfferToDelete] = useState(null);
     const { t } = useLanguage();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let vStatus = localStorage.getItem('verificationStatus') || user.status;
+    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
+    
+    const [viewerState, setViewerState] = useState({ isOpen: false, images: [], index: 0 });
 
     const fetchOffers = async () => {
         setIsLoading(true);
@@ -44,6 +52,22 @@ const MyOffers = ({ onNavigate }) => {
             setOffers(offers.map(offer => offer.offerId === id ? { ...offer, negociable: !currentStatus } : offer));
         } catch (error) {
             console.error('Failed to toggle negotiable:', error);
+            toast.error('Failed to toggle negotiable');
+        }
+    };
+
+    const handleToggleVisibility = async (id, currentStatus) => {
+        try {
+            const normalizedCurrent = (currentStatus || 'ACTIVE').toUpperCase();
+            const newStatus = normalizedCurrent === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
+            const data = new FormData();
+            data.append('offerStatus', newStatus);
+            await offerService.updateOffer(id, data);
+            setOffers(offers.map(offer => offer.offerId === id ? { ...offer, offerStatus: newStatus } : offer));
+            toast.success(`Offer ${newStatus === 'ACTIVE' ? 'published' : 'hidden'} successfully`);
+        } catch (error) {
+            console.error('Failed to toggle visibility:', error);
+            toast.error('Failed to update offer status');
         }
     };
 
@@ -70,7 +94,16 @@ const MyOffers = ({ onNavigate }) => {
                         <h1>{t.myOffersTitle}</h1>
                         <p>{t.myOffersSubtitle}</p>
                     </div>
-                    <button className="btn-create-offer" onClick={() => setShowCreateModal(true)}>
+                    <button 
+                        className={`btn-create-offer ${isPending ? 'pending-disabled' : ''}`} 
+                        onClick={() => {
+                            if (isPending) {
+                                toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                return;
+                            }
+                            setShowCreateModal(true);
+                        }}
+                    >
                         <div className="svg-wrapper"><FiPlus size={22} /></div>
                         <span>{t.createOffer}</span>
                     </button>
@@ -108,7 +141,17 @@ const MyOffers = ({ onNavigate }) => {
                                 offers.map((offer) => (
                                     <tr key={offer.offerId}>
                                         <td className="cell-image">
-                                            <div className="image-stack">
+                                            <div 
+                                                className="image-stack" 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (offer.productImages && offer.productImages.length > 0) {
+                                                        setViewerState({ isOpen: true, images: offer.productImages, index: 0 });
+                                                    }
+                                                }}
+                                                style={{ cursor: offer.productImages?.length > 0 ? 'pointer' : 'default' }}
+                                                title={offer.productImages?.length > 0 ? t.viewImages : ''}
+                                            >
                                                 {(offer.productImages || []).slice(0, 3).map((img, idx) => (
                                                     <div key={idx} className="product-image-small" style={{ zIndex: 3 - idx }}>
                                                         <img src={img.url} alt={`${offer.title} ${idx + 1}`} />
@@ -117,6 +160,9 @@ const MyOffers = ({ onNavigate }) => {
                                                 {offer.productImages?.length > 3 && (
                                                     <div className="image-stack-more">+{offer.productImages.length - 3}</div>
                                                 )}
+                                                {(!offer.productImages || offer.productImages.length === 0) && (
+                                                    <div className="product-image-small empty"><FiImage /></div>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="cell-title">{offer.title}</td>
@@ -124,24 +170,75 @@ const MyOffers = ({ onNavigate }) => {
                                         <td className="cell-qty">{offer.quantityAvailable} {t.units}</td>
                                         <td className="cell-origin">{offer.origin}</td>
                                         <td className="cell-negotiable">
-                                            <label className="toggle-switch">
-                                                <input type="checkbox" checked={!!offer.negociable} onChange={() => handleToggleNegotiable(offer.offerId, !!offer.negociable)} />
+                                            <label className={`toggle-switch ${isPending ? 'pending-disabled' : ''}`}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={!!offer.negociable} 
+                                                    onChange={() => !isPending && handleToggleNegotiable(offer.offerId, !!offer.negociable)} 
+                                                    disabled={isPending}
+                                                />
                                                 <span className="slider round"></span>
                                             </label>
                                         </td>
                                         <td className="cell-status">
-                                            {offer.offerStatus && (
-                                                <span className={`status-badge-modern ${offer.offerStatus.toLowerCase()}`}>
-                                                    {t[`status${offer.offerStatus}`] || offer.offerStatus}
-                                                </span>
-                                            )}
+                                            {(() => {
+                                                const rawStatus = offer.offerStatus || 'ACTIVE';
+                                                const normalizedStatus = rawStatus.toUpperCase() === 'HIDDEN' ? 'HIDDEN' : 'ACTIVE';
+                                                return (
+                                                    <span className={`status-badge-modern ${normalizedStatus.toLowerCase()}`}>
+                                                        {t[`status${normalizedStatus}`] || normalizedStatus}
+                                                    </span>
+                                                );
+                                            })()}
                                         </td>
                                         <td className="cell-actions">
-                                            <div className="actions-wrapper">
-                                                <button className="action-btn edit" title={t.editOfferTitle} onClick={(e) => { e.stopPropagation(); handleEditOffer(offer); }}><FiEdit2 /></button>
-                                                <button className="action-btn visibility" title={t.hide}><FiEyeOff /></button>
-                                                <button className="action-btn delete" title={t.delete} onClick={(e) => { e.stopPropagation(); confirmDelete(offer.offerId); }}><FiTrash2 /></button>
-                                            </div>
+                                            {(() => {
+                                                const rawStatus = offer.offerStatus || 'ACTIVE';
+                                                const normalizedStatus = rawStatus.toUpperCase() === 'HIDDEN' ? 'HIDDEN' : 'ACTIVE';
+                                                return (
+                                                    <div className={`actions-wrapper ${isPending ? 'pending-disabled' : ''}`}>
+                                                        <button 
+                                                            className="action-btn edit" 
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                if (isPending) {
+                                                                    toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                                                    return;
+                                                                }
+                                                                handleEditOffer(offer); 
+                                                            }}
+                                                        >
+                                                            <FiEdit2 />
+                                                        </button>
+                                                        <button 
+                                                            className={`action-btn visibility ${normalizedStatus === 'HIDDEN' ? 'hidden-state' : ''}`} 
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                if (isPending) {
+                                                                    toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                                                    return;
+                                                                }
+                                                                handleToggleVisibility(offer.offerId, normalizedStatus); 
+                                                            }}
+                                                        >
+                                                            {normalizedStatus === 'ACTIVE' ? <FiEyeOff /> : <FiEye />}
+                                                        </button>
+                                                        <button 
+                                                            className="action-btn delete" 
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                if (isPending) {
+                                                                    toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                                                    return;
+                                                                }
+                                                                confirmDelete(offer.offerId); 
+                                                            }}
+                                                        >
+                                                            <FiTrash2 />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })()}
                                         </td>
                                     </tr>
                                 ))
@@ -162,6 +259,13 @@ const MyOffers = ({ onNavigate }) => {
                 confirmText={t.delete}
                 cancelText={t.keepIt}
                 type="danger"
+            />
+
+            <ImageViewerModal 
+                isOpen={viewerState.isOpen}
+                images={viewerState.images}
+                initialIndex={viewerState.index}
+                onClose={() => setViewerState({ isOpen: false, images: [], index: 0 })}
             />
         </DashboardLayout>
     );

@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from '../Sidebar/Sidebar';
 import Navbar from '../Navbar/Navbar';
+import PendingBanner from '../PendingBanner/PendingBanner';
 import './DashboardLayout.css';
 
 const DashboardLayout = ({ children, onNavigate, activePage, contentClassName }) => {
@@ -10,6 +11,7 @@ const DashboardLayout = ({ children, onNavigate, activePage, contentClassName })
             <div className="dashboard-main-content">
                 <Sidebar onNavigate={onNavigate} activePage={activePage} />
                 <div className={`dashboard-content ${contentClassName || ''}`}>
+                    <PendingBanner />
                     {children}
                 </div>
             </div>

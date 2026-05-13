@@ -10,7 +10,7 @@ class SocketService {
   connect() {
     if (!this.socket) {
       this.socket = io(SOCKET_URL);
-      
+
       this.socket.on('connect', () => {
         console.log('Connected to Negotiation WebSocket');
       });
@@ -40,6 +40,18 @@ class SocketService {
     }
   }
 
+  onProposalUpdated(callback) {
+    if (this.socket) {
+      this.socket.on('proposalUpdated', callback);
+    }
+  }
+
+  onProposalDeleted(callback) {
+    if (this.socket) {
+      this.socket.on('proposalDeleted', callback);
+    }
+  }
+
   onNegotiationAccepted(callback) {
     if (this.socket) {
       this.socket.on('negotiationAccepted', callback);
@@ -50,6 +62,8 @@ class SocketService {
     if (this.socket) {
       this.socket.off('proposalCreated');
       this.socket.off('negotiationAccepted');
+      this.socket.off('proposalUpdated');
+      this.socket.off('proposalDeleted');
     }
   }
 }

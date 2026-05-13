@@ -348,6 +348,11 @@ input:checked+.slider:before {
     color: #10b981;
 }
 
+.status-badge-modern.hidden {
+    background-color: #ff4d4d; /* strong red bg */
+    color: #000000; /* black text */
+}
+
 /* Actions */
 .cell-actions {
     /* Remove previous flex/alignment to allow table cell to behave naturally */
@@ -384,6 +389,10 @@ input:checked+.slider:before {
 
 .action-btn.visibility {
     color: #64748b;
+}
+
+.action-btn.visibility:hover {
+    color: var(--primary);
 }
 
 .action-btn.delete {

@@ -58,3 +58,10 @@
   /* Utilities */
   --transition-fast: 0.2s ease;
 }
+
+.pending-disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  filter: grayscale(0.5);
+}

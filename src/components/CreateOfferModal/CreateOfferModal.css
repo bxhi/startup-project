@@ -34,7 +34,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1.5px solid #1e293b; /* Darker border */
+    border-bottom: 1.5px solid #1e293b;
+    /* Darker border */
 }
 
 .modal-header h2 {
@@ -73,72 +74,61 @@
 /* Step Indicator */
 .step-indicator {
     display: flex;
-    padding: 24px 32px;
-    background-color: transparent;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 auto 3rem;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    padding: 0 20px;
 }
 
 .step-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    flex: 1;
-    opacity: 0.5;
-    transition: all 0.3s;
     position: relative;
+    z-index: 1;
+    width: 150px;
+    /* Force room for labels */
 }
 
-.step-item::after {
+.step-item:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 20px;
-    left: calc(50% + 15px);
-    width: calc(100% - 30px);
-    height: 2px;
+    top: 24px;
+    /* Center of 48px dot */
+    left: calc(50% + 24px);
+    width: calc(100% - 48px);
+    height: 3px;
     background: #e2e8f0;
-    z-index: 1;
-    transform: translateY(-50%);
+    z-index: -1;
 }
 
-[dir="rtl"] .step-item::after {
+[dir="rtl"] .step-item:not(:last-child)::after {
     left: auto;
-    right: calc(50% + 15px);
-}
-
-.step-item:last-child::after {
-    display: none;
-}
-
-.step-item.completed::after {
-    background-color: #10b981;
-}
-
-.step-item.active {
-    opacity: 1;
-}
-
-.step-item.completed {
-    opacity: 1;
+    right: calc(50% + 24px);
 }
 
 .step-dot {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background-color: white;
-    border: 3px solid #333; /* Much darker inactive border */
+    border: 3px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: #444; /* Darker inactive text */
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #94a3b8;
     position: relative;
     z-index: 10;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.step-dot.active, 
+.step-dot.active,
 .step-dot.completed,
 .step-dot.error {
     color: #fff;
@@ -167,24 +157,18 @@
 }
 
 .step-dot.active:before {
-    background: linear-gradient(
-        45deg,
-        #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000
-    );
+    background: linear-gradient(45deg,
+            #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
 }
 
 .step-dot.completed:before {
-    background: linear-gradient(
-        45deg,
-        #10b981, #34d399, #10b981
-    );
+    background: linear-gradient(45deg,
+            #10b981, #34d399, #10b981);
 }
 
 .step-dot.error:before {
-    background: linear-gradient(
-        45deg,
-        #ef4444, #f87171, #ef4444
-    );
+    background: linear-gradient(45deg,
+            #ef4444, #f87171, #ef4444);
 }
 
 .step-dot.active:after,
@@ -202,7 +186,8 @@
 }
 
 .step-dot.active {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adding a subtle shadow instead */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Adding a subtle shadow instead */
 }
 
 .step-dot.completed {
@@ -239,7 +224,8 @@
 
 /* Form Styling */
 .step-content {
-    padding: 32px 32px 10px 32px; /* Reduced bottom padding */
+    padding: 32px 32px 10px 32px;
+    /* Reduced bottom padding */
     animation: fadeIn 0.4s ease-out;
 }
 
@@ -459,7 +445,8 @@
 /* Footer Section */
 .modal-footer {
     padding: 24px 32px;
-    border-top: 1.5px solid #1e293b; /* Darker border */
+    border-top: 1.5px solid #1e293b;
+    /* Darker border */
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -484,10 +471,8 @@
 
 .btn-fly:before {
     content: "";
-    background: linear-gradient(
-        45deg,
-        #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000
-    );
+    background: linear-gradient(45deg,
+            #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
     position: absolute;
     top: -2px;
     left: -2px;
@@ -548,9 +533,17 @@
 }
 
 @keyframes glowing-button-85 {
-    0% { background-position: 0 0; }
-    50% { background-position: 400% 0; }
-    100% { background-position: 0 0; }
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
 }
 
 /* Premium Back Button */
@@ -668,8 +661,13 @@
 }
 
 @keyframes premium-spin-ring {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .btn-continue:disabled {
@@ -694,20 +692,20 @@
 .success-icon-circle {
     width: 80px;
     height: 80px;
-    background: #000;
-    color: #fff;
+    background-color: #dcfce7;
+    color: #22c55e;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin: 0 auto 24px;
+    animation: scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .success-view h3 {
+    color: #166534;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
+    font-weight: 800;
     margin-bottom: 12px;
 }
 

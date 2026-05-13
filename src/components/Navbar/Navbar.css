@@ -140,10 +140,52 @@
     flex-direction: column;
 }
 
+.user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .user-name {
     font-weight: 600;
     color: #1e293b;
     font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.status-badge-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.status-badge-nav.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+.status-badge-nav.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+.status-badge-nav.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    backdrop-filter: blur(4px);
 }
 
 .user-role {
@@ -408,7 +450,8 @@
    RTL (Arabic) Overrides — Navbar
    ============================================ */
 [dir="rtl"] .navbar-content {
-    flex-direction: row; /* Logo/Search Right, User Left */
+    flex-direction: row;
+    /* Logo/Search Right, User Left */
 }
 
 [dir="rtl"] .navbar-left {
@@ -424,7 +467,8 @@
 }
 
 [dir="rtl"] .search-container {
-    margin-right: 20px; /* Small gap between logo and search */
+    margin-right: 20px;
+    /* Small gap between logo and search */
     margin-left: 0;
 }
 

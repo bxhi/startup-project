@@ -11,6 +11,13 @@ import { useLanguage } from '../../context/LanguageContext';
 const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
     const { t } = useLanguage();
     const [currentStep, setCurrentStep] = useState(1);
+    
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let vStatus = localStorage.getItem('verificationStatus') || user.status;
+    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
+
+    if (isOpen && isPending) return null;
 
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);

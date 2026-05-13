@@ -3,7 +3,7 @@
    Ultra-premium, simple, primary-focused, and pixel-perfect.
 */
 
-:root {
+.wallet-container {
     --primary: #1F73B7;
     --primary-light: #eaf3fb;
     --primary-dark: #155a8a;
@@ -19,14 +19,7 @@
     --radius-lg: 16px;
     --radius-md: 12px;
     --radius-sm: 8px;
-}
 
-.wallet-layout {
-    background: var(--bg-main);
-    min-height: 100vh;
-}
-
-.wallet-container {
     max-width: 100%;
     margin: 0;
     padding-bottom: 5rem;
@@ -34,6 +27,11 @@
     flex-direction: column;
     gap: 24px;
     font-family: 'Montserrat', system-ui, sans-serif;
+}
+
+.wallet-layout {
+    background: var(--bg-main);
+    min-height: 100vh;
 }
 
 /* RTL Font Overrides */
@@ -361,7 +359,7 @@
     animation-delay: 0.1s;
 }
 
-.card-left .input-container {
+.card-left .wallet-input-field-container {
     animation-delay: 0.2s;
     max-width: 280px;
 }
@@ -854,46 +852,51 @@
     margin: 16px 0;
 }
 
-.input-container {
+.wallet-input-field-container {
+    position: relative;
     display: flex;
     align-items: center;
     background: white;
     border: 2px solid var(--border-light);
     border-radius: 12px;
-    padding: 4px 14px;
+    padding: 0;
     max-width: 280px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-    gap: 12px;
     direction: ltr !important;
     overflow: hidden; /* No digits out of the input */
 }
 
-.input-container:focus-within {
+.wallet-input-field-container:focus-within {
     border: 2px solid var(--primary);
     box-shadow: 0 0 0 4px rgba(31, 115, 183, 0.15);
     transform: translateY(-2px);
 }
 
-.input-icon {
+.wallet-input-field-container .input-icon {
     color: var(--text-secondary);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     transition: color 0.3s;
+    position: absolute;
+    left: 14px;
+    z-index: 2;
 }
 
-[dir="rtl"] .input-icon {
-    display: none; /* Removed for Arabic as requested */
+[dir="rtl"] .wallet-input-field-container .input-icon {
+    left: auto;
+    right: 14px;
 }
 
-.input-container:focus-within .input-icon {
+.wallet-input-field-container:focus-within .input-icon {
     color: var(--primary);
 }
 
-.input-container input {
+.wallet-input-field-container input {
     flex: 1;
-    min-width: 0; /* Prevents overflow */
+    min-width: 0;
+    /* Prevents overflow */
     border: none;
-    padding: 8px 4px; /* Added horizontal padding */
+    padding: 10px 10px 10px 42px; /* Extra left padding for icon */
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -902,32 +905,37 @@
     font-family: 'Courier New', Courier, monospace;
 }
 
+[dir="rtl"] .wallet-input-field-container input {
+    padding: 10px 42px 10px 10px; /* Extra right padding for icon in RTL */
+}
+
 /* Hide number arrows */
-.input-container input[type="number"]::-webkit-inner-spin-button,
-.input-container input[type="number"]::-webkit-outer-spin-button {
+.wallet-input-field-container input[type="number"]::-webkit-inner-spin-button,
+.wallet-input-field-container input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none !important;
     margin: 0 !important;
 }
 
-.input-container input[type="number"] {
+.wallet-input-field-container input[type="number"] {
     -moz-appearance: textfield !important;
     appearance: none !important;
 }
 
 /* LTR forced for numbers in input */
-.input-container input[dir="ltr"] {
+.wallet-input-field-container input[dir="ltr"] {
     text-align: left;
 }
 
-[dir="rtl"] .input-container input[dir="ltr"] {
+[dir="rtl"] .wallet-input-field-container input[dir="ltr"] {
     text-align: right;
 }
 
-.input-container input::placeholder {
-    color: #94a3b8;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 0.9rem;
+.wallet-input-field-container input::placeholder {
+    color: var(--muted, #6b7280);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: var(--font-body, 14px);
+    opacity: 1;
 }
 
 .unit-badge {
@@ -958,6 +966,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     gap: 8px;
     box-shadow: 0 8px 20px rgba(31, 115, 183, 0.3);
     position: relative;
@@ -1140,6 +1149,10 @@
     background: transparent;
     color: var(--text-secondary);
     transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .plan-card.selected .btn-select-pack {

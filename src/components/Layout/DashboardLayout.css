@@ -21,3 +21,161 @@
     display: flex;
     flex-direction: column;
 }
+
+.dashboard-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pending-status-center {
+    background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+    border-bottom: 1px solid #fde68a;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.08);
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.status-info h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #78350f;
+    letter-spacing: -0.02em;
+}
+
+.status-info p {
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+    color: #92400e;
+    opacity: 0.9;
+}
+
+.status-notification-tag {
+    margin-left: auto;
+    background: #fef3c7;
+    padding: 8px 16px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b45309;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid #fde68a;
+}
+
+/* Progress Track */
+.status-progress-track {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.status-progress-track .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.status-progress-track .step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.status-progress-track .step.completed .step-dot {
+    background: #22c55e;
+    color: white;
+}
+
+.status-progress-track .step.active .step-dot {
+    background: #fbbf24;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+}
+
+.status-progress-track .step.future .step-dot {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 2px solid #e2e8f0;
+}
+
+.step span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    position: absolute;
+    top: 40px;
+    white-space: nowrap;
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    background: #e2e8f0;
+    margin: 0 15px;
+    margin-bottom: 24px;
+    /* Align with dots */
+    border-radius: 10px;
+}
+
+.step-line.active {
+    background: #fbbf24;
+}
+
+.status-center-footer {
+    margin-top: 15px;
+    background: rgba(251, 191, 36, 0.05);
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px dashed #fde68a;
+}
+
+.status-center-footer p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #78350f;
+    text-align: center;
+}
+
+@keyframes softPulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 12px rgba(251, 191, 36, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

@@ -1,85 +1,113 @@
+/* ============================================
+   NEGOTIATIONS — PREMIUM REDESIGN
+   ============================================ */
+
+:root {
+    --chat-bg: #ffffff;
+    --sidebar-bg: #f8fafc;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #2563eb;
+    --border-color: #e2e8f0;
+    --bubble-incoming: #f1f5f9;
+    --bubble-outgoing: #3b82f6;
+    --bubble-text-outgoing: #ffffff;
+}
+
 .negotiations-container {
     display: flex;
     flex: 1;
-    /* Take full height */
-    background-color: white;
+    height: 100vh;
+    background: var(--chat-bg);
     overflow: hidden;
     margin: -24px -32px;
-    /* Pull out to edges of dashboard-content padding */
+    border-top: 1px solid var(--border-color);
 }
 
-/* Sidebar List styling */
+/* Sidebar Styling */
 .negotiations-sidebar {
-    width: 320px;
-    min-width: 320px;
-    border-right: 1px solid #e2e8f0;
+    width: 380px;
+    min-width: 380px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    background-color: white;
+    z-index: 2;
 }
 
 .negotiations-sidebar-header {
-    padding: 24px;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 32px 24px 24px;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .negotiations-sidebar-header h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0 0 4px 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
 }
 
 .negotiations-sidebar-header p {
-    font-size: 0.9rem;
     color: #64748b;
-    margin: 0;
+    font-size: 0.95rem;
 }
 
 .negotiations-list {
     flex: 1;
     overflow-y: auto;
+    padding: 12px;
 }
 
 .negotiation-item {
     display: flex;
-    padding: 16px 20px;
-    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 4px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.1s ease;
+    border: 1px solid transparent;
 }
 
 .negotiation-item:hover {
-    background-color: #f8fafc;
+    background-color: #e2e8f0;
 }
 
 .negotiation-item.active {
-    background-color: #f1f5f9;
-    border-left: 3px solid var(--primary, #1a56db);
+    background-color: #ffffff;
+    border-color: var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .contact-avatar {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background-color: var(--primary, #1a56db);
+    background: var(--accent-primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-right: 12px;
-    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-right: 16px;
+    position: relative;
+}
+
+.unread-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    background-color: var(--accent-secondary);
+    border: 2px solid white;
+    border-radius: 50%;
 }
 
 .contact-info {
     flex: 1;
-    min-width: 0;
-    /* for text truncation */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .contact-header {
@@ -89,216 +117,282 @@
     margin-bottom: 4px;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #cbd5e1;
-}
-
-.status-dot.open {
-    background-color: #3b82f6;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-}
-
-.status-dot.accepted {
-    background-color: #22c55e;
-}
-
-.status-dot.rejected,
-.status-dot.cancelled {
-    background-color: #ef4444;
-}
-
-.message-status-text {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #94a3b8;
-    margin-top: 2px;
-}
-
-.status-badge.accepted {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.status-badge.rejected,
-.status-badge.cancelled {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-/* Chat area improvements */
-.chat-messages {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column-reverse; /* Newest at bottom, but we reverse data for logic */
-    gap: 16px;
-    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-.proposal-data {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
-}
-
-.p-price {
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-.p-qty {
-    font-size: 0.85rem;
-    opacity: 0.8;
-}
-
-.proposal-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.7rem;
-    opacity: 0.6;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    padding-top: 6px;
-}
-
-.message-group.outgoing .proposal-footer {
-    border-top-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Counter Form Overlay */
-.chat-input-area-container {
-    position: relative;
-    background-color: white;
-}
-
-.counter-overlay {
-    position: absolute;
-    bottom: 100%;
-    left: 24px;
-    right: 24px;
-    background-color: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
-    animation: slide-up 0.3s ease-out;
-    z-index: 20;
-}
-
-.counter-form {
-    padding: 20px;
-}
-
-.counter-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.counter-header span {
+.contact-name {
     font-weight: 700;
     color: #1e293b;
+    font-size: 1rem;
 }
 
-.counter-header button {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-
-.counter-inputs {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.input-group {
-    flex: 1;
-}
-
-.input-group label {
-    display: block;
+.last-time {
     font-size: 0.75rem;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 6px;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    outline: none;
-}
-
-.input-group input:focus {
-    border-color: var(--primary, #1a56db);
-}
-
-.btn-send-counter {
-    width: 100%;
-    background-color: var(--primary, #1a56db);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-@keyframes slide-up {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.chat-input-area {
-    padding: 20px 24px;
-    background-color: white;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.btn-attach {
-    background: none;
-    border: none;
     color: #94a3b8;
-    font-size: 1.25rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    /* Matching Send button style */
+}
+
+.message-preview {
+    font-size: 0.85rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
     transition: all 0.2s;
 }
 
-.btn-attach:hover {
-    background-color: #f1f5f9;
+.message-preview.unread {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.negotiation-item.active .message-preview {
+    color: #3b82f6;
+}
+
+/* Chat Main Area */
+.negotiation-chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.chat-header {
+    padding: 24px 40px;
+    background: var(--chat-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-contact-details {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.chat-contact-info h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.chat-command-ref {
+    font-size: 0.85rem;
     color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-weight: 600;
+}
+
+/* Messages Area */
+.chat-messages {
+    flex: 1;
+    padding: 40px 40px 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column; /* Normal direction, we'll sort in JSX */
+    gap: 24px;
+    scroll-behavior: smooth;
+}
+
+.message-group {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    animation: message-pop-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes message-pop-up {
+    from { opacity: 0; transform: translateY(15px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.message-group.incoming {
+    align-self: flex-start;
+}
+
+.message-group.outgoing {
+    align-self: flex-end;
+}
+
+.message-bubble {
+    padding: 14px 20px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.message-group.incoming .message-bubble {
+    background: var(--bubble-incoming);
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.message-group.outgoing .message-bubble {
+    background: var(--bubble-outgoing);
+    color: var(--bubble-text-outgoing);
+    border-bottom-right-radius: 4px;
+}
+
+/* Proposal Summary within Bubble */
+.proposal-summary-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message-group.incoming .proposal-summary-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.proposal-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.p-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.6;
+}
+
+.p-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.proposal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-action-small {
+    flex: 1;
+    padding: 8px;
     border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-action-small.accept {
+    background: #22c55e;
+    color: white;
+}
+
+.btn-action-small.reject {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.message-group.incoming .btn-action-small.reject {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Input Area */
+.chat-input-area-container {
+    padding: 0;
+    background: var(--chat-bg);
+}
+
+.chat-input-area-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 40px 24px;
+}
+
+.attached-file-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    max-width: fit-content;
+    animation: slide-up-subtle 0.3s ease-out;
+}
+
+@keyframes slide-up-subtle {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.file-info svg {
+    color: var(--accent-primary);
+    font-size: 1.1rem;
+}
+
+.remove-file-btn {
+    background: #e2e8f0;
+    border: none;
+    color: #64748b;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    transform: rotate(90deg);
+}
+
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    padding: 10px 10px 10px 16px;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s;
+}
+
+.chat-input-area:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
 }
 
 .chat-input-wrapper {
     flex: 1;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px 16px;
 }
 
 .chat-input-wrapper input {
@@ -306,257 +400,195 @@
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.95rem;
-    color: #334155;
+    font-size: 1rem;
+    padding: 12px 0;
+    color: #0f172a;
 }
 
-.btn-send-message {
-    color: #fff;
-    background-color: #000;
+.btn-attach {
+    background: transparent;
     border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    /* Matching design square-ish look */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Empty States */
-.empty-negotiations {
-    padding: 60px 40px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
-.empty-icon-capsule {
-    width: 64px;
-    height: 64px;
-    background: rgba(26, 86, 219, 0.05);
-    border: 1px solid rgba(26, 86, 219, 0.1);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary, #1a56db);
-    font-size: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-}
-
-.empty-negotiations h3 {
-    font-size: 0.95rem;
     color: #64748b;
-    font-weight: 500;
-    line-height: 1.5;
-    margin: 0;
-}
-
-.btn-explore {
-    padding: 10px 20px;
-    background-color: var(--primary, #1a56db);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 1.4rem;
+    padding: 8px;
     cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
 }
 
-.btn-explore:hover {
-    background-color: #1e40af;
-    transform: translateY(-2px);
+.btn-attach:hover {
+    color: var(--accent-primary);
+    background: #f1f5f9;
 }
 
+.btn-send {
+    background: var(--accent-primary);
+    border: none;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-send:hover {
+    background: var(--accent-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-counter-toggle {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-counter-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-send-message {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: #0066ff;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-send-message:hover {
+    transform: scale(1.05) rotate(-5deg);
+    background: #0052cc;
+}
+
+/* Empty State Design */
 .no-selection-state {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f8fafc;
-    padding: 40px;
+    background: #fdfdfe;
 }
 
 .no-selection-content {
-    max-width: 500px;
     text-align: center;
-    background: white;
-    padding: 48px;
-    border-radius: 24px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .no-selection-icon {
-    width: 80px;
-    height: 80px;
-    background-color: #000;
-    color: white;
-    border-radius: 20px;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    margin: 0 auto 24px;
+    font-size: 3rem;
+    margin: 0 auto 32px;
     transform: rotate(-10deg);
+    border: 1px solid white;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
 }
 
 .no-selection-content h2 {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 12px;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
 }
 
 .no-selection-content p {
     color: #64748b;
     line-height: 1.6;
-    margin-bottom: 32px;
 }
 
-.features-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+/* Animations */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.feature {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background-color: #f1f5f9;
-    border-radius: 99px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #475569;
+.message-group {
+    animation: slideIn 0.3s ease-out backwards;
 }
 
-.feature svg {
-    color: #22c55e;
-}
-
-/* ============================================
-   RTL (Arabic) Overrides — Negotiations
-   ============================================ */
+/* RTL Support */
 [dir="rtl"] .negotiations-sidebar {
     border-right: none;
-    border-left: 1px solid #e2e8f0;
-}
-
-[dir="rtl"] .negotiations-sidebar-header h2,
-[dir="rtl"] .negotiations-sidebar-header p {
-    text-align: right;
-}
-
-[dir="rtl"] .negotiation-item.active {
-    border-left: none;
-    border-right: 3px solid var(--primary, #1a56db);
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 [dir="rtl"] .contact-avatar {
     margin-right: 0;
-    margin-left: 12px;
+    margin-left: 16px;
 }
 
-[dir="rtl"] .unread-badge {
-    margin-left: 0;
-    margin-right: 8px;
-}
-
-[dir="rtl"] .contact-header {
-    flex-direction: row-reverse;
-}
-
-[dir="rtl"] .contact-info {
-    text-align: right;
-}
-
-[dir="rtl"] .chat-contact-details {
-    flex-direction: row;
-}
-
-[dir="rtl"] .chat-contact-info h3,
-[dir="rtl"] .chat-command-ref {
-    text-align: right;
-}
-
-[dir="rtl"] .empty-negotiations h3 {
-    text-align: center;
-}
-
-[dir="rtl"] .no-selection-content {
-    text-align: center;
-}
-
-[dir="rtl"] .no-selection-icon {
-    transform: rotate(10deg); /* Mirror the rotation for RTL */
-}
-
-[dir="rtl"] .features-grid {
-    flex-direction: row;
-}
-
-/* Counter Form RTL */
-[dir="rtl"] .counter-header {
-    flex-direction: row;
-}
-
-[dir="rtl"] .counter-header span {
-    text-align: right;
-}
-
-[dir="rtl"] .input-group label {
-    text-align: right;
-}
-
-[dir="rtl"] .input-group input {
-    text-align: right;
-    direction: rtl;
-}
-
-/* Message bubbles -- corner radii for RTL */
 [dir="rtl"] .message-group.incoming .message-bubble {
-    border-bottom-left-radius: 12px;
+    border-bottom-left-radius: 20px;
     border-bottom-right-radius: 4px;
 }
 
 [dir="rtl"] .message-group.outgoing .message-bubble {
-    border-bottom-right-radius: 12px;
+    border-bottom-right-radius: 20px;
     border-bottom-left-radius: 4px;
 }
 
+[dir="rtl"] .chat-input-area-container {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .btn-attach {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+[dir="rtl"] .btn-send {
+    margin-left: 0;
+    margin-right: 12px;
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .p-label {
+    text-align: right;
+}
+
 [dir="rtl"] .proposal-summary-card {
-    align-self: flex-start;
     text-align: right;
 }
 
-[dir="rtl"] .proposal-row {
-    flex-direction: row;
-}
-
-[dir="rtl"] .proposal-actions {
-    flex-direction: row;
-}
-
-[dir="rtl"] .chat-header {
-    flex-direction: row;
-}
-
-[dir="rtl"] .chat-input-area {
-    flex-direction: row;
-}
-
-[dir="rtl"] .chat-input-wrapper input {
+[dir="rtl"] .negotiation-item-info {
     text-align: right;
-    direction: rtl;
+}
+
+[dir="rtl"] .header-titles {
+    text-align: right;
 }

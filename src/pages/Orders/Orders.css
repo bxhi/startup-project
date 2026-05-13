@@ -596,3 +596,323 @@
 [dir="rtl"] .header-main p {
     text-align: right;
 }
+
+/* ============================================
+   Visual Order Timeline
+   ============================================ */
+.order-timeline-container {
+    margin-bottom: 32px;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9));
+}
+
+.order-timeline-container.cancelled {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+}
+
+.timeline-cancelled-msg {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.timeline-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    z-index: 2;
+}
+
+.step-indicator-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.step-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.4s ease;
+    z-index: 3;
+}
+
+.timeline-step.active .step-indicator {
+    background: var(--primary);
+    box-shadow: 0 4px 12px rgba(31, 115, 183, 0.3);
+}
+
+.timeline-step.current .step-indicator {
+    background: #0f172a;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(15, 23, 42, 0.4);
+}
+
+.step-pulse {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #0f172a;
+    opacity: 0.2;
+    animation: timelinePulse 2s infinite ease-out;
+    z-index: 1;
+}
+
+@keyframes timelinePulse {
+    0% { transform: scale(1); opacity: 0.3; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+.step-dot {
+    width: 8px;
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 50%;
+}
+
+.step-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    transition: color 0.3s;
+}
+
+.timeline-step.active .step-label {
+    color: #1e293b;
+}
+
+.timeline-step.current .step-label {
+    color: var(--primary);
+}
+
+.step-connector {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.step-connector.active {
+    background: linear-gradient(90deg, var(--primary), #60a5fa);
+    box-shadow: 0 0 8px rgba(31, 115, 183, 0.4);
+}
+
+[dir="rtl"] .step-connector {
+    left: auto;
+    right: 50%;
+}
+
+/* ============================================
+   Dynamic Action Boxes
+   ============================================ */
+.action-box-container {
+    margin-bottom: 32px;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-box-container.gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+}
+
+.action-box-content {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.action-box-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.action-box-icon.primary { background: #eff6ff; color: #3b82f6; }
+.action-box-icon.success { background: #f0fdf4; color: #10b981; }
+
+.action-box-text {
+    flex: 1;
+}
+
+.action-box-text h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.action-box-text p {
+    color: #64748b;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+}
+
+.warning-text { color: #f59e0b !important; font-weight: 600; }
+.success-text { color: #10b981 !important; font-weight: 600; }
+.waiting-text { font-style: italic; color: #94a3b8 !important; }
+
+.action-buttons-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.proof-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 16px;
+    object-fit: cover;
+}
+
+/* Upload Zone */
+.upload-zone-premium {
+    width: 100%;
+    min-height: 160px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+}
+
+.upload-zone-premium:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.upload-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.upload-icons {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-icons .icon-main {
+    font-size: 32px;
+    color: #94a3b8;
+    transition: color 0.3s;
+}
+
+.upload-icons .icon-sub {
+    position: absolute;
+    bottom: -4px;
+    right: -8px;
+    font-size: 16px;
+    color: #3b82f6;
+    background: white;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.upload-zone-premium:hover .icon-main { color: #3b82f6; }
+
+.upload-prompt span {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.uploading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: #3b82f6;
+}
+
+.icon-large {
+    font-size: 36px;
+}
+
+/* Video Viewer Mock */
+.video-player-mock {
+    width: 100%;
+    padding: 24px;
+    background: #1e293b;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: white;
+    margin: 16px 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.video-player-mock:hover {
+    transform: scale(1.02);
+}
+
+.video-player-mock .play-icon {
+    font-size: 32px;
+    color: #ef4444;
+}
+
+.video-player-mock span {
+    font-family: monospace;
+    color: #94a3b8;
+    word-break: break-all;
+}

@@ -10,6 +10,10 @@ import { toast } from 'react-hot-toast';
 
 const Wallet = ({ onNavigate }) => {
     const { t, language } = useLanguage();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let vStatus = localStorage.getItem('verificationStatus') || user.status;
+    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
     const [balance, setBalance] = useState(0);
     const [packs, setPacks] = useState([]);
     const [purchaseType, setPurchaseType] = useState('custom'); // 'pack' or 'custom'
@@ -64,18 +68,31 @@ const Wallet = ({ onNavigate }) => {
             return;
         }
 
+        if (isPending) {
+            toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+            return;
+        }
+
         try {
             toast.loading(language === 'ar' ? 'جاري تحويلك للدفع...' : 'Redirecting to payment...');
 
             let response;
+            const currentOrigin = window.location.origin;
+            const redirectUrls = {
+                success_url: `${currentOrigin}/?page=wallet&status=success`,
+                failure_url: `${currentOrigin}/?page=wallet&status=failure`
+            };
+
             if (purchaseType === 'pack') {
                 response = await walletApi.post('/wallet/purchase/pack', {
-                    packId: selectedPack.id
+                    packId: selectedPack.id,
+                    ...redirectUrls
                 });
             } else {
                 response = await walletApi.post('/wallet/purchase/custom', {
                     points: parseInt(customPoints),
-                    paymentMethod: paymentMethod === 'chargily' ? 'CHARGILY_APP' : paymentMethod.toUpperCase()
+                    paymentMethod: paymentMethod === 'chargily' ? 'CHARGILY_APP' : paymentMethod.toUpperCase(),
+                    ...redirectUrls
                 });
             }
 
@@ -117,7 +134,7 @@ const Wallet = ({ onNavigate }) => {
         packsPurchase: language === 'ar' ? 'باقات النقاط' : 'Points Packs',
         customPointsTitle: language === 'ar' ? 'نقاط مخصصة' : 'Custom Points',
         customPointsSubtitle: language === 'ar' ? 'أدخل أي مبلغ تريده' : 'Enter any amount you want',
-        enterAmount: language === 'ar' ? 'أدخل عدد النقاط' : 'Enter points amount',
+        enterAmount: language === 'ar' ? 'مثال: 1000' : 'e.g. 1000',
         pts: language === 'ar' ? 'نقطة' : 'pts',
         acceptedMethods: language === 'ar' ? 'طرق الدفع المقبولة' : 'Accepted Payment Methods',
         dzd: language === 'ar' ? 'دج' : 'DZD'
@@ -196,8 +213,8 @@ const Wallet = ({ onNavigate }) => {
                                 </div>
 
                                 <div className="input-row-wrapper">
-                                    <div className="input-container">
-                                        <LuShoppingCart className="input-icon" />
+                                    <div className="wallet-input-field-container">
+                                        <LuCreditCard className="input-icon" />
                                         <input
                                             type="number"
                                             placeholder={labels.enterAmount}
@@ -210,8 +227,14 @@ const Wallet = ({ onNavigate }) => {
                                 </div>
 
                                 <button
-                                    className="btn-buy-primary"
-                                    onClick={handlePurchase}
+                                    className={`btn-buy-primary ${isPending ? 'pending-disabled' : ''}`}
+                                    onClick={() => {
+                                        if (isPending) {
+                                            toast.error(t.pendingActionError, { id: 'pending-action-error' });
+                                            return;
+                                        }
+                                        handlePurchase();
+                                    }}
                                     disabled={!customPoints}
                                 >
                                     {labels.buyPoints}
@@ -311,8 +334,16 @@ const Wallet = ({ onNavigate }) => {
                                         </div>
                                     </div>
                                     <button
-                                        className="btn-select-pack"
-                                        onClick={(e) => { e.stopPropagation(); setSelectedPack(pack); handlePurchase(); }}
+                                        className={`btn-select-pack ${isPending ? 'pending-disabled' : ''}`}
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            if (isPending) {
+                                                toast.error(t.pendingActionError, { id: 'pending-action-error' });
+                                                return;
+                                            }
+                                            setSelectedPack(pack); 
+                                            handlePurchase(); 
+                                        }}
                                     >
                                         {language === 'ar' ? 'شراء هذه الباقة' : 'Buy this pack'}
                                     </button>

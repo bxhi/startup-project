@@ -30,5 +30,10 @@ export const orderService = {
   // Get available custom orders
   getAvailableCustomOrders: async () => {
     return await ordersApi.get('/orders/custom/available');
+  },
+
+  // Upload shipment proof to order
+  uploadShipmentProof: async (id, shippingProoveUrl) => {
+    return await ordersApi.patch(`/orders/${id}/shipping`, { shippingProove: shippingProoveUrl });
   }
 };

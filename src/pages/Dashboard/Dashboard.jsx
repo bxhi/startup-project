@@ -7,10 +7,15 @@ import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
 import { IoWalletOutline } from 'react-icons/io5';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useLanguage } from '../../context/LanguageContext';
+import { toast } from 'react-hot-toast';
 
 const Dashboard = ({ onNavigate }) => {
     const [isCreateOfferOpen, setIsCreateOfferOpen] = useState(false);
     const { t } = useLanguage();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let vStatus = localStorage.getItem('verificationStatus') || user.status;
+    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
     const statCards = [
         { title: t.activeCommands, value: '156', trend: '+12%', isPositive: true, icon: <FiFileText />, colorClass: 'blue' },
@@ -94,29 +99,29 @@ const Dashboard = ({ onNavigate }) => {
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#cbd5e1" strokeOpacity={1} />
-                                <XAxis 
-                                    dataKey="month" 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fill: '#64748b', fontSize: 12 }} 
-                                    dy={10} 
+                                <XAxis
+                                    dataKey="month"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#64748b', fontSize: 12 }}
+                                    dy={10}
                                     reversed={language === 'ar'}
                                 />
-                                <YAxis 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fill: '#64748b', fontSize: 12 }} 
-                                    tickFormatter={(v) => `${v}`} 
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#64748b', fontSize: 12 }}
+                                    tickFormatter={(v) => `${v}`}
                                     orientation={language === 'ar' ? 'right' : 'left'}
                                 />
                                 <Tooltip />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="earnings" 
-                                    stroke="var(--primary, #1a56db)" 
-                                    strokeWidth={3} 
-                                    dot={{ r: 6, fill: 'var(--primary, #1a56db)', strokeWidth: 2, stroke: '#fff' }} 
-                                    activeDot={{ r: 8 }} 
+                                <Line
+                                    type="monotone"
+                                    dataKey="earnings"
+                                    stroke="var(--primary, #1a56db)"
+                                    strokeWidth={3}
+                                    dot={{ r: 6, fill: 'var(--primary, #1a56db)', strokeWidth: 2, stroke: '#fff' }}
+                                    activeDot={{ r: 8 }}
                                 />
                             </LineChart>
                         </ResponsiveContainer>
@@ -157,7 +162,16 @@ const Dashboard = ({ onNavigate }) => {
                     <div className="dashboard-section-card quick-actions-card">
                         <h3>{t.quickActions}</h3>
                         <div className="actions-buttons">
-                            <button className="btn-create-offer" onClick={() => setIsCreateOfferOpen(true)}>
+                            <button 
+                                className={`btn-create-offer ${isPending ? 'pending-disabled' : ''}`} 
+                                onClick={() => {
+                                    if (isPending) {
+                                        toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+                                        return;
+                                    }
+                                    setIsCreateOfferOpen(true);
+                                }}
+                            >
                                 <FiPlus size={22} /> {t.createOffer}
                             </button>
                             <button className="btn btn-outline" onClick={() => onNavigate('commands')}>

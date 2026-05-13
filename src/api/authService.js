@@ -3,10 +3,18 @@ import api from './api';
 const authService = {
     login: async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
-        if (response.data.accessToken) {
-            localStorage.setItem('token', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+        const { accessToken, token, refreshToken, user, profileVerificationStatus } = response.data;
+        const finalToken = accessToken || token;
+        if (finalToken) {
+            localStorage.setItem('token', finalToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            const statusToSave = profileVerificationStatus || user?.status || user?.verificationStatus;
+            if (statusToSave) {
+                localStorage.setItem('verificationStatus', statusToSave);
+            }
+            console.log('Login successful. Token saved:', finalToken.substring(0, 15) + '...');
         }
         return response.data;
     },
