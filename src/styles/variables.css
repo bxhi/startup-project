@@ -21,9 +21,10 @@
   --font-small: 12px;
 
   /* Font Weights */
-  --weight-regular: 500;
-  --weight-semibold: 500;
-  --weight-bold: 500;
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
 
   /* Spacing */
   --spacing-1: 8px;

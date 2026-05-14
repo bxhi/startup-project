@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Wallet.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
+import PackCard from '../../components/PackCard/PackCard';
 import { FiShield, FiZap, FiAward, FiCpu } from 'react-icons/fi';
 import { MdOutlineCallMade, MdOutlineCallReceived } from 'react-icons/md';
 import { LuPackage, LuBox, LuShoppingBag, LuTrendingUp, LuStore, LuDollarSign, LuGift, LuCreditCard, LuShoppingCart } from 'react-icons/lu';
@@ -38,23 +39,77 @@ const Wallet = ({ onNavigate }) => {
 
     const fetchPacks = async () => {
         try {
-            const response = await walletApi.get('/wallet/packs');
-            const data = response.data || [];
-            setPacks(data);
-            const popular = data.find(p => p.isPopular);
-            if (popular) {
-                setSelectedPack(popular);
-                setTimeout(() => setPurchaseType('pack'), 600);
+            // Priority: provided pack data
+            const providedPacks = [
+                {
+                    "id": 5,
+                    "type": "basic",
+                    "name": language === 'ar' ? 'الباقة الأساسية' : "BASIC",
+                    "priceDzd": 1000,
+                    "points": 150,
+                    "highlightedOffers": 5,
+                    "activeOrdersLimit": 10,
+                    "clientCommandLimit": 20,
+                    "unlimitedClientCommands": false,
+                    "basicStats": true,
+                    "isActive": true,
+                    "otherBenefits": language === 'ar' 
+                        ? ["تلقي طلبات عملاء جديدة", "أولوية ظهور العروض", "لوحة تحكم إحصائية أساسية"]
+                        : ["Receive new client requests", "Priority offer visibility", "Basic analytics dashboard"]
+                },
+                {
+                    "id": 6,
+                    "type": "pro",
+                    "name": language === 'ar' ? 'الباقة الاحترافية' : "PRO",
+                    "priceDzd": 2500,
+                    "points": 400,
+                    "highlightedOffers": 20,
+                    "activeOrdersLimit": 20,
+                    "clientCommandLimit": 50,
+                    "unlimitedClientCommands": false,
+                    "basicStats": true,
+                    "isActive": true,
+                    "isBestOffer": true,
+                    "otherBenefits": language === 'ar'
+                        ? ["رؤية متقدمة داخل المنصة", "وصول أكبر لنظام إدارة الطلبات"]
+                        : ["Advanced visibility inside the platform", "More access to order management system"]
+                },
+                {
+                    "id": 7,
+                    "type": "business",
+                    "name": language === 'ar' ? 'باقة الأعمال' : "BUSINESS",
+                    "priceDzd": 4000,
+                    "points": 700,
+                    "highlightedOffers": 30,
+                    "activeOrdersLimit": 50,
+                    "clientCommandLimit": 999,
+                    "unlimitedClientCommands": true,
+                    "basicStats": true,
+                    "isActive": true,
+                    "otherBenefits": language === 'ar'
+                        ? ["أولوية الظهور والاستخدام المهني", "وصول كامل لنظام إدارة الطلبات"]
+                        : ["Priority visibility and professional usage", "Full access to order management system"]
+                }
+            ];
+            
+            // Sort by price ascending (biggest on the right)
+            const sorted = providedPacks.sort((a, b) => a.priceDzd - b.priceDzd);
+            setPacks(sorted);
+            setSelectedPack(sorted[1]); // PRO by default
+            setTimeout(() => setPurchaseType('pack'), 600);
+
+            // Attempt to fetch from API, but use provided as base
+            try {
+                const response = await walletApi.get('/wallet/packs');
+                if (response.data && response.data.length > 0) {
+                    const apiSorted = response.data.sort((a, b) => a.priceDzd - b.priceDzd);
+                    setPacks(apiSorted);
+                }
+            } catch (e) {
+                console.warn('Using fallback packs as API fetch failed');
             }
         } catch (error) {
-            const fallbackPacks = [
-                { id: 1, name: language === 'ar' ? 'باقة البداية' : 'Starter Pack', points: 100, priceDzd: 500, icon: <FiZap /> },
-                { id: 2, name: language === 'ar' ? 'باقة المحترفين' : 'Pro Pack', points: 500, priceDzd: 2000, icon: <FiAward />, isPopular: true },
-                { id: 3, name: language === 'ar' ? 'الباقة القصوى' : 'Ultimate Pack', points: 2000, priceDzd: 7000, icon: <FiCpu /> }
-            ];
-            setPacks(fallbackPacks);
-            setSelectedPack(fallbackPacks[1]); // Select Pro Pack by default
-            setTimeout(() => setPurchaseType('pack'), 600);
+            console.error('Error in fetchPacks:', error);
         }
     };
 
@@ -135,9 +190,13 @@ const Wallet = ({ onNavigate }) => {
         customPointsTitle: language === 'ar' ? 'نقاط مخصصة' : 'Custom Points',
         customPointsSubtitle: language === 'ar' ? 'أدخل أي مبلغ تريده' : 'Enter any amount you want',
         enterAmount: language === 'ar' ? 'مثال: 1000' : 'e.g. 1000',
-        pts: language === 'ar' ? 'نقطة' : 'pts',
+        pts: language === 'ar' ? 'نقاط' : 'pts',
         acceptedMethods: language === 'ar' ? 'طرق الدفع المقبولة' : 'Accepted Payment Methods',
-        dzd: language === 'ar' ? 'دج' : 'DZD'
+        dzd: language === 'ar' ? 'دج' : 'DZD',
+        bestOffer: language === 'ar' ? 'أحسن عرض' : 'Best Offer',
+        purchasePack: language === 'ar' ? 'شراء الباقة' : 'Purchase Pack',
+        featured: language === 'ar' ? 'عروض مميزة' : 'Featured',
+        selected: language === 'ar' ? 'مختارة' : 'Selected'
     };
 
     return (
@@ -315,39 +374,16 @@ const Wallet = ({ onNavigate }) => {
                             </div>
                         </div>
                     ) : (
-                        <div className="packs-grid">
+                        <div className="pack-cards-container">
                             {packs.map((pack) => (
-                                <div
+                                <PackCard 
                                     key={pack.id}
-                                    className={`plan-card ${selectedPack?.id === pack.id ? 'selected' : ''} ${pack.isPopular ? 'popular-plan' : ''}`}
-                                    onClick={() => setSelectedPack(pack)}
-                                >
-                                    {pack.isPopular && <div className="popular-badge">{labels.mostPopular}</div>}
-                                    <div className="plan-header">
-                                        <div className="plan-icon-box">{pack.icon}</div>
-                                        <h3>{pack.name}</h3>
-                                        <div className="plan-price">
-                                            <span className="amount">{pack.points} {labels.pts}</span>
-                                            <span className="period">
-                                                {pack.priceDzd.toLocaleString()} {labels.dzd}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={`btn-select-pack ${isPending ? 'pending-disabled' : ''}`}
-                                        onClick={(e) => { 
-                                            e.stopPropagation(); 
-                                            if (isPending) {
-                                                toast.error(t.pendingActionError, { id: 'pending-action-error' });
-                                                return;
-                                            }
-                                            setSelectedPack(pack); 
-                                            handlePurchase(); 
-                                        }}
-                                    >
-                                        {language === 'ar' ? 'شراء هذه الباقة' : 'Buy this pack'}
-                                    </button>
-                                </div>
+                                    pack={pack}
+                                    isSelected={selectedPack?.id === pack.id}
+                                    onSelect={(id) => setSelectedPack(packs.find(p => p.id === id))}
+                                    onPurchase={handlePurchase}
+                                    t={labels}
+                                />
                             ))}
                         </div>
                     )}

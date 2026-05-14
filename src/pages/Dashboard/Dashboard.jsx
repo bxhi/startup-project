@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Dashboard.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import CreateOfferModal from '../../components/CreateOfferModal/CreateOfferModal';
+import CreateOfferCard from '../../components/CreateOfferCard/CreateOfferCard';
 import { FiFileText, FiShoppingCart, FiBox, FiArrowUpRight, FiArrowDownRight, FiPlus } from 'react-icons/fi';
 import { HiOutlineChatBubbleOvalLeftEllipsis } from 'react-icons/hi2';
 import { IoWalletOutline } from 'react-icons/io5';
@@ -53,10 +54,10 @@ const Dashboard = ({ onNavigate }) => {
     const chartData = language === 'ar' ? lineData : lineDataEn;
 
     const recentActivity = [
-        { id: '#12453', client: 'ABC Trading', action: t.actNewProposal, amount: '€12,500', time: '2 min', status: t.statusNew },
-        { id: '#12452', client: 'XYZ Imports', action: t.actOrderCompleted, amount: '€8,200', time: '1h', status: t.completed },
-        { id: '#12451', client: 'Global Traders', action: t.actPaymentReceived, amount: '€15,000', time: '3h', status: t.statusPaid },
-        { id: '#12450', client: 'Euro Supplies', action: t.actNegotiationStarted, amount: '€5,500', time: '5h', status: t.statusNegotiating }
+        { id: '#12453', client: 'ABC Trading', action: t.actNewProposal, amount: '€12,500', time: '2 min', status: t.statusNew, statusKey: 'new' },
+        { id: '#12452', client: 'XYZ Imports', action: t.actOrderCompleted, amount: '€8,200', time: '1h', status: t.completed, statusKey: 'completed' },
+        { id: '#12451', client: 'Global Traders', action: t.actPaymentReceived, amount: '€15,000', time: '3h', status: t.statusPaid, statusKey: 'paid' },
+        { id: '#12450', client: 'Euro Supplies', action: t.actNegotiationStarted, amount: '€5,500', time: '5h', status: t.statusNegotiating, statusKey: 'negotiating' }
     ];
 
     return (
@@ -162,19 +163,12 @@ const Dashboard = ({ onNavigate }) => {
                     <div className="dashboard-section-card quick-actions-card">
                         <h3>{t.quickActions}</h3>
                         <div className="actions-buttons">
-                            <button 
-                                className={`btn-create-offer ${isPending ? 'pending-disabled' : ''}`} 
-                                onClick={() => {
-                                    if (isPending) {
-                                        toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
-                                        return;
-                                    }
-                                    setIsCreateOfferOpen(true);
-                                }}
-                            >
-                                <FiPlus size={22} /> {t.createOffer}
-                            </button>
-                            <button className="btn btn-outline" onClick={() => onNavigate('commands')}>
+                            <CreateOfferCard 
+                                onClick={() => setIsCreateOfferOpen(true)}
+                                isPending={isPending}
+                                t={t}
+                            />
+                            <button className="btn btn-outline browse-commands-btn" onClick={() => onNavigate('commands')}>
                                 <FiFileText /> {t.browseCommands}
                             </button>
                         </div>
@@ -219,12 +213,17 @@ const Dashboard = ({ onNavigate }) => {
                             {recentActivity.map((activity, index) => (
                                 <tr key={index}>
                                     <td className="id-cell">{activity.id}</td>
-                                    <td>{activity.client}</td>
-                                    <td>{activity.action}</td>
+                                    <td>
+                                        <div className="client-info-cell">
+                                            <div className="client-avatar">{activity.client.charAt(0)}</div>
+                                            <span>{activity.client}</span>
+                                        </div>
+                                    </td>
+                                    <td className="action-cell">{activity.action}</td>
                                     <td className="amount-cell">{activity.amount}</td>
                                     <td className="time-cell">{activity.time}</td>
                                     <td>
-                                        <span className={`status-badge`}>{activity.status}</span>
+                                        <span className={`status-badge ${activity.statusKey}`}>{activity.status}</span>
                                     </td>
                                 </tr>
                             ))}

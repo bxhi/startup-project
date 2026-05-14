@@ -10,6 +10,7 @@ import authService from '../../api/authService';
 import './SignUp.css';
 import LoadingPage from '../../components/LoadingPage/LoadingPage';
 import { useLanguage } from '../../context/LanguageContext';
+import Stepper from '../../components/Stepper/Stepper';
 
 const SignUp = ({ onNavigate }) => {
     const { t } = useLanguage();
@@ -245,11 +246,12 @@ const SignUp = ({ onNavigate }) => {
 
     const nextStep = () => {
         setStep(prev => Math.min(prev + 1, 4));
-        // REMOVED: setError(''); - Keep errors visible
+        setError(''); // Clear error list on navigation
     };
+
     const prevStep = () => {
         setStep(prev => Math.max(prev - 1, 1));
-        // REMOVED: setError(''); - Keep errors visible
+        setError(''); // Clear error list on navigation
     };
 
     const [loading, setLoading] = useState(false);
@@ -257,11 +259,12 @@ const SignUp = ({ onNavigate }) => {
 
     const handleSubmit = async () => {
         const { errors, errSteps } = validateFormData(formData, selfiePhoto);
-
         if (errors.length > 0) {
             setError(errors);
-            setErrorSteps(errSteps);
-            setStep(Math.min(...errSteps));
+            setErrorSteps(errSteps); // This will turn the dots red
+            if (errSteps.length > 0) {
+                setStep(Math.min(...errSteps)); // Jump to first error
+            }
             return;
         }
 
@@ -693,7 +696,7 @@ const SignUp = ({ onNavigate }) => {
             </div>
 
             <div className="signup-header">
-                <h1 className="signup-main-title">Join us</h1>
+                <h1 className="signup-main-title gradient-heading">Join us</h1>
                 <p className="signup-subtitle">Join our premium importer network today.</p>
             </div>
 
@@ -706,29 +709,12 @@ const SignUp = ({ onNavigate }) => {
                 </div>
 
                 {!isVerificationPending && !isOtpStep && (
-                    <div className="step-indicator">
-                        {[1, 2, 3, 4].map((s) => {
-                            const labels = [t.step1 || 'Register', t.step2 || 'Documents', t.step3 || 'Selfie', t.step4 || 'Credential'];
-                            const isActive = step === s && !isOtpStep && !isVerificationPending;
-                            const hasError = errorSteps.includes(s);
-                            const isCompleted = (isOtpStep || isVerificationPending) ? !hasError : isStepValid(s);
-
-                            return (
-                                <div key={s} className={`step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>
-                                    <div className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>
-                                        {hasError ? (
-                                            <FiX size={24} />
-                                        ) : isCompleted ? (
-                                            <FiCheckCircle size={24} />
-                                        ) : (
-                                            s
-                                        )}
-                                    </div>
-                                    <div className={`step-label ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>{labels[s - 1]}</div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    <Stepper 
+                        steps={[t.step1 || 'Register', t.step2 || 'Documents', t.step3 || 'Selfie', t.step4 || 'Credential']} 
+                        current={step} 
+                        errorSteps={errorSteps}
+                        validSteps={[1, 2, 3, 4].filter(s => isStepValid(s))}
+                    />
                 )}
 
                 {error && Array.isArray(error) && error.length > 0 && (

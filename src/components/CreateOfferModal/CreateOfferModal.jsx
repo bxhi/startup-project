@@ -6,6 +6,7 @@ import { LuUpload } from 'react-icons/lu';
 import offerService from '../../api/offerService';
 import Checkbox from '../Checkbox/Checkbox';
 import { useLanguage } from '../../context/LanguageContext';
+import Stepper from '../Stepper/Stepper';
 
 
 const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
@@ -217,30 +218,11 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                     ) : (
                         <>
                             {/* Progress Steps */}
-                            <div className="step-indicator">
-                                {[1, 2, 3].map((s) => {
-                                    const stepLabels = [t.basicInfo, t.pricingQuantity, t.mediaOrigin];
-                                    const isActive = currentStep === s;
-                                    const isCompleted = currentStep > s;
-                                    const hasError = !!error && currentStep === s;
-                                    return (
-                                        <div key={s} className={`step-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''} ${hasError ? 'error' : ''}`}>
-                                            <div className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>
-                                                {hasError ? (
-                                                    <FiAlertCircle />
-                                                ) : isCompleted ? (
-                                                    <FiCheck />
-                                                ) : (
-                                                    s
-                                                )}
-                                            </div>
-                                            <div className={`step-label ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${hasError ? 'error' : ''}`}>
-                                                {stepLabels[s - 1]}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            <Stepper 
+                                steps={[t.basicInfo, t.pricingQuantity, t.mediaOrigin]} 
+                                current={currentStep} 
+                                errorSteps={error ? [currentStep] : []}
+                            />
 
                             {/* Step Content */}
                             {currentStep === 1 && (

@@ -110,7 +110,7 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
             </div>
 
             <div className="login-header">
-                <h1 className="login-title">Sign in</h1>
+                <h1 className="login-title gradient-heading">Sign in</h1>
                 <p className="login-subtitle">Welcome back to the platform.</p>
             </div>
 

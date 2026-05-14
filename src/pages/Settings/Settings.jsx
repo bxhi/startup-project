@@ -33,14 +33,16 @@ const Settings = ({ onNavigate }) => {
     };
 
     const documents = [
-        { name: 'Import License', date: '2026-01-15', status: 'approved' },
-        { name: 'Commercial Register', date: '2026-01-15', status: 'approved' },
-        { name: 'ID Front', date: '2026-01-15', status: 'approved' },
-        { name: 'ID Back', date: '2026-01-15', status: 'approved' }
+        { name: t.importLicense || 'Import License', date: '2026-01-15', status: 'approved' },
+        { name: t.commercialRegister || 'Commercial Register', date: '2026-01-15', status: 'approved' },
+        { name: t.idFront || 'ID Front', date: '2026-01-15', status: 'approved' },
+        { name: t.idBack || 'ID Back', date: '2026-01-15', status: 'approved' }
     ];
 
     return (
         <DashboardLayout onNavigate={onNavigate} activePage="settings">
+            <div className="settings-top-banner"></div>
+            
             <div className="settings-header header-wallet-style">
                 <div className="header-text">
                     <h1>{t.settingsTitle}</h1>
@@ -90,9 +92,9 @@ const Settings = ({ onNavigate }) => {
                                     <input type="text" defaultValue="www.premiumimports.com" className="settings-input" />
                                 </div>
                             </div>
-                            <div className="card-actions-right">
-                                <button className="settings-btn-primary rounded">{t.saveChanges}</button>
-                            </div>
+                        </div>
+                        <div className="card-footer">
+                            <button className="settings-btn-primary rounded">{t.saveChanges}</button>
                         </div>
                     </div>
 
@@ -259,14 +261,18 @@ const Settings = ({ onNavigate }) => {
                                 <button className="security-btn">{t.changePassword}</button>
                                 <button className="security-btn">{t.twoFactorAuth}</button>
                             </div>
-                            <div className="logout-section">
-                                <button className="logout-btn-red" onClick={() => {
-                                    localStorage.clear();
-                                    onNavigate('onboarding');
-                                }}>
-                                    <FiLogOut /> {t.logout}
-                                </button>
-                            </div>
+                        </div>
+                    </div>
+
+                    {/* Standalone Logout */}
+                    <div className="settings-card logout-card">
+                        <div className="card-content no-padding">
+                            <button className="logout-btn-premium" onClick={() => {
+                                localStorage.clear();
+                                onNavigate('onboarding');
+                            }}>
+                                <FiLogOut /> {t.logout}
+                            </button>
                         </div>
                     </div>
                 </div>

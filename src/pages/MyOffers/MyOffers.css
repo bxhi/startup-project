@@ -124,12 +124,18 @@
 
 /* Table Card styling */
 .offers-table-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 30px rgba(31, 115, 183, 0.12);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(31, 115, 183, 0.08);
     overflow: hidden;
     margin: 0 32px 32px 32px;
+    transition: box-shadow 0.3s ease;
+}
+
+.offers-table-card:hover {
+    box-shadow: 0 15px 40px rgba(31, 115, 183, 0.12);
 }
 
 .offers-table-body {
