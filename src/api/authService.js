@@ -19,12 +19,9 @@ const authService = {
         return response.data;
     },
 
-    registerImportator: async (formData) => {
-        const response = await api.post('/auth/register/importator', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+    registerImportator: async (data) => {
+        const headers = data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {};
+        const response = await api.post('/auth/register/importator', data, { headers });
         return response.data;
     },
 

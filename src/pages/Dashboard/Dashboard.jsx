@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import CreateOfferModal from '../../components/CreateOfferModal/CreateOfferModal';
@@ -9,13 +9,36 @@ import { IoWalletOutline } from 'react-icons/io5';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useLanguage } from '../../context/LanguageContext';
 import { toast } from 'react-hot-toast';
+import { authApi } from '../../api/api';
 
 const Dashboard = ({ onNavigate }) => {
     const [isCreateOfferOpen, setIsCreateOfferOpen] = useState(false);
     const { t } = useLanguage();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    let vStatus = localStorage.getItem('verificationStatus') || user.status;
-    if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
+    const [vStatus, setVStatus] = useState(localStorage.getItem('verificationStatus') || user.status);
+
+    useEffect(() => {
+        const refreshProfile = async () => {
+            try {
+                const response = await authApi.get('/auth/profile');
+                if (response.data) {
+                    const latestUser = response.data.user || response.data;
+                    const latestProfile = response.data.profile;
+                    const status = latestProfile?.verificationStatus || latestUser.status;
+                    
+                    setUser(latestUser);
+                    setVStatus(status);
+                    
+                    localStorage.setItem('user', JSON.stringify(latestUser));
+                    localStorage.setItem('verificationStatus', status);
+                }
+            } catch (error) {
+                console.error('Failed to refresh profile:', error);
+            }
+        };
+        refreshProfile();
+    }, []);
+
     const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
     const statCards = [

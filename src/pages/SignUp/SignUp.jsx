@@ -7,6 +7,7 @@ import Card from '../../components/Card/Card';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import authService from '../../api/authService';
+import { uploadToCloudinary } from '../../api/uploadService';
 import './SignUp.css';
 import LoadingPage from '../../components/LoadingPage/LoadingPage';
 import { useLanguage } from '../../context/LanguageContext';
@@ -272,30 +273,8 @@ const SignUp = ({ onNavigate }) => {
         setError('');
         setErrorSteps([]);
         try {
-            const fd = new FormData();
-
-            // Normalize phone number (keep digits only including the prefix)
-            const normalizedPhone = '+213' + formData.phone.replace(/\D/g, '');
-
-            // Map to the structure expected by the backend
-            fd.append('user[fullName]', formData.ownerFullName);
-            fd.append('user[email]', formData.email);
-            fd.append('user[phoneNumber]', normalizedPhone);
-            fd.append('user[password]', formData.password);
-
-            fd.append('profile[licenseId]', formData.commerceNumber);
-            fd.append('profile[registerCommerceNumber]', formData.commerceNumber);
-            fd.append('profile[NIN]', formData.nin);
-            fd.append('profile[wilaya]', 'Not Specified');
-            fd.append('profile[address]', 'Not Specified');
-
-            // Files
-            fd.append('registerCommerceImage', formData.commercialRegister);
-            fd.append('licenseImage', formData.importLicense);
-            fd.append('idFrontCardImage', formData.idFront);
-            fd.append('idBackCardImage', formData.idBack);
-
             // Camera selfie
+            let selfieFile = null;
             if (selfiePhoto && typeof selfiePhoto === 'string' && selfiePhoto.includes(',')) {
                 const dataURLtoFile = (dataurl, filename) => {
                     try {
@@ -316,10 +295,8 @@ const SignUp = ({ onNavigate }) => {
                         return null;
                     }
                 };
-                const selfieFile = dataURLtoFile(selfiePhoto, 'selfie.jpg');
-                if (selfieFile) {
-                    fd.append('selfieImage', selfieFile);
-                } else {
+                selfieFile = dataURLtoFile(selfiePhoto, 'selfie.jpg');
+                if (!selfieFile) {
                     setError([t.errSelfieProcess || 'Error processing selfie photo. Please try retaking it.']);
                     setErrorSteps([4]);
                     setLoading(false);
@@ -332,7 +309,49 @@ const SignUp = ({ onNavigate }) => {
                 return;
             }
 
-            const response = await authService.registerImportator(fd);
+            // Normalize phone number (keep digits only including the prefix)
+            const normalizedPhone = '+213' + formData.phone.replace(/\D/g, '');
+
+            // Upload files to Cloudinary
+            const [
+                registerCommerceImageUrl,
+                licenseImageUrl,
+                idFrontCardImageUrl,
+                idBackCardImageUrl,
+                selfieImageUrl
+            ] = await Promise.all([
+                uploadToCloudinary(formData.commercialRegister),
+                uploadToCloudinary(formData.importLicense),
+                uploadToCloudinary(formData.idFront),
+                uploadToCloudinary(formData.idBack),
+                uploadToCloudinary(selfieFile)
+            ]);
+
+            // Construct JSON payload
+            const payload = {
+                user: {
+                    fullName: formData.ownerFullName,
+                    email: formData.email,
+                    phoneNumber: normalizedPhone,
+                    password: formData.password
+                },
+                profile: {
+                    licenseId: formData.commerceNumber,
+                    registerCommerceNumber: formData.commerceNumber,
+                    NIN: formData.nin,
+                    wilaya: 'Not Specified',
+                    address: 'Not Specified'
+                },
+                imageUrls: {
+                    registerCommerceImage: registerCommerceImageUrl,
+                    licenseImage: licenseImageUrl,
+                    idFrontCardImage: idFrontCardImageUrl,
+                    idBackCardImage: idBackCardImageUrl,
+                    selfieImage: selfieImageUrl
+                }
+            };
+
+            const response = await authService.registerImportator(payload);
             const returnedUserId = response.importatorProfile?.user?.userId || response.importatorProfile?.userId;
 
             if (returnedUserId) {
@@ -374,6 +393,9 @@ const SignUp = ({ onNavigate }) => {
                     setErrorSteps(uniqueSteps);
                     setStep(Math.min(...uniqueSteps));
                 }
+            } else if (err.response.status === 500) {
+                setError([t.errDuplicateInfo || 'This Phone Number or NIN is already registered. Please try using a different one.']);
+                setErrorSteps([1, 4]);
             } else {
                 setError([err.response.data?.message || t.errOccurredDuringReg || 'An error occurred during registration.']);
             }
