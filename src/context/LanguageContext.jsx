@@ -379,6 +379,20 @@ export const translations = {
         statusPending: 'Pending',
         statusHidden: 'Hidden',
         hide: 'Hide',
+        manageBusinessDesc: 'Manage your core business details',
+        verifyIdentityDesc: 'Verify your identity to unlock all features',
+        roleImporter: 'Importer',
+        currentPassword: 'Current Password',
+        newPassword: 'New Password',
+        confirmNewPassword: 'Confirm New Password',
+        updatePassword: 'Update Password',
+        saving: 'Saving changes...',
+        profileUpdated: 'Profile updated successfully',
+        errorSaving: 'Failed to save changes',
+        update: 'Update',
+        updatingPassword: 'Updating password...',
+        passwordUpdated: 'Password updated successfully!',
+        passwordsMismatch: "Passwords don't match!"
     },
 
     ar: {
@@ -753,6 +767,20 @@ export const translations = {
         statusPending: 'قيد المراجعة',
         statusHidden: 'مخفي',
         hide: 'إخفاء',
+        manageBusinessDesc: 'إدارة التفاصيل الأساسية لعملك',
+        verifyIdentityDesc: 'تحقق من هويتك لفتح جميع الميزات',
+        roleImporter: 'مستورد',
+        currentPassword: 'كلمة المرور الحالية',
+        newPassword: 'كلمة المرور الجديدة',
+        confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+        updatePassword: 'تحديث كلمة المرور',
+        saving: 'جاري حفظ التغييرات...',
+        profileUpdated: 'تم تحديث الملف الشخصي بنجاح',
+        errorSaving: 'فشل في حفظ التغييرات',
+        update: 'تحديث',
+        updatingPassword: 'جاري تحديث كلمة المرور...',
+        passwordUpdated: 'تم تحديث كلمة المرور بنجاح!',
+        passwordsMismatch: 'كلمات المرور غير متطابقة!'
     },
 
     fr: {
@@ -1129,6 +1157,20 @@ export const translations = {
         proposedQuantityLabel: 'Quantité Proposée',
         willNotifyEmail: 'La notification sera envoyée à :',
         hide: 'Masquer',
+        manageBusinessDesc: 'Gérez les détails de votre entreprise',
+        verifyIdentityDesc: 'Vérifiez votre identité pour débloquer toutes les fonctionnalités',
+        roleImporter: 'Importateur',
+        currentPassword: 'Mot de passe actuel',
+        newPassword: 'Nouveau mot de passe',
+        confirmNewPassword: 'Confirmer le nouveau mot de passe',
+        updatePassword: 'Mettre à jour le mot de passe',
+        saving: 'Enregistrement...',
+        profileUpdated: 'Profil mis à jour avec succès',
+        errorSaving: 'Échec de l\'enregistrement',
+        update: 'Mettre à jour',
+        updatingPassword: 'Mise à jour du mot de passe...',
+        passwordUpdated: 'Mot de passe mis à jour avec succès !',
+        passwordsMismatch: 'Les mots de passe ne correspondent pas !'
     }
 
 };

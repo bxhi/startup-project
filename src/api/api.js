@@ -56,8 +56,9 @@ const createAPI = (baseURL) => {
                     const refreshToken = localStorage.getItem('refreshToken');
                     if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {
                         // Use a clean axios instance to avoid interceptor loops
-                        const baseURL = originalRequest.baseURL || 'http://localhost:7777/ms-authentification';
-                        const refreshResponse = await axios.post(`${baseURL}/auth/refresh-token`, {
+                        // Use the explicit auth service URL for refresh tokens
+                        const authBaseURL = 'http://localhost:7777/ms-authentification';
+                        const refreshResponse = await axios.post(`${authBaseURL}/auth/refresh-token`, {
                             refreshToken: refreshToken
                         });
                         

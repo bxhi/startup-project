@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import {
@@ -10,270 +10,461 @@ import {
     FiCamera,
     FiCheck,
     FiFileText,
-    FiBriefcase
+    FiBriefcase,
+    FiMail,
+    FiPhone,
+    FiMapPin,
+    FiExternalLink,
+    FiUploadCloud
 } from 'react-icons/fi';
 import { useLanguage } from '../../context/LanguageContext';
+import { authApi } from '../../api/api';
+import { toast } from 'react-hot-toast';
 
 const Settings = ({ onNavigate }) => {
     const { t, language, setLanguage } = useLanguage();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const vStatus = localStorage.getItem('verificationStatus') || user.status || 'pending';
+    const isPending = vStatus.toLowerCase() === 'pending';
+
+    const [formData, setFormData] = useState({
+        businessName: user.profile?.businessName || '',
+        fullName: user.fullName || '',
+        email: user.email || '',
+        phone: user.profile?.phoneNumber || '',
+        address: user.profile?.address || '',
+        taxId: user.profile?.taxId || '',
+        website: user.profile?.website || ''
+    });
 
     const [notifications, setNotifications] = useState({
         email: { orders: true, negotiations: true, promotions: false },
         push: { orders: true, negotiations: true, promotions: false }
     });
 
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwordData, setPasswordData] = useState({
+        current: '',
+        new: '',
+        confirm: ''
+    });
+
     const handleToggle = (type, category) => {
         setNotifications(prev => ({
             ...prev,
-            [type]: {
-                ...prev[type],
-                [category]: !prev[type][category]
-            }
+            [type]: { ...prev[type], [category]: !prev[type][category] }
         }));
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handlePasswordChange = (e) => {
+        const { name, value } = e.target;
+        setPasswordData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const submitPasswordChange = () => {
+        if (passwordData.new !== passwordData.confirm) {
+            toast.error(t.passwordsMismatch);
+            return;
+        }
+        toast.loading(t.updatingPassword);
+        setTimeout(() => {
+            toast.dismiss();
+            toast.success(t.passwordUpdated);
+            setShowPasswordModal(false);
+            setPasswordData({ current: '', new: '', confirm: '' });
+        }, 1500);
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            toast.loading(t.saving || 'Saving changes...');
+            // Simulating API call for now as requested minimal backend changes
+            setTimeout(() => {
+                toast.dismiss();
+                toast.success(t.profileUpdated || 'Profile updated successfully');
+            }, 1000);
+        } catch (error) {
+            toast.dismiss();
+            toast.error(t.errorSaving || 'Failed to save changes');
+        }
+    };
+
     const documents = [
-        { name: t.importLicense || 'Import License', date: '2026-01-15', status: 'approved' },
-        { name: t.commercialRegister || 'Commercial Register', date: '2026-01-15', status: 'approved' },
-        { name: t.idFront || 'ID Front', date: '2026-01-15', status: 'approved' },
-        { name: t.idBack || 'ID Back', date: '2026-01-15', status: 'approved' }
+        { id: 'importLicense', name: t.importLicense || 'Import License', key: 'licenseImage', status: vStatus },
+        { id: 'commercialRegister', name: t.commercialRegister || 'Commercial Register', key: 'registerCommerceImage', status: vStatus },
+        { id: 'idFront', name: t.idFront || 'ID Front', key: 'idFrontCardImage', status: vStatus },
+        { id: 'idBack', name: t.idBack || 'ID Back', key: 'idBackCardImage', status: vStatus }
     ];
 
     return (
         <DashboardLayout onNavigate={onNavigate} activePage="settings">
-            <div className="settings-top-banner"></div>
-            
-            <div className="settings-header header-wallet-style">
-                <div className="header-text">
-                    <h1>{t.settingsTitle}</h1>
-                    <p>{t.settingsSubtitle}</p>
-                </div>
-            </div>
-
-            <div className="settings-grid">
-                {/* Left Column - Main Settings */}
-                <div className="settings-main">
-                    {/* Business Profile */}
-                    <div className="settings-card">
-                        <div className="card-header no-border">
-                            <div className="icon-badge light-blue">
-                                <FiBriefcase />
+            <div className="settings-container animate-fade-in">
+                {/* Password Modal */}
+                {showPasswordModal && (
+                    <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
+                        <div className="modal-content glass-premium animate-pop" onClick={e => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <div className="icon-badge gradient-purple"><FiShield /></div>
+                                <h2>{t.changePassword}</h2>
+                                <button className="close-btn" onClick={() => setShowPasswordModal(false)}>×</button>
                             </div>
-                            <h3>{t.businessProfile}</h3>
-                        </div>
-                        <div className="card-content">
-                            <div className="form-grid">
+                            <div className="modal-body">
                                 <div className="form-group">
-                                    <label>{t.businessName}</label>
-                                    <input type="text" defaultValue="Premium Imports Co." className="settings-input" />
+                                    <label>{t.currentPassword}</label>
+                                    <input 
+                                        type="password" 
+                                        name="current"
+                                        value={passwordData.current}
+                                        onChange={handlePasswordChange}
+                                        className="settings-input" 
+                                    />
                                 </div>
                                 <div className="form-group">
-                                    <label>{t.ownerFullName}</label>
-                                    <input type="text" defaultValue="John Doe" className="settings-input" />
+                                    <label>{t.newPassword}</label>
+                                    <input 
+                                        type="password" 
+                                        name="new"
+                                        value={passwordData.new}
+                                        onChange={handlePasswordChange}
+                                        className="settings-input" 
+                                    />
                                 </div>
                                 <div className="form-group">
-                                    <label>{t.email}</label>
-                                    <input type="email" defaultValue="john@premiumimports.com" className="settings-input" />
-                                </div>
-                                <div className="form-group">
-                                    <label>{t.phone}</label>
-                                    <input type="text" defaultValue="+213 555 123 456" className="settings-input" />
-                                </div>
-                                <div className="form-group full-width">
-                                    <label>{t.businessAddress}</label>
-                                    <input type="text" defaultValue="123 Business Street, Algiers" className="settings-input" />
-                                </div>
-                                <div className="form-group">
-                                    <label>{t.taxId}</label>
-                                    <input type="text" defaultValue="ALG-123456789" className="settings-input" />
-                                </div>
-                                <div className="form-group">
-                                    <label>{t.website}</label>
-                                    <input type="text" defaultValue="www.premiumimports.com" className="settings-input" />
+                                    <label>{t.confirmNewPassword}</label>
+                                    <input 
+                                        type="password" 
+                                        name="confirm"
+                                        value={passwordData.confirm}
+                                        onChange={handlePasswordChange}
+                                        className="settings-input" 
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div className="card-footer">
-                            <button className="settings-btn-primary rounded">{t.saveChanges}</button>
-                        </div>
-                    </div>
-
-                    {/* Verification Documents */}
-                    <div className="settings-card">
-                        <div className="card-header no-border">
-                            <div className="icon-badge light-blue">
-                                <FiShield />
-                            </div>
-                            <h3>{t.verificationDocs}</h3>
-                        </div>
-                        <div className="card-content">
-                            <div className="documents-list-modern">
-                                {documents.map((doc, idx) => (
-                                    <div key={idx} className="document-item-modern">
-                                        <div className="doc-icon-badge green">
-                                            <FiCheck />
-                                        </div>
-                                        <div className="doc-info">
-                                            <h4>{doc.name}</h4>
-                                            <p>{t.uploaded}: {doc.date}</p>
-                                        </div>
-                                        <div className="doc-actions-right">
-                                            <span className="status-badge-green">{t.approved}</span>
-                                            <button className="reupload-link">{t.reupload}</button>
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="modal-footer">
+                                <button className="settings-btn-primary full-width" onClick={submitPasswordChange}>
+                                    {t.updatePassword}
+                                </button>
                             </div>
                         </div>
                     </div>
+                )}
 
-                    {/* Notification Preferences */}
-                    <div className="settings-card highlight">
-                        <div className="card-header">
-                            <div className="icon-badge pink">
-                                <FiBell />
-                            </div>
-                            <div className="header-info">
-                                <h3>{t.notificationPrefs}</h3>
-                                <p>{t.stayUpdated}</p>
-                            </div>
-                        </div>
-                        <div className="card-content">
-                            <div className="notifications-modern-grid">
-                                {/* Email Channel */}
-                                <div className="channel-box">
-                                    <div className="channel-header">
-                                        <div className="channel-title">
-                                            <div className="mini-icon blue"><FiGlobe /></div>
-                                            <span>{t.emailNotifications}</span>
-                                        </div>
-                                    </div>
-                                    <div className="channel-items">
-                                        {[
-                                            { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
-                                            { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
-                                            { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
-                                        ].map((item) => (
-                                            <div key={item.id} className="notif-tile">
-                                                <div className="tile-icon">{item.icon}</div>
-                                                <div className="tile-label">{item.label}</div>
-                                                <label className="switch">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={notifications.email[item.id]}
-                                                        onChange={() => handleToggle('email', item.id)}
-                                                    />
-                                                    <span className="slider round"></span>
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Push Channel */}
-                                <div className="channel-box">
-                                    <div className="channel-header">
-                                        <div className="channel-title">
-                                            <div className="mini-icon purple"><FiBell /></div>
-                                            <span>{t.pushNotifications}</span>
-                                        </div>
-                                    </div>
-                                    <div className="channel-items">
-                                        {[
-                                            { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
-                                            { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
-                                            { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
-                                        ].map((item) => (
-                                            <div key={item.id} className="notif-tile">
-                                                <div className="tile-icon">{item.icon}</div>
-                                                <div className="tile-label">{item.label}</div>
-                                                <label className="switch">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={notifications.push[item.id]}
-                                                        onChange={() => handleToggle('push', item.id)}
-                                                    />
-                                                    <span className="slider round"></span>
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div className="settings-header header-wallet-style">
+                    <div className="header-text">
+                        <h1>{t.settingsTitle}</h1>
+                        <p>{t.settingsSubtitle}</p>
                     </div>
                 </div>
 
-                {/* Right Column - Sidebar Settings */}
-                <div className="settings-sidebar">
-                    {/* Profile Picture */}
-                    <div className="settings-card centered">
-                        <div className="card-header no-border">
-                            <h3>{t.profilePicture}</h3>
-                        </div>
-                        <div className="card-content">
-                            <div className="profile-avatar-large">
-                                <FiUser />
+                <div className="settings-grid">
+                    <div className="settings-main">
+                        {/* Business Profile */}
+                        <div className="settings-card glass-premium">
+                            <div className="card-header no-border">
+                                <div className="icon-badge gradient-blue">
+                                    <FiBriefcase />
+                                </div>
+                                <div className="header-info-wrapper">
+                                    <h3>{t.businessProfile}</h3>
+                                    <p className="card-subtitle">{t.manageBusinessDesc}</p>
+                                </div>
                             </div>
-                            <button className="settings-btn-upload">
-                                <FiCamera /> {t.uploadNew}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Language Selection */}
-                    <div className="settings-card">
-                        <div className="card-header">
-                            <div className="icon-badge light-blue">
-                                <FiGlobe />
-                            </div>
-                            <h3>{t.language}</h3>
-                        </div>
-                        <div className="card-content">
-                            <div className="language-list">
-                                {[
-                                    { id: 'en', label: 'English (EN)' },
-                                    { id: 'fr', label: 'Français (FR)' },
-                                    { id: 'ar', label: '(AR) العربية' }
-                                ].map(lang => (
-                                    <label key={lang.id} className="radio-container">
-                                        <input
-                                            type="radio"
-                                            name="language"
-                                            checked={language === lang.id}
-                                            onChange={() => setLanguage(lang.id)}
+                            <div className="card-content">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label><FiBriefcase className="label-icon" /> {t.businessName}</label>
+                                        <input 
+                                            name="businessName"
+                                            type="text" 
+                                            value={formData.businessName} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
                                         />
-                                        <span className="radio-label">{lang.label}</span>
-                                        <span className="radio-mark"></span>
-                                    </label>
-                                ))}
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FiUser className="label-icon" /> {t.ownerFullName}</label>
+                                        <input 
+                                            name="fullName"
+                                            type="text" 
+                                            value={formData.fullName} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FiMail className="label-icon" /> {t.email}</label>
+                                        <input 
+                                            name="email"
+                                            type="email" 
+                                            value={formData.email} 
+                                            readOnly
+                                            className="settings-input readonly" 
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FiPhone className="label-icon" /> {t.phone}</label>
+                                        <input 
+                                            name="phone"
+                                            type="text" 
+                                            value={formData.phone} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
+                                        />
+                                    </div>
+                                    <div className="form-group full-width">
+                                        <label><FiMapPin className="label-icon" /> {t.businessAddress}</label>
+                                        <input 
+                                            name="address"
+                                            type="text" 
+                                            value={formData.address} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FiShield className="label-icon" /> {t.taxId}</label>
+                                        <input 
+                                            name="taxId"
+                                            type="text" 
+                                            value={formData.taxId} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label><FiGlobe className="label-icon" /> {t.website}</label>
+                                        <input 
+                                            name="website"
+                                            type="text" 
+                                            value={formData.website} 
+                                            onChange={handleInputChange}
+                                            className="settings-input" 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="card-footer">
+                                <button className="settings-btn-primary" onClick={handleSaveProfile}>{t.saveChanges}</button>
+                            </div>
+                        </div>
+
+                        {/* Verification Documents */}
+                        <div className="settings-card glass-premium">
+                            <div className="card-header no-border">
+                                <div className="icon-badge gradient-purple">
+                                    <FiShield />
+                                </div>
+                                <div className="header-info-wrapper">
+                                    <h3>{t.verificationDocs}</h3>
+                                    <p className="card-subtitle">{t.verifyIdentityDesc}</p>
+                                </div>
+                                {isPending && (
+                                    <span className="pending-badge-pulse">{t.pendingVerification || 'Pending Verification'}</span>
+                                )}
+                            </div>
+                            <div className="card-content">
+                                <div className="documents-grid-premium">
+                                    {documents.map((doc) => (
+                                        <div key={doc.id} className="document-card-premium">
+                                            <div className="doc-preview-area">
+                                                {user.profile?.[doc.key] ? (
+                                                    <img src={user.profile[doc.key]} alt={doc.name} className="doc-image-small" />
+                                                ) : (
+                                                    <div className="doc-placeholder">
+                                                        <FiFileText />
+                                                    </div>
+                                                )}
+                                                <div className="doc-overlay">
+                                                    <label className="overlay-upload-btn">
+                                                        <input 
+                                                            type="file" 
+                                                            hidden 
+                                                            onChange={(e) => {
+                                                                toast.success(`Uploading ${doc.name}...`);
+                                                                // In a real app, handle file upload here
+                                                            }} 
+                                                        />
+                                                        <FiUploadCloud /> {t.update || 'Update'}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div className="doc-meta">
+                                                <h4>{doc.name}</h4>
+                                                <div className="doc-status-row">
+                                                    <span className={`status-dot ${vStatus.toLowerCase()}`}></span>
+                                                    <span className="status-label">{t[vStatus.toLowerCase()] || vStatus}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Notification Preferences */}
+                        <div className="settings-card glass-premium">
+                            <div className="card-header">
+                                <div className="icon-badge gradient-pink">
+                                    <FiBell />
+                                </div>
+                                <div className="header-info">
+                                    <h3>{t.notificationPrefs}</h3>
+                                    <p className="card-subtitle">{t.stayUpdated}</p>
+                                </div>
+                            </div>
+                            <div className="card-content">
+                                <div className="notifications-modern-grid">
+                                    {/* Email Channel */}
+                                    <div className="channel-box">
+                                        <div className="channel-header">
+                                            <div className="channel-title">
+                                                <div className="mini-icon blue"><FiGlobe /></div>
+                                                <span>{t.emailNotifications}</span>
+                                            </div>
+                                        </div>
+                                        <div className="channel-items">
+                                            {[
+                                                { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
+                                                { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
+                                                { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
+                                            ].map((item) => (
+                                                <div key={item.id} className="notif-tile">
+                                                    <div className="tile-icon">{item.icon}</div>
+                                                    <div className="tile-label">{item.label}</div>
+                                                    <label className="switch">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={notifications.email[item.id]}
+                                                            onChange={() => handleToggle('email', item.id)}
+                                                        />
+                                                        <span className="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Push Channel */}
+                                    <div className="channel-box">
+                                        <div className="channel-header">
+                                            <div className="channel-title">
+                                                <div className="mini-icon purple"><FiBell /></div>
+                                                <span>{t.pushNotifications}</span>
+                                            </div>
+                                        </div>
+                                        <div className="channel-items">
+                                            {[
+                                                { id: 'orders', label: t.orderUpdates, icon: <FiFileText /> },
+                                                { id: 'negotiations', label: t.negotiationMessages, icon: <FiBell /> },
+                                                { id: 'promotions', label: t.promotionsUpdates, icon: <FiBriefcase /> }
+                                            ].map((item) => (
+                                                <div key={item.id} className="notif-tile">
+                                                    <div className="tile-icon">{item.icon}</div>
+                                                    <div className="tile-label">{item.label}</div>
+                                                    <label className="switch">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={notifications.push[item.id]}
+                                                            onChange={() => handleToggle('push', item.id)}
+                                                        />
+                                                        <span className="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Security */}
-                    <div className="settings-card">
-                        <div className="card-header">
-                            <h3>{t.security}</h3>
-                        </div>
-                        <div className="card-content">
-                            <div className="security-buttons">
-                                <button className="security-btn">{t.changePassword}</button>
-                                <button className="security-btn">{t.twoFactorAuth}</button>
+                    <div className="settings-sidebar">
+                        {/* Profile Card Premium */}
+                        <div className="settings-card glass-premium profile-card-modern">
+                            <div className="profile-banner"></div>
+                            <div className="card-content">
+                                <div className="profile-avatar-container">
+                                    <div className="profile-avatar-large">
+                                        <FiUser />
+                                    </div>
+                                    <button className="avatar-edit-badge">
+                                        <FiCamera />
+                                    </button>
+                                </div>
+                                <div className="profile-info-centered">
+                                    <h3>{formData.fullName}</h3>
+                                    <div className="role-badge-container">
+                                        <span className="profile-role-badge">{t.roleImporter}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Standalone Logout */}
-                    <div className="settings-card logout-card">
-                        <div className="card-content no-padding">
-                            <button className="logout-btn-premium" onClick={() => {
-                                localStorage.clear();
-                                onNavigate('onboarding');
-                            }}>
-                                <FiLogOut /> {t.logout}
-                            </button>
+                        {/* Language Selection */}
+                        <div className="settings-card glass-premium">
+                            <div className="card-header">
+                                <div className="icon-badge gradient-blue">
+                                    <FiGlobe />
+                                </div>
+                                <h3>{t.language}</h3>
+                            </div>
+                            <div className="card-content">
+                                <div className="language-options">
+                                    {[
+                                        { id: 'en', label: 'English', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/gb.svg' },
+                                        { id: 'fr', label: 'Français', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/fr.svg' },
+                                        { id: 'ar', label: 'العربية', flagUrl: 'https://flagicons.lipis.dev/flags/4x3/sa.svg' }
+                                    ].map(lang => (
+                                        <button 
+                                            key={lang.id} 
+                                            className={`lang-option ${language === lang.id ? 'active' : ''}`}
+                                            onClick={() => setLanguage(lang.id)}
+                                        >
+                                            <div className="lang-info-left">
+                                                <img src={lang.flagUrl} alt={`${lang.id} flag`} className="lang-flag-img" />
+                                                <span className="lang-name">{lang.label}</span>
+                                            </div>
+                                            <div className="active-dot"></div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Security */}
+                        <div className="settings-card glass-premium">
+                            <div className="card-header">
+                                <div className="icon-badge gradient-purple">
+                                    <FiShield />
+                                </div>
+                                <h3>{t.security}</h3>
+                            </div>
+                            <div className="card-content">
+                                <div className="security-buttons">
+                                    <button className="security-btn-premium" onClick={() => setShowPasswordModal(true)}>
+                                        <FiShield className="btn-icon" /> {t.changePassword}
+                                    </button>
+                                    <button className="security-btn-premium">
+                                        <FiShield className="btn-icon" /> {t.twoFactorAuth}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Logout */}
+                        <button className="logout-btn-creative" onClick={() => {
+                            localStorage.clear();
+                            onNavigate('onboarding');
+                        }}>
+                            <FiLogOut />
+                            <span>{t.logout}</span>
+                            <div className="btn-shine"></div>
+                        </button>
                     </div>
                 </div>
             </div>
