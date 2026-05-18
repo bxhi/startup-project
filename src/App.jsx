@@ -34,6 +34,17 @@ function AppContent() {
     return status;
   });
 
+  const [targetOrderId, setTargetOrderId] = useState(null);
+
+  const handleNavigate = (page, arg) => {
+    if (page === 'orders' && arg) {
+      setTargetOrderId(arg);
+    } else if (page === 'orders' && !arg) {
+      setTargetOrderId(null);
+    }
+    setCurrentPage(page);
+  };
+
   const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
   useEffect(() => {
@@ -48,10 +59,21 @@ function AppContent() {
           const profile = await authService.getProfile();
           const freshUser = profile.data || profile;
           
-          // Check various possible locations for the status depending on the API structure
-          const freshStatus = freshUser.verificationStatus || freshUser.status || freshUser.profileVerificationStatus;
+          let freshStatus = freshUser.status || freshUser.verificationStatus || freshUser.profileVerificationStatus || freshUser.importatorProfile?.verificationStatus || freshUser.clientProfile?.verificationStatus || freshUser.user?.status;
           
-          console.log('Background profile sync:', freshUser, 'Status found:', freshStatus);
+          // Force APPROVED if any of the associated fields say APPROVED
+          const allStatuses = [
+              freshUser.status, 
+              freshUser.verificationStatus, 
+              freshUser.profileVerificationStatus, 
+              freshUser.importatorProfile?.verificationStatus,
+              freshUser.clientProfile?.verificationStatus,
+              freshUser.user?.status
+          ];
+          
+          if (allStatuses.some(s => s && String(s).toUpperCase() === 'APPROVED')) {
+              freshStatus = 'APPROVED';
+          }
           
           setUser(freshUser);
           if (freshStatus) {
@@ -73,6 +95,7 @@ function AppContent() {
     <div className="app" dir={dir} lang={language}>
       <Toaster
         position="top-center"
+        containerStyle={{ zIndex: 99999 }}
         toastOptions={{
           success: {
             duration: 4000,
@@ -103,46 +126,46 @@ function AppContent() {
         }}
       />
       {currentPage === 'onboarding' && (
-        <Onboarding onNavigate={(page) => setCurrentPage(page)} />
+        <Onboarding onNavigate={(page) => handleNavigate(page)} />
       )}
       {currentPage === 'login' && (
         <Login
-          onNavigate={() => setCurrentPage('signup')}
-          onForgotPassword={() => setCurrentPage('forgot')}
+          onNavigate={() => handleNavigate('signup')}
+          onForgotPassword={() => handleNavigate('forgot')}
           onLoginSuccess={() => {
             const freshUser = JSON.parse(localStorage.getItem('user') || '{}');
             setUser(freshUser);
             setVStatus(localStorage.getItem('verificationStatus'));
-            setCurrentPage('dashboard');
+            handleNavigate('dashboard');
           }}
         />
       )}
       {currentPage === 'signup' && (
-        <SignUp onNavigate={() => setCurrentPage('login')} />
+        <SignUp onNavigate={() => handleNavigate('login')} />
       )}
       {currentPage === 'forgot' && (
-        <ForgotPassword onNavigate={() => setCurrentPage('login')} />
+        <ForgotPassword onNavigate={() => handleNavigate('login')} />
       )}
       {currentPage === 'dashboard' && (
-        <Dashboard onNavigate={(page) => setCurrentPage(page)} />
+        <Dashboard onNavigate={(page) => handleNavigate(page)} />
       )}
       {currentPage === 'commands' && (
-        <ClientCommands onNavigate={(page) => setCurrentPage(page)} />
+        <ClientCommands onNavigate={(page) => handleNavigate(page)} />
       )}
       {currentPage === 'negotiations' && (
-        <Negotiations onNavigate={(page) => setCurrentPage(page)} />
+        <Negotiations onNavigate={handleNavigate} />
       )}
       {currentPage === 'offers' && (
-        <MyOffers onNavigate={(page) => setCurrentPage(page)} />
+        <MyOffers onNavigate={(page) => handleNavigate(page)} />
       )}
       {currentPage === 'orders' && (
-        <Orders onNavigate={(page) => setCurrentPage(page)} />
+        <Orders onNavigate={handleNavigate} preselectedOrderId={targetOrderId} clearPreselectedOrder={() => setTargetOrderId(null)} />
       )}
       {currentPage === 'wallet' && (
-        <Wallet onNavigate={(page) => setCurrentPage(page)} />
+        <Wallet onNavigate={(page) => handleNavigate(page)} />
       )}
       {currentPage === 'settings' && (
-        <Settings onNavigate={(page) => setCurrentPage(page)} />
+        <Settings onNavigate={(page) => handleNavigate(page)} />
       )}
     </div>
   )

@@ -715,6 +715,14 @@ const SignUp = ({ onNavigate }) => {
                 <div className="blob blob-5"></div>
                 <div className="blob blob-6"></div>
                 <div className="blob-rainbow"></div>
+                
+                {/* Floating premium logistics icons ecosystem */}
+                <div className="floating-logistics-icon icon-drift-1"><LuPackage /></div>
+                <div className="floating-logistics-icon icon-drift-2"><LuStore /></div>
+                <div className="floating-logistics-icon icon-drift-3"><LuTrendingUp /></div>
+                <div className="floating-logistics-icon icon-drift-4"><LuDollarSign /></div>
+                <div className="floating-logistics-icon icon-drift-5"><LuBox /></div>
+                <div className="floating-logistics-icon icon-drift-6"><LuShoppingBag /></div>
             </div>
 
             <div className="signup-header">

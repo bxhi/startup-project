@@ -10,7 +10,11 @@ const authService = {
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('user', JSON.stringify(user));
             
-            const statusToSave = profileVerificationStatus || user?.status || user?.verificationStatus;
+            let statusToSave = user?.status || profileVerificationStatus || user?.verificationStatus;
+            const allStatuses = [user?.status, profileVerificationStatus, user?.verificationStatus, user?.importatorProfile?.verificationStatus, user?.clientProfile?.verificationStatus];
+            if (allStatuses.some(s => s && String(s).toUpperCase() === 'APPROVED')) {
+                statusToSave = 'APPROVED';
+            }
             if (statusToSave) {
                 localStorage.setItem('verificationStatus', statusToSave);
             }

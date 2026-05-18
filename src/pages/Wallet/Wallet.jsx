@@ -95,8 +95,8 @@ const Wallet = ({ onNavigate }) => {
             // Sort by price ascending (biggest on the right)
             const sorted = providedPacks.sort((a, b) => a.priceDzd - b.priceDzd);
             setPacks(sorted);
-            setSelectedPack(sorted[1]); // PRO by default
-            setTimeout(() => setPurchaseType('pack'), 600);
+            setSelectedPack(sorted[0]); // BASIC (left) by default
+            // setTimeout removed to prevent automatic switching from custom to pack
 
             // Attempt to fetch from API, but use provided as base
             try {
@@ -153,7 +153,9 @@ const Wallet = ({ onNavigate }) => {
 
             const checkoutUrl = response.data?.checkoutUrl || response.data?.paymentUrl;
             if (checkoutUrl) {
-                window.location.href = checkoutUrl;
+                window.open(checkoutUrl, '_blank');
+                toast.dismiss();
+                toast.success(language === 'ar' ? 'تم فتح صفحة الدفع في نافذة جديدة' : 'Payment page opened in a new tab');
             } else {
                 toast.dismiss();
                 toast.success(language === 'ar' ? 'تمت عملية الشراء بنجاح' : 'Purchase successful');

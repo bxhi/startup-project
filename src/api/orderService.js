@@ -22,6 +22,11 @@ export const orderService = {
     return await ordersApi.patch(`/orders/${id}`, data);
   },
 
+  // Create a regular order
+  createOrder: async (data) => {
+    return await ordersApi.post('/orders', data);
+  },
+
   // Create a custom order
   createCustomOrder: async (data) => {
     return await ordersApi.post('/orders/custom', data);

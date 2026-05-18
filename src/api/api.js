@@ -31,15 +31,21 @@ const createAPI = (baseURL) => {
         },
         async (error) => {
             const originalRequest = error.config;
+            if (!originalRequest) return Promise.reject(error);
+
             const errorData = error.response?.data;
             const errorMessage = errorData?.message || errorData?.error || error.message || 'No message';
             
-            console.error(`[API Error] ${originalRequest?.url}`, {
+            console.error(`[API Error] ${originalRequest.url}`, {
                 status: error.response?.status,
                 message: errorMessage
             });
-            
-            if (error.response?.status === 401 && !originalRequest._retry) {
+
+            // Detect expired token (both standard 401s and CORS-blocked Network Errors when a token exists)
+            const isUnauthorized = error.response?.status === 401 || 
+                (error.message === 'Network Error' && localStorage.getItem('token'));
+
+            if (isUnauthorized && !originalRequest._retry) {
                 // If the refresh token itself fails, logout
                 if (originalRequest.url.includes('/auth/refresh-token')) {
                     localStorage.removeItem('token');
@@ -55,8 +61,6 @@ const createAPI = (baseURL) => {
                 try {
                     const refreshToken = localStorage.getItem('refreshToken');
                     if (refreshToken && refreshToken !== 'undefined' && refreshToken !== 'null') {
-                        // Use a clean axios instance to avoid interceptor loops
-                        // Use the explicit auth service URL for refresh tokens
                         const authBaseURL = 'http://localhost:7777/ms-authentification';
                         const refreshResponse = await axios.post(`${authBaseURL}/auth/refresh-token`, {
                             refreshToken: refreshToken
@@ -68,26 +72,28 @@ const createAPI = (baseURL) => {
                             if (refreshResponse.data.refreshToken) {
                                 localStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
                             }
+                            originalRequest.headers = originalRequest.headers || {};
                             originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                            
+                            // Replay original request with new token
                             return instance(originalRequest);
                         }
                     }
                 } catch (refreshError) {
-                    console.error('Token refresh failed', refreshError);
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('refreshToken');
-                    localStorage.removeItem('user');
-                    localStorage.setItem('currentPage', 'login');
-                    window.location.reload();
+                    console.error('Token refresh failed:', refreshError);
+                    // Only log out if it is an explicit auth rejection (401, 403, 400)
+                    const isAuthFailure = refreshError.response && 
+                        (refreshError.response.status === 401 || refreshError.response.status === 403 || refreshError.response.status === 400);
+                    
+                    if (isAuthFailure) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('user');
+                        localStorage.setItem('currentPage', 'login');
+                        window.location.reload();
+                    }
                     return Promise.reject(refreshError);
                 }
-
-                // If no refresh token or other 401 error, logout
-                localStorage.removeItem('token');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('user');
-                localStorage.setItem('currentPage', 'login');
-                window.location.reload();
             }
             return Promise.reject(error);
         }

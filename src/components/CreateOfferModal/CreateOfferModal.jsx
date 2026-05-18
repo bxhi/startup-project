@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import LoadingPage from '../LoadingPage/LoadingPage';
 import './CreateOfferModal.css';
-import { FiX, FiCheck, FiPlus, FiLoader, FiAlertCircle } from 'react-icons/fi';
+import { FiX, FiCheck, FiPlus, FiLoader, FiAlertCircle, FiDollarSign, FiHash, FiTag, FiFileText, FiBox, FiGrid, FiMapPin, FiImage } from 'react-icons/fi';
 import { LuUpload } from 'react-icons/lu';
 import offerService from '../../api/offerService';
 import Checkbox from '../Checkbox/Checkbox';
@@ -164,10 +164,16 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                 data.append('productImages', file);
             });
 
+            let createdOffer = null;
             if (editData) {
-                await offerService.updateOffer(editData.offerId, data);
+                createdOffer = await offerService.updateOffer(editData.offerId, data);
             } else {
-                await offerService.createOffer(data);
+                createdOffer = await offerService.createOffer(data);
+            }
+
+            // Notify parent that an offer was created/updated so lists can refresh
+            if (onSuccess && typeof onSuccess === 'function') {
+                try { onSuccess(createdOffer); } catch (err) { console.warn('onSuccess callback failed', err); }
             }
 
             setShowSuccess(true);
@@ -227,6 +233,10 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                             {/* Step Content */}
                             {currentStep === 1 && (
                                 <div className="step-content">
+                                    <div className="step-description-header">
+                                        <h3>{t.basicInfo || 'Basic Information'}</h3>
+                                        <p>{t.basicInfoSubtitle || 'Provide key details about your offer'}</p>
+                                    </div>
                                     <div className="form-group">
                                         <label>{t.titleLabel}</label>
                                         <input
@@ -235,6 +245,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             value={formData.title}
                                             onChange={handleInputChange}
                                             placeholder={t.titlePlaceholder}
+                                            className="simple-glass-input"
                                         />
                                     </div>
                                     <div className="form-group">
@@ -244,6 +255,8 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             value={formData.description}
                                             onChange={handleInputChange}
                                             placeholder={t.descriptionPlaceholder}
+                                            className="simple-glass-input"
+                                            style={{ minHeight: '120px' }}
                                         ></textarea>
                                     </div>
                                     <div className="form-group">
@@ -254,72 +267,90 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             value={formData.productName}
                                             onChange={handleInputChange}
                                             placeholder={t.productNamePlaceholder}
+                                            className="simple-glass-input"
                                         />
                                     </div>
                                     <div className="form-group">
                                         <label>{t.categoryLabel}</label>
-                                        <div className="select-wrapper">
-                                            <select
-                                                name="category"
-                                                value={formData.category}
-                                                onChange={handleInputChange}
-                                            >
-                                                <option value="" disabled>{t.selectCategory}</option>
-                                                <option value="fashion">{t.fashion}</option>
-                                                <option value="electronics">{t.electronicsCat}</option>
-                                                <option value="home">{t.homeGarden}</option>
-                                                <option value="automotive">{t.automotive}</option>
-                                            </select>
-                                        </div>
+                                        <select
+                                            name="category"
+                                            value={formData.category}
+                                            onChange={handleInputChange}
+                                            className="simple-glass-input premium-select"
+                                        >
+                                            <option value="" disabled>{t.selectCategory}</option>
+                                            <option value="fashion">{t.fashion}</option>
+                                            <option value="electronics">{t.electronicsCat}</option>
+                                            <option value="home">{t.homeGarden}</option>
+                                            <option value="automotive">{t.automotive}</option>
+                                        </select>
                                     </div>
                                 </div>
                             )}
 
                             {currentStep === 2 && (
                                 <div className="step-content">
-                                    <div className="form-row">
-                                        <div className="form-group">
+                                    <div className="step-description-header">
+                                        <h3>{t.pricingAndInventory || 'Pricing & Inventory'}</h3>
+                                        <p>{t.pricingSubtitle || 'Set your base price and available stock'}</p>
+                                    </div>
+                                    <div className="pricing-row">
+                                        <div className="form-group premium-input">
                                             <label>{t.basePriceLabel}</label>
-                                            <input
-                                                type="number"
-                                                name="basePrice"
-                                                value={formData.basePrice}
-                                                onChange={handleInputChange}
-                                                className="price-input-black"
-                                                placeholder="0.00"
-                                            />
+                                            <div style={{ position: 'relative' }}>
+                                                <input
+                                                    type="number"
+                                                    name="basePrice"
+                                                    value={formData.basePrice}
+                                                    onChange={handleInputChange}
+                                                    className="simple-glass-input price-input-black"
+                                                    placeholder="0.00"
+                                                    style={{ paddingRight: '60px' }}
+                                                />
+                                                <span className="input-suffix">DZD</span>
+                                            </div>
                                         </div>
-                                        <div className="form-group">
+                                        <div className="form-group premium-input">
                                             <label>{t.availableQtyLabel}</label>
-                                            <input
-                                                type="number"
-                                                name="quantityAvailable"
-                                                value={formData.quantityAvailable}
-                                                onChange={handleInputChange}
-                                                placeholder="0"
-                                            />
+                                            <div style={{ position: 'relative' }}>
+                                                <input
+                                                    type="number"
+                                                    name="quantityAvailable"
+                                                    value={formData.quantityAvailable}
+                                                    onChange={handleInputChange}
+                                                    placeholder="0"
+                                                    className="simple-glass-input"
+                                                    style={{ paddingRight: '70px' }}
+                                                />
+                                                <span className="input-suffix">Units</span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="negotiable-item" style={{ marginTop: '20px' }}>
-                                        <Checkbox
-                                            id="modal-price-negotiable"
-                                            label={t.priceNegotiable}
-                                            name="negociable"
-                                            checked={formData.negociable}
-                                            onChange={handleInputChange}
-                                        />
+                                    <div className="negotiable-card">
+                                        <div className="negotiable-content">
+                                            <div className="negotiable-text">
+                                                <h4>{t.priceNegotiable}</h4>
+                                                <p>{t.negotiableAgreeMsg}</p>
+                                            </div>
+                                            <Checkbox
+                                                id="modal-price-negotiable"
+                                                label=""
+                                                name="negociable"
+                                                checked={formData.negociable}
+                                                onChange={handleInputChange}
+                                            />
+                                        </div>
                                     </div>
-                                    {formData.negociable && (
-                                        <p className="negotiable-warning" style={{ marginTop: '10px', color: '#64748b', fontSize: '0.85rem' }}>
-                                            {t.negotiableAgreeMsg}
-                                        </p>
-                                    )}
                                 </div>
                             )}
 
                             {currentStep === 3 && (
                                 <div className="step-content">
+                                    <div className="step-description-header">
+                                        <h3>{t.mediaOrigin || 'Media & Origin'}</h3>
+                                        <p>{t.mediaOriginSubtitle || 'Upload product images and set country of origin'}</p>
+                                    </div>
                                     <div className="form-group">
                                         <label>{t.productImages}</label>
                                         <input
@@ -332,25 +363,26 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                         />
                                         <div className="image-upload-wrapper" onClick={() => fileInputRef.current?.click()}>
                                             <div className="upload-placeholder">
-                                                <LuUpload size={24} />
+                                                <LuUpload size={28} />
                                                 <span>{t.upload}</span>
                                             </div>
                                         </div>
                                         <p className="upload-hint">{t.uploadHint} ({formData.productImages.length} {t.selected})</p>
 
                                         {previews.length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
+                                            <div className="previews-container" style={{ display: 'flex', gap: '12px', marginTop: '16px', overflowX: 'auto', paddingBottom: '10px' }}>
                                                 {previews.map((src, i) => (
-                                                    <div key={i} style={{ position: 'relative' }}>
-                                                        <img src={src} alt="preview" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
+                                                    <div key={i} className="preview-thumb-wrapper" style={{ position: 'relative', flexShrink: 0 }}>
+                                                        <img src={src} alt="preview" style={{ width: '64px', height: '64px', borderRadius: '12px', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.08)' }} />
                                                         <button
                                                             type="button"
                                                             onClick={(e) => { e.stopPropagation(); removeImage(i); }}
+                                                            className="btn-remove-thumb"
                                                             style={{
                                                                 position: 'absolute',
-                                                                top: -5,
-                                                                right: -5,
-                                                                background: 'rgba(0,0,0,0.6)',
+                                                                top: -6,
+                                                                right: -6,
+                                                                background: '#ef4444',
                                                                 color: 'white',
                                                                 borderRadius: '50%',
                                                                 width: '20px',
@@ -360,8 +392,9 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                                                 justifyContent: 'center',
                                                                 border: 'none',
                                                                 cursor: 'pointer',
-                                                                fontSize: '0.7rem'
-                                                            }}
+                                                                fontSize: '0.7rem',
+                                                                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+                                                             }}
                                                         >
                                                             <FiX size={12} />
                                                         </button>
@@ -379,22 +412,23 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             value={formData.origin}
                                             onChange={handleInputChange}
                                             placeholder={t.originPlaceholder}
+                                            className="simple-glass-input"
                                         />
                                     </div>
 
                                     <div className="preview-section">
-                                        <label className="section-label" style={{ display: 'block', marginBottom: '10px', fontWeight: '600' }}>{t.preview}</label>
+                                        <label className="section-label">{t.preview}</label>
                                         <div className="preview-card">
-                                            <div className="preview-image-box" style={{ overflow: 'hidden' }}>
-                                                {previews[0] ? <img src={previews[0]} alt="main-preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                                            <div className="preview-image-box">
+                                                {previews[0] ? <img src={previews[0]} alt="main-preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} /> : <FiImage size={24} style={{ color: '#1F73B7' }} />}
                                             </div>
                                             <div className="preview-info">
                                                 <h4 className="preview-title">{formData.productName || t.productNameLabel}</h4>
-                                                <p className="preview-desc" style={{ fontSize: '0.85rem', color: '#64748b', margin: '4px 0' }}>{formData.description ? formData.description.substring(0, 40) + '...' : t.noDescription}</p>
-                                                <div className="preview-meta" style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: '#94a3b8' }}>
-                                                    <span className="preview-price" style={{ color: '#000', fontWeight: '700' }}>${formData.basePrice || '0.00'}</span>
+                                                <p className="preview-desc">{formData.description ? formData.description.substring(0, 70) + '...' : t.noDescription}</p>
+                                                <div className="preview-meta" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                                    <span className="preview-price" style={{ fontWeight: '800' }}>${formData.basePrice || '0.00'}</span>
                                                     <span className="preview-qty">{t.qty}: {formData.quantityAvailable || '0'}</span>
-                                                    <span className="preview-origin">{formData.origin || t.origin}</span>
+                                                    {formData.origin && <span className="preview-origin">{formData.origin}</span>}
                                                 </div>
                                             </div>
                                         </div>

@@ -5,21 +5,30 @@ import { FiShoppingCart, FiChevronLeft, FiBox, FiMessageCircle, FiUpload, FiPack
 import Button from '../../components/Button/Button';
 import { useLanguage } from '../../context/LanguageContext';
 import { orderService } from '../../api/orderService';
+import { negotiationService } from '../../api/negotiationService';
 import { uploadToCloudinary } from '../../api/uploadService';
 import { toast } from 'react-hot-toast';
 
 const ORDER_STEPS = ['CREATED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
 
-const Orders = ({ onNavigate }) => {
+const Orders = ({ onNavigate, preselectedOrderId, clearPreselectedOrder }) => {
     const [orders, setOrders] = useState([]);
+    const [namingMap, setNamingMap] = useState({});
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [selectedOrderId, setSelectedOrderId] = useState(preselectedOrderId || null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
     const [error, setError] = useState(null);
     const { t, dir } = useLanguage();
     const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        if (preselectedOrderId) {
+            setSelectedOrderId(preselectedOrderId);
+            clearPreselectedOrder?.();
+        }
+    }, [preselectedOrderId, clearPreselectedOrder]);
 
     const currentUser = JSON.parse(localStorage.getItem('user'));
     const isImporter = currentUser?.role === 'importator' || currentUser?.role === 'importer';
@@ -34,8 +43,37 @@ const Orders = ({ onNavigate }) => {
             } else {
                 params.importatorId = currentUser.userId;
             }
-            const response = await orderService.getOrders(params);
-            setOrders(response.data.data || response.data || []);
+
+            // Simultaneously fetch orders and negotiations to build a robust local username mapping
+            const [ordersResponse, negsResponse] = await Promise.all([
+                orderService.getOrders(params),
+                negotiationService.getNegotiations(params).catch(err => {
+                    console.warn("Failed to load negotiations for naming map:", err);
+                    return { data: [] };
+                })
+            ]);
+
+            const fetchedOrders = ordersResponse.data?.data || ordersResponse.data || [];
+            const fetchedNegs = negsResponse?.data || negsResponse || [];
+
+            // Build naming map using stored negotiations (where names are present)
+            const namesMap = {};
+            fetchedNegs.forEach(neg => {
+                if (neg.clientId && neg.clientName) {
+                    namesMap[neg.clientId] = neg.clientName;
+                }
+                if (neg.importatorId && neg.importatorName) {
+                    namesMap[neg.importatorId] = neg.importatorName;
+                }
+            });
+
+            // Add the current user's profile metadata
+            if (currentUser?.userId) {
+                namesMap[currentUser.userId] = currentUser.businessName || currentUser.username || currentUser.fullName || 'Me';
+            }
+
+            setNamingMap(namesMap);
+            setOrders(fetchedOrders);
         } catch (err) {
             console.error('Error fetching orders:', err);
             setError('Failed to load orders. Please try again.');
@@ -65,15 +103,7 @@ const Orders = ({ onNavigate }) => {
     }, [selectedOrderId]);
 
     const getStatusClass = (status) => {
-        switch (status) {
-            case 'DELIVERED': return 'completed';
-            case 'CANCELLED': return 'cancelled';
-            case 'CREATED':
-            case 'CONFIRMED':
-            case 'SHIPPED':
-                return 'processing';
-            default: return 'processing';
-        }
+        return status ? status.toLowerCase() : 'unknown';
     };
 
     const getEscrowStatus = (order) => {
@@ -129,6 +159,15 @@ const Orders = ({ onNavigate }) => {
         }
     };
 
+    const getUserDisplayName = (id) => {
+        if (!id) return '—';
+        if (namingMap[id]) return namingMap[id];
+        if (id === currentUser?.userId) {
+            return currentUser.businessName || currentUser.username || currentUser.fullName || 'Me';
+        }
+        return `User (${id.slice(0, 8)})`;
+    };
+
     const BackIcon = dir === 'rtl' ? FiChevronRight : FiChevronLeft;
 
     const renderListView = () => (
@@ -150,8 +189,8 @@ const Orders = ({ onNavigate }) => {
                         <div className="dot dot-2"></div>
                     </div>
                     <h2>{t.noOrdersFound || 'No Orders Yet'}</h2>
-                    <p>{t.noOrdersMsg || "You don't have any active orders right now."}</p>
-                    <button className="btn-discover" onClick={() => onNavigate('offers')}>
+                    <p>{t.noOrdersMsg || "No orders found yet. Start browsing deals to make your first trade!"}</p>
+                    <button className="btn-discover" onClick={() => onNavigate('negotiations')}>
                         {t.discoverDeals || 'Discover Deals'}
                     </button>
                 </div>
@@ -173,7 +212,7 @@ const Orders = ({ onNavigate }) => {
                                 return (
                                     <tr key={order.id}>
                                         <td className="order-id-link" onClick={() => setSelectedOrderId(order.id)}>{order.id.slice(0, 8)}...</td>
-                                        <td>{currentUser?.role === 'client' ? order.importatorId : order.clientId}</td>
+                                        <td className="party-name-td">{getUserDisplayName(currentUser?.role === 'client' ? order.importatorId : order.clientId)}</td>
                                         <td className="total-cell">${order.totalPrice?.toLocaleString()}</td>
                                         <td>
                                             <span className={`status-pill order-${getStatusClass(order.status)}`}>{order.status}</span>
@@ -192,92 +231,155 @@ const Orders = ({ onNavigate }) => {
                 </div>
             )}
         </div>
-    );
-
-    const renderTimeline = (currentStatus) => {
+    ); const renderTimeline = (currentStatus) => {
         if (currentStatus === 'CANCELLED') {
-             return (
-                 <div className="order-timeline-container cancelled card-glass animate-in">
-                     <div className="timeline-cancelled-msg">
-                         <FiAlertCircle size={24} />
-                         <span>This order was Cancelled</span>
-                     </div>
-                 </div>
-             );
+            return (
+                <div className="order-timeline-vertical cancelled animate-in">
+                    <div className="cancelled-pulse-ring">
+                        <FiAlertCircle size={28} />
+                    </div>
+                    <div className="cancelled-text-block">
+                        <h4>{dir === 'rtl' ? 'الطلب ملغي' : 'Order System Offline'}</h4>
+                        <p>{dir === 'rtl' ? 'تم إلغاء معالجة هذا الطلب' : 'This order logistics flow has been terminated.'}</p>
+                    </div>
+                </div>
+            );
         }
-        
+
         let currentIndex = ORDER_STEPS.indexOf(currentStatus);
-        if (currentIndex === -1) currentIndex = 0; // fallback
-        
+        if (currentIndex === -1) currentIndex = 0;
+
+        const stepMeta = {
+            CREATED: {
+                label_en: 'Logistics Core Initialized',
+                label_ar: 'بدء النظام اللوجستي',
+                desc_en: 'Contract created, waiting for client deposit receipt verification.',
+                desc_ar: 'تم إنشاء العقد، بانتظار إيصال الإيداع الخاص بالعميل.',
+                icon: FiShoppingCart
+            },
+            CONFIRMED: {
+                label_en: 'Escrow Vault Secured',
+                label_ar: 'تأمين حساب الضمان',
+                desc_en: 'Platform escrow shielding active. Vendor preparing shipment.',
+                desc_ar: 'تم تأمين الضمان المالي. المورد يجهز الشحنة الآن.',
+                icon: FiCheck
+            },
+            SHIPPED: {
+                label_en: 'Customs & Transit Protocol',
+                label_ar: 'المرور الجمركي والشحن',
+                desc_en: 'Cargo processed through checkpoints. Active dispatch tracking.',
+                desc_ar: 'تمت معالجة الشحنة. الشحنة قيد النقل والتتبع المباشر.',
+                icon: FiPackage
+            },
+            DELIVERED: {
+                label_en: 'Secure Delivery Confirmed',
+                label_ar: 'تأكيد التسليم الآمن',
+                desc_en: 'Cargo received. Escrow released to vendor vault.',
+                desc_ar: 'تم استلام الشحنة وتفريغها. تم تحرير الضمان للبائع.',
+                icon: FiBox
+            }
+        };
+
         return (
-            <div className="order-timeline-container card-glass animate-in">
-                 <div className="timeline-steps">
-                     {ORDER_STEPS.map((step, index) => {
-                          const isActive = index <= currentIndex;
-                          const isCurrent = index === currentIndex;
-                          return (
-                               <div key={step} className={`timeline-step ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''}`}>
-                                   <div className="step-indicator-wrapper">
-                                       <div className="step-indicator">
-                                           {isActive ? <FiCheck /> : <div className="step-dot" />}
-                                       </div>
-                                       {isCurrent && <div className="step-pulse" />}
-                                   </div>
-                                   <div className="step-label">{step}</div>
-                                   {index < ORDER_STEPS.length - 1 && <div className={`step-connector ${index < currentIndex ? 'active' : ''}`} />}
-                               </div>
-                          );
-                     })}
-                 </div>
+            <div className="vertical-timeline-hud animate-in">
+                <div className="hud-title-bar">
+                    <div className="radar-ping"></div>
+                    <h3>SYSTEM DIAGNOSTICS & LOGS</h3>
+                </div>
+                <div className="vertical-steps-list">
+                    {ORDER_STEPS.map((step, index) => {
+                        const isActive = index <= currentIndex;
+                        const isCurrent = index === currentIndex;
+                        const meta = stepMeta[step];
+                        const displayLabel = dir === 'rtl' ? meta.label_ar : meta.label_en;
+                        const displayDesc = dir === 'rtl' ? meta.desc_ar : meta.desc_en;
+                        const StepIcon = meta.icon;
+
+                        return (
+                            <div key={step} className={`vertical-timeline-step ${isActive ? 'active' : ''} ${isCurrent ? 'current' : ''}`}>
+                                <div className="step-left-lane">
+                                    <div className="step-icon-wrapper-hud">
+                                        <StepIcon size={18} />
+                                        {isCurrent && <div className="orbital-ping-glow" />}
+                                    </div>
+                                    {index < ORDER_STEPS.length - 1 && (
+                                        <div className={`vertical-connector-line ${index < currentIndex ? 'completed' : ''}`} />
+                                    )}
+                                </div>
+                                <div className="step-right-lane">
+                                    <div className="step-hud-header">
+                                        <h4>{displayLabel}</h4>
+                                        <span className="step-hud-status-badge">{step}</span>
+                                    </div>
+                                    <p className="step-hud-desc">{displayDesc}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         );
     };
 
     const renderDetailView = () => {
         if (!selectedOrder) return <div className="loading-state-full"><FiLoader className="animate-spin" /></div>;
-        
+
         return (
             <div className="order-detail-container animate-in">
-                <button className="back-btn" onClick={() => setSelectedOrderId(null)}>
-                    <BackIcon /> {t.backToOrders || 'Back to Orders'}
-                </button>
-                
-                <div className="order-detail-header">
-                    <div className="header-main">
-                        <h1>Order #{selectedOrder.id.slice(0, 8)}</h1>
-                        <p>{t.createdOn || 'Created on'} {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                {/* Holographic Mission Control Header */}
+                <div className="holographic-status-hud card-glass">
+                    <div className="hud-orbital-ring">
+                        <svg className="orbital-svg" viewBox="0 0 100 100">
+                            <circle className="orbital-bg" cx="50" cy="50" r="45" />
+                            <circle className={`orbital-progress ${selectedOrder.status.toLowerCase()}`} cx="50" cy="50" r="45" />
+                        </svg>
+                        <div className="orbital-label">
+                            <span className="orbital-stage">{dir === 'rtl' ? 'مرحلة النظام' : 'SYSTEM STATE'}</span>
+                            <span className="orbital-status-text">{selectedOrder.status === 'CREATED' ? (dir === 'rtl' ? 'تم الإنشاء' : 'CREATED') : selectedOrder.status === 'CONFIRMED' ? (dir === 'rtl' ? 'مؤكد' : 'CONFIRMED') : selectedOrder.status === 'SHIPPED' ? (dir === 'rtl' ? 'تم الشحن' : 'SHIPPED') : selectedOrder.status === 'DELIVERED' ? (dir === 'rtl' ? 'تم التوصيل' : 'DELIVERED') : selectedOrder.status}</span>
+                        </div>
                     </div>
-                    <div className="header-status">
-                        <span className={`status-pill order-${getStatusClass(selectedOrder.status)}`}>
-                            {selectedOrder.status}
-                        </span>
+                    <div className="hud-details-main">
+                        <div className="hud-order-title">
+                            <h1>{dir === 'rtl' ? 'معرف الطلب' : 'ORDER_ID'} // {selectedOrder.id.slice(0, 8).toUpperCase()}</h1>
+                            <div className="hud-meta-row">
+                                <span>{dir === 'rtl' ? 'تاريخ الإنشاء:' : 'SYS_INIT:'} {new Date(selectedOrder.createdAt).toLocaleString()}</span>
+                                <span>•</span>
+                                <span className="secure-channel-tag">{dir === 'rtl' ? 'ضمان آمن' : 'ESCROW PROTECTED'}</span>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', direction: dir }}>
+                            <button className="back-btn-hud contact" onClick={() => onNavigate('negotiations')}>
+                                <FiMessageCircle /> <span>{dir === 'rtl' ? 'التواصل مع ' + (isImporter ? 'العميل' : 'المستورد') : 'Contact ' + (isImporter ? 'Client' : 'Importer')}</span>
+                            </button>
+                            <button className="back-btn-hud back-deck" onClick={() => setSelectedOrderId(null)}>
+                                <BackIcon /> <span>{t.backToOrders || (dir === 'rtl' ? 'الرجوع للوحة' : 'BACK TO DECK')}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {renderTimeline(selectedOrder.status)}
-
-                {/* Dynamic Action Box based on Status */}
+                {/* Dynamic Action Block based on Status */}
                 {isImporter && selectedOrder.status === 'CREATED' && (
                     <div className="action-box-container card-glass gradient-border animate-in">
                         <div className="action-box-content">
                             <div className="action-box-icon"><FiBox /></div>
                             <div className="action-box-text">
-                                <h3>Deposit Receipt Verification</h3>
+                                <h3>{dir === 'rtl' ? 'التحقق من إيصال الدفع' : 'Deposit Receipt Verification'}</h3>
                                 {selectedOrder.depositReceiptUrl ? (
                                     <div className="receipt-viewer">
-                                        <p className="success-text">Client has uploaded a deposit receipt.</p>
+                                        <p className="success-text">{dir === 'rtl' ? 'قام العميل برفع إيصال الدفع.' : 'Client has uploaded a deposit receipt.'}</p>
                                         <img src={selectedOrder.depositReceiptUrl} alt="Deposit Receipt" className="proof-preview" />
                                         <Button variant="primary" onClick={() => handleConfirmOrder(true)} disabled={isConfirming}>
-                                            {isConfirming ? <FiLoader className="animate-spin"/> : 'Confirm Order'}
+                                            {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد الطلب' : 'Confirm Order')}
                                         </Button>
                                     </div>
                                 ) : (
                                     <div className="receipt-missing">
-                                        <p className="warning-text">The client still hasn't sent the deposit receipt yet.</p>
-                                        <p>Do you want to continue and confirm the order anyway?</p>
+                                        <p className="warning-text">{dir === 'rtl' ? 'لم يقم العميل بإرسال إيصال الدفع بعد.' : 'The client still hasn\'t sent the deposit receipt yet.'}</p>
+                                        <p>{dir === 'rtl' ? 'هل تريد المتابعة وتأكيد الطلب على أي حال؟' : 'Do you want to continue and confirm the order anyway?'}</p>
                                         <div className="action-buttons-row">
                                             <Button variant="primary" onClick={() => handleConfirmOrder(false)} disabled={isConfirming}>
-                                                {isConfirming ? <FiLoader className="animate-spin"/> : 'Confirm Without Receipt'}
+                                                {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد بدون إيصال' : 'Confirm Without Receipt')}
                                             </Button>
                                         </div>
                                     </div>
@@ -309,12 +411,12 @@ const Orders = ({ onNavigate }) => {
                                             <span>Click to upload image or take a photo</span>
                                         </div>
                                     )}
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
+                                    <input
+                                        type="file"
+                                        accept="image/*"
                                         capture="environment"
-                                        ref={fileInputRef} 
-                                        style={{display: 'none'}} 
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
                                         onChange={handleUploadShipmentProof}
                                         disabled={isUploading}
                                     />
@@ -354,48 +456,95 @@ const Orders = ({ onNavigate }) => {
                     </div>
                 )}
 
-                <div className="order-detail-grid">
-                    <div className="detail-main-column">
-                        <div className="order-items-card card-glass">
-                            <h3>{t.orderItems || 'Order Items'}</h3>
-                            <div className="items-list">
+                <div className="mission-control-grid">
+                    <div className="control-left-sector">
+                        {renderTimeline(selectedOrder.status)}
+
+                        <div className="order-cargo-workspace card-glass animate-in">
+                            <h3 className="section-title-premium">
+                                {dir === 'rtl' ? 'بيان الشحنة والمخزون' : 'CARGO MANIFEST & INVENTORY'}
+                            </h3>
+                            <div className="cargo-grid">
                                 {selectedOrder.items?.map((item, idx) => (
-                                    <div key={idx} className="order-item">
-                                        <div className="item-info">
-                                            <h4>{item.productName || 'Product'}</h4>
-                                            <p>${item.unitPrice} × {item.quantity}</p>
+                                    <div key={idx} className="cargo-item-card modular-block animate-zoom-in">
+                                        <div className="cargo-card-header">
+                                            <span className="cargo-index">
+                                                {dir === 'rtl' ? `شحنة #${String(idx + 1).padStart(2, '0')}` : `MANIFEST_ITEM_${String(idx + 1).padStart(2, '0')}`}
+                                            </span>
+                                            <span className="cargo-badge">
+                                                {dir === 'rtl' ? 'مؤمن' : 'SECURED'}
+                                            </span>
                                         </div>
-                                        <div className="item-price">${(item.unitPrice * item.quantity).toLocaleString()}</div>
+                                        <div className="cargo-card-body">
+                                            <FiPackage className="cargo-card-icon" />
+                                            <div className="cargo-card-details">
+                                                <h4>{item.productName || 'Product Name'}</h4>
+                                                <div className="cargo-card-meta">
+                                                    <span className="meta-price">{item.unitPrice?.toLocaleString()} DZD / {dir === 'rtl' ? 'وحدة' : 'unit'}</span>
+                                                    <span className="meta-qty">{dir === 'rtl' ? 'الكمية' : 'QTY'}: {item.quantity}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="cargo-card-footer">
+                                            <span className="footer-label">{dir === 'rtl' ? 'المجموع الفرعي' : 'SUBTOTAL'}</span>
+                                            <span className="footer-price">{(item.unitPrice * item.quantity).toLocaleString()} DZD</span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                            <div className="total-row">
-                                <span>{t.total || 'Total'}</span>
-                                <span className="total-amount">${selectedOrder.totalPrice?.toLocaleString()}</span>
+                            <div className="cargo-total-summary card-glass">
+                                <div className="summary-left">
+                                    <span>{dir === 'rtl' ? 'المجموع المالي الكلي' : 'LOGISTICS GRAND TOTAL'}</span>
+                                    <p>{dir === 'rtl' ? 'جميع العناصر تم التحقق منها ومعالجتها بموجب الاتفاقية' : 'All payload assets verified and compiled under platform regulations.'}</p>
+                                </div>
+                                <div className="summary-right">
+                                    <span className="summary-price">{selectedOrder.totalPrice?.toLocaleString()} DZD</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div className="detail-sidebar-column">
+
+                    <div className="control-right-sector">
+                        <div className="order-parties-card card-glass">
+                            <h3>{t.orderParties || 'CONTRACT PARTIES'}</h3>
+                            <div className="party-details">
+                                <div className="party-row">
+                                    <span className="party-label">{t.client || 'Client'}</span>
+                                    <span className="party-value">{getUserDisplayName(selectedOrder.clientId)}</span>
+                                </div>
+                                <div className="party-row">
+                                    <span className="party-label">{t.vendor || 'Vendor'}</span>
+                                    <span className="party-value">{getUserDisplayName(selectedOrder.importatorId)}</span>
+                                </div>
+                                <div className="party-row-full">
+                                    <span className="party-label">{t.deliveryAddress || 'Delivery Address'}</span>
+                                    <span className="party-value-address">{selectedOrder.deliveryAddress || '—'}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="shipment-proof-card card-glass">
-                            <h3>{t.shipmentProof || 'Shipment Proof'}</h3>
+                            <h3>{t.shipmentProof || 'TRANSIT PROOF'}</h3>
                             {selectedOrder.shippingProove ? (
                                 <div className="proof-content">
-                                    <a href={selectedOrder.shippingProove} target="_blank" rel="noreferrer">
+                                    <a href={selectedOrder.shippingProove} target="_blank" rel="noreferrer" className="proof-image-link">
                                         <img src={selectedOrder.shippingProove} alt="Shipment Proof" className="proof-preview" />
+                                        <div className="proof-overlay-hud">
+                                            <span>VIEW DOCUMENT</span>
+                                        </div>
                                     </a>
                                 </div>
                             ) : (
                                 <div className="empty-state">
                                     <div className="empty-icon"><FiPackage /></div>
-                                    <p>No shipment proof uploaded yet.</p>
+                                    <p>No transit documentation uploaded yet.</p>
                                 </div>
                             )}
                         </div>
                         <div className="actions-card card-glass">
-                            <h3>{t.actionsCard || 'Actions'}</h3>
+                            <h3>{t.actionsCard || 'SYSTEM COMMANDS'}</h3>
                             <button className="btn-action-animated full-width">
-                                <FiMessageCircle /> {t.contactClient || 'Contact Client'}
+                                <FiMessageCircle /> {t.contactClient || 'SECURE COMMS LINK'}
                             </button>
                         </div>
                     </div>

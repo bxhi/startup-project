@@ -22,6 +22,13 @@
     flex-direction: column;
 }
 
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 16px;
+        padding-bottom: 80px; /* Space for bottom nav */
+    }
+}
+
 .dashboard-content-wrapper {
     flex: 1;
     display: flex;

@@ -159,7 +159,6 @@ const Onboarding = ({ onNavigate }) => {
                     </div>
                 </div>
                 <div className="nav-actions">
-                    <button onClick={() => onNavigate('dashboard')} className="nav-link">{t.navDashboard || 'Dashboard'}</button>
                     <button onClick={() => onNavigate('login')} className="nav-link">{t.navLogin || 'Login'}</button>
                     <RainbowButton
                         onClick={() => onNavigate('signup')}

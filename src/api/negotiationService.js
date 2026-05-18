@@ -73,6 +73,17 @@ export const negotiationService = {
     }
   },
 
+  // Update a negotiation status or metadata directly
+  updateNegotiation: async (id, data) => {
+    try {
+      const response = await negotiationApi.patch(`/negotiation/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating negotiation id ${id}:`, error);
+      throw error;
+    }
+  },
+
   // Reject a negotiation
   rejectNegotiation: async (id) => {
     try {

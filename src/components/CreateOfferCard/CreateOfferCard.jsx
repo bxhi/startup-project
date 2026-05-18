@@ -3,10 +3,20 @@ import { FiPlus } from 'react-icons/fi';
 import './CreateOfferCard.css';
 
 const CreateOfferCard = ({ onClick, isPending, t }) => {
+  const handleClick = () => {
+    if (isPending) {
+      import('react-hot-toast').then(({ toast }) => {
+        toast.error(t.pendingVerificationError || "Your account is pending verification. You cannot create offers yet.");
+      });
+      return;
+    }
+    onClick();
+  };
+
   return (
     <div 
       className={`create-offer-card ${isPending ? 'pending-disabled' : ''}`}
-      onClick={!isPending ? onClick : null}
+      onClick={handleClick}
     >
       <div className="card-glass-bg"></div>
       <div className="card-content">

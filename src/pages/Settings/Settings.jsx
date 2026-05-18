@@ -23,19 +23,71 @@ import { toast } from 'react-hot-toast';
 
 const Settings = ({ onNavigate }) => {
     const { t, language, setLanguage } = useLanguage();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const vStatus = localStorage.getItem('verificationStatus') || user.status || 'pending';
+    const dir = language === 'ar' ? 'rtl' : 'ltr';
+    const [userData, setUserData] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+    const profile = userData.importatorProfile || userData.clientProfile || userData.profile || {};
+    const vStatus = localStorage.getItem('verificationStatus') || userData.status || profile.verificationStatus || 'pending';
     const isPending = vStatus.toLowerCase() === 'pending';
 
     const [formData, setFormData] = useState({
-        businessName: user.profile?.businessName || '',
-        fullName: user.fullName || '',
-        email: user.email || '',
-        phone: user.profile?.phoneNumber || '',
-        address: user.profile?.address || '',
-        taxId: user.profile?.taxId || '',
-        website: user.profile?.website || ''
+        businessName: profile.businessName || userData.fullName || '',
+        fullName: userData.fullName || '',
+        email: userData.email || '',
+        phone: profile.phoneNumber || userData.phoneNumber || '',
+        address: profile.address || '',
+        taxId: profile.registerCommerceNumber || profile.licenseId || profile.taxId || '',
+        website: profile.website || ''
     });
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await authApi.get('/auth/profile');
+                const freshUser = response.data?.user || response.data || {};
+                localStorage.setItem('user', JSON.stringify(freshUser));
+                setUserData(freshUser);
+                
+                let freshStatus = freshUser.status || freshUser.verificationStatus || freshUser.profileVerificationStatus || freshUser.importatorProfile?.verificationStatus || freshUser.clientProfile?.verificationStatus || freshUser.user?.status || 'PENDING';
+                localStorage.setItem('verificationStatus', freshStatus);
+
+                const freshProfile = freshUser.importatorProfile || freshUser.clientProfile || freshUser.profile || {};
+                setFormData({
+                    businessName: freshProfile.businessName || freshUser.fullName || '',
+                    fullName: freshUser.fullName || '',
+                    email: freshUser.email || '',
+                    phone: freshProfile.phoneNumber || freshUser.phoneNumber || '',
+                    address: freshProfile.address || '',
+                    taxId: freshProfile.registerCommerceNumber || freshProfile.licenseId || freshProfile.taxId || '',
+                    website: freshProfile.website || ''
+                });
+            } catch (err) {
+                console.error("Failed to fetch fresh user profile in Settings:", err);
+            }
+        };
+        fetchUserProfile();
+    }, []);
+
+    const getDocumentUrl = (docKey) => {
+        if (profile?.[docKey]) return profile[docKey];
+        if (profile?.[`${docKey}Url`]) return profile[`${docKey}Url`];
+        if (userData?.[docKey]) return userData[docKey];
+        if (userData?.[`${docKey}Url`]) return userData[`${docKey}Url`];
+        if (userData?.imageUrls?.[docKey]) return userData.imageUrls[docKey];
+        if (userData?.imageUrls?.[`${docKey}Url`]) return userData.imageUrls[`${docKey}Url`];
+        if (profile?.imageUrls?.[docKey]) return profile.imageUrls[docKey];
+        if (profile?.imageUrls?.[`${docKey}Url`]) return profile.imageUrls[`${docKey}Url`];
+        
+        const alternateKey = docKey.endsWith('Image') ? `${docKey}Url` : docKey;
+        if (profile?.[alternateKey]) return profile[alternateKey];
+        if (userData?.[alternateKey]) return userData[alternateKey];
+
+        const suffixUrlKey = docKey.replace('Image', 'ImageUrl');
+        if (profile?.[suffixUrlKey]) return profile[suffixUrlKey];
+        if (userData?.[suffixUrlKey]) return userData[suffixUrlKey];
+        if (userData?.imageUrls?.[suffixUrlKey]) return userData.imageUrls[suffixUrlKey];
+
+        return null;
+    };
 
     const [notifications, setNotifications] = useState({
         email: { orders: true, negotiations: true, promotions: false },
@@ -269,39 +321,47 @@ const Settings = ({ onNavigate }) => {
                             </div>
                             <div className="card-content">
                                 <div className="documents-grid-premium">
-                                    {documents.map((doc) => (
-                                        <div key={doc.id} className="document-card-premium">
-                                            <div className="doc-preview-area">
-                                                {user.profile?.[doc.key] ? (
-                                                    <img src={user.profile[doc.key]} alt={doc.name} className="doc-image-small" />
-                                                ) : (
-                                                    <div className="doc-placeholder">
-                                                        <FiFileText />
+                                    {documents.map((doc) => {
+                                        const docUrl = getDocumentUrl(doc.key);
+                                        return (
+                                            <div key={doc.id} className="document-card-premium">
+                                                <div className="doc-preview-area">
+                                                    {docUrl ? (
+                                                        <a href={docUrl} target="_blank" rel="noreferrer" className="doc-image-link-wrapper">
+                                                            <img src={docUrl} alt={doc.name} className="doc-image-small" />
+                                                            <div className="doc-view-zoom-hint">
+                                                                <FiExternalLink /> <span>{t.viewOriginal || 'View'}</span>
+                                                            </div>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="doc-placeholder">
+                                                            <FiFileText />
+                                                        </div>
+                                                    )}
+                                                    <div className="doc-overlay">
+                                                        <label className="overlay-upload-btn">
+                                                            <input 
+                                                                type="file" 
+                                                                hidden 
+                                                                onChange={(e) => {
+                                                                    toast.success(`Uploading ${doc.name}...`);
+                                                                    // In a real app, handle file upload here
+                                                                }} 
+                                                            />
+                                                            <FiUploadCloud /> {t.update || 'Update'}
+                                                        </label>
                                                     </div>
-                                                )}
-                                                <div className="doc-overlay">
-                                                    <label className="overlay-upload-btn">
-                                                        <input 
-                                                            type="file" 
-                                                            hidden 
-                                                            onChange={(e) => {
-                                                                toast.success(`Uploading ${doc.name}...`);
-                                                                // In a real app, handle file upload here
-                                                            }} 
-                                                        />
-                                                        <FiUploadCloud /> {t.update || 'Update'}
-                                                    </label>
+                                                </div>
+                                                <div className="doc-meta">
+                                                    <h4>{doc.name}</h4>
+                                                    <div className="doc-status-row">
+                                                        <span className={`status-dot ${vStatus.toLowerCase()}`}></span>
+                                                        <span className="status-label">{t[vStatus.toLowerCase()] || vStatus}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="doc-meta">
-                                                <h4>{doc.name}</h4>
-                                                <div className="doc-status-row">
-                                                    <span className={`status-dot ${vStatus.toLowerCase()}`}></span>
-                                                    <span className="status-label">{t[vStatus.toLowerCase()] || vStatus}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>

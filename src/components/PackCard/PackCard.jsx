@@ -3,18 +3,28 @@ import { FiCheck, FiStar, FiZap, FiBriefcase } from 'react-icons/fi';
 import './PackCard.css';
 
 const PackCard = ({ pack, isSelected, onSelect, onPurchase, t }) => {
-  const getIcon = (name) => {
-    switch (name.toUpperCase()) {
-      case 'BASIC': return <FiStar className="pack-icon basic" />;
-      case 'PRO': return <FiZap className="pack-icon pro" />;
-      case 'BUSINESS': return <FiBriefcase className="pack-icon business" />;
+  const getPackType = (pack) => {
+    if (pack.type) return pack.type;
+    const name = (pack.name || '').toUpperCase();
+    if (name.includes('PRO') || name.includes('احتراف') || name.includes('الاحترافية')) return 'pro';
+    if (name.includes('BUSINESS') || name.includes('أعمال') || name.includes('العمل') || name.includes('شركة')) return 'business';
+    return 'basic';
+  };
+
+  const packType = getPackType(pack);
+
+  const getIcon = (type) => {
+    switch (type) {
+      case 'basic': return <FiStar className="pack-icon basic" />;
+      case 'pro': return <FiZap className="pack-icon pro" />;
+      case 'business': return <FiBriefcase className="pack-icon business" />;
       default: return <FiStar className="pack-icon" />;
     }
   };
 
   return (
     <div 
-      className={`pack-card ${isSelected ? 'selected' : ''} ${pack.type} ${pack.isBestOffer ? 'best-offer' : ''}`}
+      className={`pack-card ${isSelected ? 'selected' : ''} ${packType} ${pack.isBestOffer ? 'best-offer' : ''}`}
       onClick={() => onSelect(pack.id)}
     >
       {pack.isBestOffer && (
@@ -27,7 +37,7 @@ const PackCard = ({ pack, isSelected, onSelect, onPurchase, t }) => {
       <div className="pack-header">
         <div className="icon-container">
           <div className="icon-glow"></div>
-          {getIcon(pack.name)}
+          {getIcon(packType)}
         </div>
         <h3 className="pack-name">
           {pack.name}

@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ClientCommands.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
-import { FiSearch, FiFilter, FiList, FiGrid, FiMapPin, FiCalendar, FiWifi } from 'react-icons/fi';
+import { ordersApi, negotiationApi } from '../../api/api';
+import { FiSearch, FiFilter, FiList, FiGrid, FiMapPin, FiCalendar, FiWifi, FiInfo, FiClock, FiLoader } from 'react-icons/fi';
 import { TbListDetails } from 'react-icons/tb';
 import { MdClose } from 'react-icons/md';
-import { useLanguage } from '../../context/LanguageContext';
-import { negotiationService } from '../../api/negotiationService';
-import { FiAlertCircle, FiLoader, FiShield } from 'react-icons/fi';
 import { FaHandshake } from 'react-icons/fa';
+import { useLanguage } from '../../context/LanguageContext';
 import { toast } from 'react-hot-toast';
 
 const ClientCommands = ({ onNavigate }) => {
@@ -20,6 +19,8 @@ const ClientCommands = ({ onNavigate }) => {
     const [filters, setFilters] = useState({ date: '', location: 'all', status: 'all', minBudget: '', maxBudget: '' });
     const { t, language } = useLanguage();
 
+    const [commands, setCommands] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [proposalData, setProposalData] = useState({ message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showContactWarning, setShowContactWarning] = useState(false);
@@ -29,50 +30,40 @@ const ClientCommands = ({ onNavigate }) => {
     if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
     const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
-    const commands = [
-        {
-            id: 'CMD-001',
-            clientId: 'client-abc-123',
-            clientName: 'ABC Trading',
-            title: 'High-Quality Leather Jackets (100 units)',
-            product: 'Leather Jackets',
-            quantity: 100,
-            budget: '€5,000 - €8,000',
-            location: 'Algiers',
-            deadline: '2026-03-15',
-            postedAgo: t.posted2DaysAgo,
-            description: 'Looking for premium quality leather jackets for winter collection. Must be genuine leather with good stitching.',
-            image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
-        },
-        {
-            id: 'CMD-002',
-            clientId: 'client-xyz-456',
-            clientName: 'XYZ Imports',
-            title: 'Electronic Components - Resistors & Capacitors',
-            product: 'Electronic Components',
-            quantity: 5000,
-            budget: '€2,000 - €3,500',
-            location: 'Oran',
-            deadline: '2026-03-20',
-            postedAgo: t.posted5DaysAgo,
-            description: 'Need various electronic components for manufacturing. Bulk order required.',
-            image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
-        },
-        {
-            id: 'CMD-003',
-            clientId: 'client-global-789',
-            clientName: 'Global Traders',
-            title: 'Modern Office Furniture Set',
-            product: 'Office Furniture',
-            quantity: 150,
-            budget: '€15,000 - €20,000',
-            location: 'Constantine',
-            deadline: '2026-04-01',
-            postedAgo: t.posted1WeekAgo,
-            description: 'Complete set of modern office furniture including desks, ergonomic chairs, and filing cabinets.',
-            image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+    const fetchCommands = async () => {
+        setLoading(true);
+        try {
+            const response = await ordersApi.get('/orders/custom/available');
+            // Assuming the response is an array of commands
+            const fetchedCommands = response.data.map(cmd => {
+                const firstItem = cmd.items?.[0] || {};
+                return {
+                    id: cmd.id || `CMD-${Math.floor(Math.random() * 1000)}`,
+                    clientId: cmd.clientId || cmd.userId,
+                    clientName: cmd.clientName || 'Private Client',
+                    title: firstItem.productName || 'Custom Command',
+                    product: firstItem.productName || 'Product',
+                    quantity: firstItem.quantity || 1,
+                    budget: cmd.totalPrice ? (cmd.totalPrice.toLocaleString() + ' DZD') : 'N/A',
+                    location: cmd.deliveryAddress || 'N/A',
+                    deadline: cmd.createdAt ? new Date(cmd.createdAt).toLocaleDateString() : 'N/A',
+                    postedAgo: cmd.createdAt ? new Date(cmd.createdAt).toLocaleDateString() : 'Recently',
+                    description: cmd.description || `Order for ${firstItem.productName || 'custom product'}`,
+                    image: (firstItem.productImages && firstItem.productImages[0]) || 'https://images.unsplash.com/photo-1553413077-190dd305871c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                };
+            });
+            setCommands(fetchedCommands);
+        } catch (error) {
+            console.error('Error fetching commands:', error);
+            toast.error('Failed to load client commands');
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
+
+    useEffect(() => {
+        fetchCommands();
+    }, []);
 
     const handleFilterChange = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
 
@@ -81,12 +72,19 @@ const ClientCommands = ({ onNavigate }) => {
         const matchesCategory = category === 'all' || cmd.product.toLowerCase().includes(category.toLowerCase());
         const matchesLocation = filters.location === 'all' || cmd.location === filters.location;
         const matchesStatus = filters.status === 'all' || (filters.status === 'urgent' && new Date(cmd.deadline) < new Date(Date.now() + 10 * 24 * 60 * 60 * 1000));
-        const budgetValues = cmd.budget.match(/\d+/g);
-        const minVal = budgetValues ? parseInt(budgetValues[0].replace(/,/g, '')) : 0;
-        const maxVal = budgetValues ? parseInt(budgetValues[1].replace(/,/g, '')) : Infinity;
-        const matchesMinBudget = !filters.minBudget || minVal >= parseInt(filters.minBudget);
-        const matchesMaxBudget = !filters.maxBudget || maxVal <= parseInt(filters.maxBudget);
-        return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesMinBudget && matchesMaxBudget;
+        
+        let matchesBudget = true;
+        if (filters.minBudget || filters.maxBudget) {
+            const budgetValues = cmd.budget.match(/\d+/g);
+            if (budgetValues) {
+                const minVal = parseInt(budgetValues[0].replace(/,/g, ''));
+                const maxVal = budgetValues[1] ? parseInt(budgetValues[1].replace(/,/g, '')) : minVal;
+                if (filters.minBudget && minVal < parseInt(filters.minBudget)) matchesBudget = false;
+                if (filters.maxBudget && maxVal > parseInt(filters.maxBudget)) matchesBudget = false;
+            }
+        }
+        
+        return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesBudget;
     });
 
     const handleProposalMessageChange = (e) => {
@@ -119,32 +117,50 @@ const ClientCommands = ({ onNavigate }) => {
             }
             const user = JSON.parse(userStr);
 
-            // 1. Create Negotiation with required fields
-            const negResponse = await negotiationService.createNegotiation(
-                proposalCommand.id,
-                proposalCommand.clientId,
-                proposalCommand.clientName,
-                user.userId
-            );
-            const negotiationId = negResponse.id;
+            // 1. Check if negotiation already exists
+            let negotiationId;
+            try {
+                const checkResponse = await negotiationApi.get('/negotiation', {
+                    params: {
+                        orderId: proposalCommand.id,
+                        importatorId: user.userId,
+                        clientId: proposalCommand.clientId
+                    }
+                });
 
-            // 2. Create Initial Proposal
-            const defaultPrice = parseFloat(proposalCommand.budget.replace(/[^0-9.]/g, '')) || 0;
-            const defaultQty = proposalCommand.quantity || 1;
+                // The backend returns { data: [...], total: ... }
+                if (checkResponse.data && checkResponse.data.data && checkResponse.data.data.length > 0) {
+                    negotiationId = checkResponse.data.data[0].id;
+                    console.log('Using existing negotiation:', negotiationId);
+                }
+            } catch (checkErr) {
+                console.warn('Error checking existing negotiation, will try to create one:', checkErr);
+            }
 
-            await negotiationService.createProposal(
+            // 2. If no negotiationId, create a new one
+            if (!negotiationId) {
+                const negResponse = await negotiationApi.post(`/negotiation/custom-order/${proposalCommand.id}`, {
+                    importatorName: user.fullName || user.username || 'Importer'
+                });
+                negotiationId = negResponse.data.id;
+                console.log('Created new negotiation:', negotiationId);
+            }
+
+            // 3. Create the Proposal
+            // Note: The backend expects negotiationId, message, senderRole, proposedQuantity, proposedPrice
+            await negotiationApi.post('/negotiation/proposal', {
                 negotiationId,
-                defaultQty,
-                defaultPrice,
-                user.role,
-                proposalData.message
-            );
+                message: proposalData.message,
+                senderRole: 'importator',
+                proposedQuantity: proposalCommand.quantity || 1,
+                proposedPrice: parseFloat(String(proposalCommand.budget).replace(/[^0-9.]/g, '')) || 0
+            });
 
             toast.success('Proposal sent successfully!');
             setProposalCommand(null);
             setProposalData({ message: '' });
         } catch (err) {
-            console.error('Error sending proposal:', err);
+            console.error('Detailed error sending proposal:', err);
             const errMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to send proposal.';
             toast.error(errMsg);
         } finally {
@@ -224,92 +240,106 @@ const ClientCommands = ({ onNavigate }) => {
                         </div>
 
                         <div className="commands-scrollable-content">
-                            {viewMode === 'detailed' && (
-                                <div className="detailed-view-container">
-                                    {filteredCommands.map((cmd) => (
-                                        <div key={cmd.id} className="detailed-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
-                                            <div className="detailed-image"><img src={cmd.image} alt={cmd.product} /></div>
-                                            <div className="detailed-info">
-                                                <div className="detailed-header">
-                                                    <h2>{cmd.title}</h2>
-                                                    <span className="detailed-budget">{cmd.budget}</span>
-                                                </div>
-                                                <div className="detailed-meta">
-                                                    <span className="meta-item"><FiMapPin /> {cmd.location}</span>
-                                                    <span className="meta-item"><FiCalendar /> {cmd.postedAgo}</span>
-                                                </div>
-                                                <p className="detailed-desc">{cmd.description}</p>
-                                                <div className="detailed-footer">
-                                                    <div className="detailed-specs">
-                                                        <span><strong>{t.qty}:</strong> {cmd.quantity} {t.units}</span>
-                                                        <span><strong>{t.deadline}:</strong> {cmd.deadline}</span>
-                                                    </div>
-                                                    <div className="detailed-actions">
-                                                        <button className="btn-see-more" onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}>
-                                                            <span>{t.seeMore}</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                            {loading ? (
+                                <div className="loading-container">
+                                    <FiLoader className="animate-spin" />
+                                    <p>Loading available commands...</p>
                                 </div>
-                            )}
-
-                            {viewMode === 'list' && (
-                                <div className="list-view-container">
-                                    <table className="commands-table">
-                                        <thead>
-                                            <tr>
-                                                <th>{t.commandId}</th>
-                                                <th>{t.product}</th>
-                                                <th>{t.quantity}</th>
-                                                <th>{t.budget}</th>
-                                                <th>{t.originWilaya}</th>
-                                                <th>{t.deadline}</th>
-                                                <th>{t.actions}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                            ) : filteredCommands.length === 0 ? (
+                                <div className="empty-container">
+                                    <FiInfo />
+                                    <p>No available commands found matching your filters.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {viewMode === 'detailed' && (
+                                        <div className="detailed-view-container">
                                             {filteredCommands.map((cmd) => (
-                                                <tr key={cmd.id} onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
-                                                    <td className="cmd-id">{cmd.id}</td>
-                                                    <td className="cmd-product">{cmd.product}</td>
-                                                    <td>{cmd.quantity}</td>
-                                                    <td>{cmd.budget}</td>
-                                                    <td>{cmd.location}</td>
-                                                    <td>{cmd.deadline}</td>
-                                                    <td>
-                                                        <button className="btn-text-action" onClick={(e) => { e.stopPropagation(); setProposalCommand(cmd); }}>
-                                                            {t.sendProposal} &rsaquo;
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-
-                            {viewMode === 'grid' && (
-                                <div className="grid-view-container">
-                                    {filteredCommands.map((cmd) => (
-                                        <div key={cmd.id} className="grid-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
-                                            <div className="grid-image"><img src={cmd.image} alt={cmd.product} /></div>
-                                            <div className="grid-content">
-                                                <h3 className="grid-title">{cmd.title}</h3>
-                                                <p className="grid-budget">{cmd.budget}</p>
-                                                <div className="grid-meta">
-                                                    <span><FiMapPin /> {cmd.location}</span>
-                                                    <span><FiCalendar /> {cmd.deadline}</span>
+                                                <div key={cmd.id} className="detailed-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
+                                                    <div className="detailed-image"><img src={cmd.image} alt={cmd.product} /></div>
+                                                    <div className="detailed-info">
+                                                        <div className="detailed-header">
+                                                            <h2>{cmd.title}</h2>
+                                                            <span className="detailed-budget">{cmd.budget}</span>
+                                                        </div>
+                                                        <div className="detailed-meta">
+                                                            <span className="meta-item"><FiMapPin /> {cmd.location}</span>
+                                                            <span className="meta-item"><FiCalendar /> {cmd.postedAgo}</span>
+                                                        </div>
+                                                        <p className="detailed-desc">{cmd.description}</p>
+                                                        <div className="detailed-footer">
+                                                            <div className="detailed-specs">
+                                                                <span><strong>{t.qty}:</strong> {cmd.quantity} {t.units}</span>
+                                                                <span><strong>{t.deadline}:</strong> {cmd.deadline}</span>
+                                                            </div>
+                                                            <div className="detailed-actions">
+                                                                <button className="btn-see-more" onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}>
+                                                                    <span>{t.seeMore}</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <button className="btn-see-more full-width" onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}>
-                                                    {t.seeMore}
-                                                </button>
-                                            </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    )}
+
+                                    {viewMode === 'list' && (
+                                        <div className="list-view-container">
+                                            <table className="commands-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{t.commandId}</th>
+                                                        <th>{t.product}</th>
+                                                        <th>{t.quantity}</th>
+                                                        <th>{t.budget}</th>
+                                                        <th>{t.originWilaya}</th>
+                                                        <th>{t.deadline}</th>
+                                                        <th>{t.actions}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredCommands.map((cmd) => (
+                                                        <tr key={cmd.id} onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
+                                                            <td className="cmd-id">{cmd.id}</td>
+                                                            <td className="cmd-product">{cmd.product}</td>
+                                                            <td>{cmd.quantity}</td>
+                                                            <td>{cmd.budget}</td>
+                                                            <td>{cmd.location}</td>
+                                                            <td>{cmd.deadline}</td>
+                                                            <td>
+                                                                <button className="btn-text-action" onClick={(e) => { e.stopPropagation(); setProposalCommand(cmd); }}>
+                                                                    {t.sendProposal} &rsaquo;
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {viewMode === 'grid' && (
+                                        <div className="grid-view-container">
+                                            {filteredCommands.map((cmd) => (
+                                                <div key={cmd.id} className="grid-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
+                                                    <div className="grid-image"><img src={cmd.image} alt={cmd.product} /></div>
+                                                    <div className="grid-content">
+                                                        <h3 className="grid-title">{cmd.title}</h3>
+                                                        <p className="grid-budget">{cmd.budget}</p>
+                                                        <div className="grid-meta">
+                                                            <span><FiMapPin /> {cmd.location}</span>
+                                                            <span><FiCalendar /> {cmd.deadline}</span>
+                                                        </div>
+                                                        <button className="btn-see-more full-width" onClick={(e) => { e.stopPropagation(); setSelectedCommand(cmd); }}>
+                                                            {t.seeMore}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>

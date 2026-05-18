@@ -8,30 +8,24 @@ const Stepper = ({ steps, current, errorSteps = [], validSteps = [] }) => {
         const stepNum = idx + 1;
         const isActive = stepNum === current;
         const isPassed = stepNum < current;
-        const isValid = validSteps.includes(stepNum);
         const hasError = errorSteps.includes(stepNum);
         
-        const isPassedDot1 = stepNum < current;
-        const isValidDot1 = validSteps.includes(stepNum);
-        const isWarningDot1 = isPassedDot1 && !isValidDot1;
-
-        const nextStepNum = stepNum + 1;
-        const isPassedDot2 = nextStepNum < current;
-        const isValidDot2 = validSteps.includes(nextStepNum);
-        const isWarningDot2 = isPassedDot2 && !isValidDot2;
+        // A step is considered "valid" (success) ONLY if it's explicitly in validSteps
+        const isStepSuccess = validSteps.includes(stepNum);
+        const isStepWarning = isPassed && !isStepSuccess && !hasError;
 
         return (
           <div
             key={label}
-            className={`stepper-item ${isActive ? 'active' : ''} ${isPassed && isValid ? 'completed' : ''} ${isPassed && !isValid ? 'passed-invalid' : ''} ${hasError ? 'error' : ''}`}
+            className={`stepper-item ${isActive ? 'active' : ''} ${isStepSuccess ? 'completed' : ''} ${hasError ? 'error' : ''} ${isStepWarning ? 'passed-invalid' : ''}`}
           >
             <div className="stepper-circle">
               {hasError ? (
                 <span className="error-icon">✕</span>
-              ) : (isPassed && !isValid) ? (
-                <span className="warning-icon">!</span>
-              ) : (isPassed && isValid) ? (
+              ) : isStepSuccess ? (
                 <span className="check">✓</span>
+              ) : isStepWarning ? (
+                <span className="warning-icon">!</span>
               ) : (
                 stepNum
               )}
@@ -39,13 +33,7 @@ const Stepper = ({ steps, current, errorSteps = [], validSteps = [] }) => {
             <div className="stepper-label">{label}</div>
             {idx < steps.length - 1 && (
               <div className={`stepper-connector ${
-                (isWarningDot1 || isWarningDot2) ? 'warning' : ''
-              } ${
-                (current === idx + 1 || current === idx + 2) ? 'active' : ''
-              } ${
-                (validSteps.includes(idx + 2) && (current > idx + 1)) ? 'completed' : ''
-              } ${
-                errorSteps.includes(idx + 2) ? 'error' : ''
+                isStepSuccess ? 'completed' : (hasError ? 'error' : (isStepWarning ? 'warning' : (isActive ? 'active' : '')))
               }`} />
             )}
           </div>

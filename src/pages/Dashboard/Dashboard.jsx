@@ -24,7 +24,18 @@ const Dashboard = ({ onNavigate }) => {
                 if (response.data) {
                     const latestUser = response.data.user || response.data;
                     const latestProfile = response.data.profile;
-                    const status = latestProfile?.verificationStatus || latestUser.status;
+                    
+                    let status = latestUser.status || latestUser.importatorProfile?.verificationStatus || latestUser.clientProfile?.verificationStatus;
+                    const allStatuses = [
+                        latestUser.status, 
+                        latestUser.importatorProfile?.verificationStatus, 
+                        latestUser.clientProfile?.verificationStatus,
+                        latestProfile?.verificationStatus
+                    ];
+                    
+                    if (allStatuses.some(s => s && String(s).toUpperCase() === 'APPROVED')) {
+                        status = 'APPROVED';
+                    }
                     
                     setUser(latestUser);
                     setVStatus(status);
