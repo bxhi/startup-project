@@ -30,9 +30,11 @@ const SignUp = ({ onNavigate }) => {
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     const [formData, setFormData] = useState({
-        businessName: '',
+        gender: '',
+        address: '',
+        willaya: '',
         ownerFullName: '',
-        commerceNumber: '',
+        licenseId: '',
         nin: '',
         email: '',
         phone: '',
@@ -50,16 +52,24 @@ const SignUp = ({ onNavigate }) => {
         let errSteps = [];
 
         // Step 1 Validation
-        if (!data.businessName?.trim()) {
-            errors.push(t.errReqBusinessName || 'Business Name is required.');
+        if (!data.gender) {
+            errors.push(t.errReqGender || 'Gender is required.');
+            errSteps.push(1);
+        }
+        if (!data.address?.trim()) {
+            errors.push(t.errReqAddress || 'Address is required.');
+            errSteps.push(1);
+        }
+        if (!data.willaya) {
+            errors.push(t.errReqWillaya || 'Willaya is required.');
             errSteps.push(1);
         }
         if (!data.ownerFullName?.trim()) {
             errors.push(t.errReqOwnerName || 'Owner Full Name is required.');
             errSteps.push(1);
         }
-        if (!data.commerceNumber?.trim()) {
-            errors.push(t.errReqCommerceNum || 'Register Commerce Number is required.');
+        if (!data.licenseId?.trim()) {
+            errors.push(t.errReqLicenseId || 'License ID is required.');
             errSteps.push(1);
         }
         if (!data.nin?.trim()) {
@@ -128,7 +138,7 @@ const SignUp = ({ onNavigate }) => {
         if (errSteps.includes(stepNumber)) return false;
 
         switch (stepNumber) {
-            case 1: return formData.businessName && formData.ownerFullName && formData.commerceNumber && formData.nin;
+            case 1: return formData.ownerFullName && formData.licenseId && formData.nin && formData.gender && formData.address && formData.willaya;
             case 2: return formData.idFront && formData.importLicense && formData.commercialRegister;
             case 3: return !!selfiePhoto;
             case 4: return formData.email && formData.phone && formData.password && formData.password === formData.confirmPassword;
@@ -138,7 +148,7 @@ const SignUp = ({ onNavigate }) => {
 
     const handleChange = (field, value) => {
         let newValue = value;
-        if (field === 'nin' || field === 'commerceNumber') {
+        if (field === 'nin' || field === 'licenseId') {
             newValue = value.replace(/\D/g, '');
             if (field === 'nin') newValue = newValue.slice(0, 18);
         }
@@ -336,11 +346,12 @@ const SignUp = ({ onNavigate }) => {
                     password: formData.password
                 },
                 profile: {
-                    licenseId: formData.commerceNumber,
-                    registerCommerceNumber: formData.commerceNumber,
+                    licenseId: formData.licenseId,
+                    registerCommerceNumber: formData.licenseId,
                     NIN: formData.nin,
-                    wilaya: 'Not Specified',
-                    address: 'Not Specified'
+                    wilaya: formData.willaya,
+                    adress: formData.address,
+                    gender: formData.gender
                 },
                 imageUrls: {
                     registerCommerceImage: registerCommerceImageUrl,
@@ -478,17 +489,28 @@ const SignUp = ({ onNavigate }) => {
     }, []);
 
     const renderStep = () => {
+        const algerianWillayas = [
+            "1 - Adrar", "2 - Chlef", "3 - Laghouat", "4 - Oum El Bouaghi", "5 - Batna", 
+            "6 - Béjaïa", "7 - Biskra", "8 - Béchar", "9 - Blida", "10 - Bouira", 
+            "11 - Tamanrasset", "12 - Tébessa", "13 - Tlemcen", "14 - Tiaret", "15 - Tizi Ouzou", 
+            "16 - Alger", "17 - Djelfa", "18 - Jijel", "19 - Sétif", "20 - Saïda", 
+            "21 - Skikda", "22 - Sidi Bel Abbès", "23 - Annaba", "24 - Guelma", "25 - Constantine", 
+            "26 - Médéa", "27 - Mostaganem", "28 - M'Sila", "29 - Mascara", "30 - Ouargla", 
+            "31 - Oran", "32 - El Bayadh", "33 - Illizi", "34 - Bordj Bou Arréridj", "35 - Boumerdès", 
+            "36 - El Tarf", "37 - Tindouf", "38 - Tissemsilt", "39 - El Oued", "40 - Khenchela", 
+            "41 - Souk Ahras", "42 - Tipaza", "43 - Mila", "44 - Aïn Defla", "45 - Naâma", 
+            "46 - Aïn Témouchent", "47 - Ghardaïa", "48 - Relizane", "49 - Timimoun", "50 - Bordj Badji Mokhtar", 
+            "51 - Ouled Djellal", "52 - Béni Abbès", "53 - In Salah", "54 - In Guezzam", "55 - Touggourt", 
+            "56 - Djanet", "57 - El M'Ghair", "58 - El Meniaa", "59 - N'Goussa", "60 - M'Sif", 
+            "61 - Ben Choud", "62 - El Abiodh Sidi Cheikh", "63 - Ain Sefra", "64 - Taghit", "65 - Tabelbala", 
+            "66 - In Amguel", "67 - Bordj Omar Driss", "68 - Debdeb", "69 - Tin Zaouatine"
+        ];
+
         switch (step) {
             case 1:
                 return (
                     <div className="step-content">
-                <div className="inputs-grid">
-                            <Input
-                                label={t.businessNameLabel || "Business Name"}
-                                placeholder={t.businessNamePlaceholder || "Enter business name"}
-                                value={formData.businessName}
-                                onChange={(e) => handleChange('businessName', e.target.value)}
-                            />
+                        <div className="inputs-grid">
                             <Input
                                 label={t.ownerNameLabel || "Owner Full Name"}
                                 placeholder={t.ownerNamePlaceholder || "Enter owner's full name"}
@@ -496,10 +518,38 @@ const SignUp = ({ onNavigate }) => {
                                 onChange={(e) => handleChange('ownerFullName', e.target.value)}
                             />
                             <Input
-                                label={t.commerceNumLabel || "Register Commerce Number"}
-                                placeholder={t.commerceNumPlaceholder || "Enter commerce number"}
-                                value={formData.commerceNumber}
-                                onChange={(e) => handleChange('commerceNumber', e.target.value)}
+                                type="select"
+                                label={t.genderLabel || "Gender"}
+                                placeholder={t.genderPlaceholder || "Select gender"}
+                                value={formData.gender}
+                                onChange={(e) => handleChange('gender', e.target.value)}
+                                options={[
+                                    { value: 'male', label: t.male || 'Male' },
+                                    { value: 'female', label: t.female || 'Female' }
+                                ]}
+                            />
+                            <Input
+                                label={t.addressLabel || "Address"}
+                                placeholder={t.addressPlaceholder || "Enter full address"}
+                                value={formData.address}
+                                onChange={(e) => handleChange('address', e.target.value)}
+                            />
+                            <Input
+                                type="select"
+                                label={t.willayaLabel || "Willaya"}
+                                placeholder={t.willayaPlaceholder || "Select Willaya"}
+                                value={formData.willaya}
+                                onChange={(e) => handleChange('willaya', e.target.value)}
+                                options={algerianWillayas}
+                            />
+                            <Input
+                                label={t.licenseIdLabel || "License ID"}
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder={t.licenseIdPlaceholder || "Enter license ID"}
+                                value={formData.licenseId}
+                                onChange={(e) => handleChange('licenseId', e.target.value)}
                             />
                             <Input
                                 label={t.ninLabel || "NIN (National Identification Number)"}
@@ -726,7 +776,11 @@ const SignUp = ({ onNavigate }) => {
             </div>
 
             <div className="signup-header">
-                <h1 className="signup-main-title gradient-heading">Join us</h1>
+                <div className="login-logo-with-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src="/SILA-LOGO.png" className="login-logo-img" alt="SILA" style={{ height: '125px' }} />
+                </div>
+                <div style={{ height: '1.8px', background: '#264a69', width: '60px', margin: '20px auto 25px  auto' }}></div>
+                <h1 className="signup-main-title" style={{ color: '#283dee', fontWeight: '800' }}>Join us</h1>
                 <p className="signup-subtitle">Join our premium importer network today.</p>
             </div>
 

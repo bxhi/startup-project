@@ -4,7 +4,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import { useLanguage } from '../../context/LanguageContext';
 import { negotiationService } from '../../api/negotiationService';
 import socketService from '../../api/socketService';
-import { FiPaperclip, FiSend, FiCheck, FiLoader, FiAlertCircle, FiX, FiEdit2, FiTrash2, FiMessageCircle, FiTrendingUp, FiZap, FiPackage, FiMapPin, FiBox, FiArrowRight } from 'react-icons/fi';
+import { FiPaperclip, FiSend, FiCheck, FiLoader, FiAlertCircle, FiX, FiEdit2, FiTrash2, FiMessageCircle, FiTrendingUp, FiZap, FiPackage, FiMapPin, FiBox, FiArrowRight, FiCopy } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import { orderService } from '../../api/orderService';
 import offerService from '../../api/offerService';
@@ -38,9 +38,44 @@ const Negotiations = ({ onNavigate }) => {
     const [showDetailsDropdown, setShowDetailsDropdown] = useState(false);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
+    const [contextMenu, setContextMenu] = useState(null);
+    const [editingMessageId, setEditingMessageId] = useState(null);
     const activeNeg = negotiations.find(n => n.id === activeNegotiationId);
     const isImporter = currentUser?.role === 'importator' || currentUser?.role === 'importer';
-    const hasOrder = activeOrder && ['CREATED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'].includes(activeOrder.status?.toUpperCase());
+    const hasOrder = (activeNeg?.orderId) || (activeOrder && !activeOrder.isCustom && ['CREATED', 'CONFIRMED', 'SHIPPED', 'DELIVERED'].includes(activeOrder.status?.toUpperCase()));
+
+    const handleContextMenu = (e, proposal) => {
+        e.preventDefault();
+        if (proposal.senderId !== currentUser?.userId) return; // Only allow editing/deleting own messages
+        setContextMenu({
+            x: e.pageX,
+            y: e.pageY,
+            proposal
+        });
+    };
+
+    const closeContextMenu = () => setContextMenu(null);
+
+    useEffect(() => {
+        const handleClick = () => closeContextMenu();
+        window.addEventListener('click', handleClick);
+        return () => window.removeEventListener('click', handleClick);
+    }, []);
+
+    const handleCopyText = (text) => {
+        navigator.clipboard.writeText(text);
+        toast.success(t.copied || 'Copied to clipboard');
+    };
+
+    const handleDeleteMessage = async (proposalId) => {
+        try {
+            await negotiationService.deleteProposal(proposalId);
+            setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, isDeleted: true, message: 'This message was deleted' } : p));
+            toast.success(t.msgDeleted || 'Message deleted');
+        } catch (err) {
+            toast.error(t.errDeleteMsg || 'Failed to delete message');
+        }
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,9 +87,28 @@ const Negotiations = ({ onNavigate }) => {
 
     useEffect(() => {
         const fetchActiveOrder = async () => {
-            if (activeNeg?.orderId) {
+            let resolvedOrderId = activeNeg?.orderId;
+
+            // 1. Try to find the Order ID from proposals
+            if (!resolvedOrderId && proposals && proposals.length > 0) {
+                const invoiceProp = proposals.find(p => p.message && (p.message.includes('FORMAL CONTRACT INVOICE') || p.message.includes('FORMAL ORDER CREATED')));
+                if (invoiceProp) {
+                    const orderIdMatch = invoiceProp.message.match(/Order ID:\s*`#?([A-Za-z0-9\-]+)`/i) || invoiceProp.message.match(/Order Reference:\s*#?([A-Za-z0-9\-]+)/i);
+                    if (orderIdMatch) {
+                        resolvedOrderId = orderIdMatch[1];
+                    }
+                }
+            }
+
+            // 2. Try to find from localStorage
+            if (!resolvedOrderId && activeNeg?.id) {
+                const savedOrderIds = JSON.parse(localStorage.getItem('negotiation_orders') || '{}');
+                resolvedOrderId = savedOrderIds[activeNeg.id];
+            }
+
+            if (resolvedOrderId) {
                 try {
-                    const response = await orderService.getOrder(activeNeg.orderId);
+                    const response = await orderService.getOrder(resolvedOrderId);
                     setActiveOrder(response.data);
                 } catch (err) {
                     console.warn("Failed to fetch order status inside chat:", err);
@@ -65,7 +119,7 @@ const Negotiations = ({ onNavigate }) => {
             }
         };
         fetchActiveOrder();
-    }, [activeNeg?.orderId]);
+    }, [activeNeg?.id, activeNeg?.orderId, proposals]);
 
     const handleMessageChange = (e) => {
         const val = e.target.value;
@@ -87,17 +141,13 @@ const Negotiations = ({ onNavigate }) => {
             const response = await negotiationService.getNegotiations(params);
             const fetchedNegs = response.data || [];
             setNegotiations(fetchedNegs);
-
-            if (fetchedNegs.length > 0 && !activeNegotiationId) {
-                setActiveNegotiationId(fetchedNegs[0].id);
-            }
         } catch (err) {
             console.error('Error fetching negotiations:', err);
             setError('Failed to load negotiations.');
         } finally {
             if (!isSilent) setIsLoading(false);
         }
-    }, [activeNegotiationId]);
+    }, []);
 
     const fetchProposals = useCallback(async (negId) => {
         if (!negId) return;
@@ -192,6 +242,21 @@ const Negotiations = ({ onNavigate }) => {
 
     const handleSendMessage = async () => {
         if (!messageInput.trim() || !activeNegotiationId || !currentUser) return;
+
+        if (editingMessageId) {
+            try {
+                await negotiationService.updateProposal(editingMessageId, messageInput);
+                setProposals(prev => prev.map(p => p.id === editingMessageId ? { ...p, message: messageInput, isEdited: true } : p));
+                setEditingMessageId(null);
+                setMessageInput('');
+                toast.success(t.msgUpdated || 'Message updated');
+            } catch (err) {
+                console.error('Error updating proposal:', err);
+                toast.error(t.errUpdateMsg || 'Failed to update message');
+            }
+            return;
+        }
+
         try {
             const activeNeg = negotiations.find(n => n.id === activeNegotiationId);
             await negotiationService.createProposal(
@@ -293,6 +358,23 @@ const Negotiations = ({ onNavigate }) => {
             };
             const response = await orderService.createOrder(orderPayload);
             const createdOrderId = response.data?.id || response.data?._id || 'Order';
+            // Immediately set the active order to reflect the newly created order and hide the create button
+            setActiveOrder(response.data);
+            try {
+                const savedOrderIds = JSON.parse(localStorage.getItem('negotiation_orders') || '{}');
+                savedOrderIds[activeNegotiationId] = createdOrderId;
+                localStorage.setItem('negotiation_orders', JSON.stringify(savedOrderIds));
+            } catch (storageErr) {
+                console.warn('Failed to save order ID to localStorage:', storageErr);
+            }
+
+            try {
+                await negotiationService.updateNegotiation(activeNegotiationId, { orderId: createdOrderId });
+            } catch (updateErr) {
+                console.error('Failed to update negotiation with order ID:', updateErr);
+            }
+
+            await fetchNegotiations(true);
 
             // 2. Format a highly readable rich markdown receipt card and post in chat
             const totalAmount = orderItems.reduce((acc, item) => acc + (parseFloat(item.price) * parseInt(item.quantity)), 0);
@@ -370,8 +452,10 @@ const Negotiations = ({ onNavigate }) => {
 
     const getDisplayName = (neg) => {
         if (!neg) return '';
-        const name = neg.clientName || (neg.role === 'client' ? neg.clientId : neg.importatorId);
-        return name?.slice(0, 12);
+        const name = (currentUser?.role === 'client')
+            ? (neg.importatorName || neg.vendorName || 'Importer')
+            : (neg.clientName || 'Client');
+        return name;
     };
 
     const getProductDisplayTitle = (neg) => {
@@ -524,16 +608,13 @@ const Negotiations = ({ onNavigate }) => {
                             >
                                 <div className="contact-avatar">
                                     {(neg.clientName || 'C').charAt(0).toUpperCase()}
-                                    {!neg.isRead && neg.lastSenderId !== currentUser?.userId && (
-                                        <div className="unread-dot" />
-                                    )}
                                 </div>
                                 <div className="contact-info">
                                     <div className="contact-header">
                                         <span className="contact-name">{getDisplayName(neg)}</span>
                                         <span className="last-time">{neg.lastMessageTime || '12:45'}</span>
                                     </div>
-                                    <p className={`message-preview ${(!neg.isRead && neg.lastSenderId !== currentUser?.userId) ? 'unread' : ''}`}>
+                                    <p className="message-preview">
                                         {neg.lastMessage || getProductDisplayTitle(neg)}
                                     </p>
                                 </div>
@@ -545,17 +626,19 @@ const Negotiations = ({ onNavigate }) => {
                 <div className="negotiation-chat-main">
                     {activeNeg ? (
                         <>
-                            <div className="chat-header">
-                                <div className="chat-contact-details">
-                                    <div className="contact-avatar">{(activeNeg.clientName || 'C').charAt(0).toUpperCase()}</div>
-                                    <div className="chat-contact-info">
-                                        <h3>{getDisplayName(activeNeg)}</h3>
-                                        <span className="chat-command-ref">
-                                            {getProductDisplayTitle(activeNeg)}
-                                        </span>
+                            <div className="chat-header" style={{ direction: dir, padding: '20px 24px' }}>
+                                <div className="chat-contact-details" style={{ flex: '1', minWidth: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div className="contact-avatar" style={{ flexShrink: 0 }}>{(activeNeg.clientName || 'C').charAt(0).toUpperCase()}</div>
+                                    <div className="chat-contact-info" style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplayName(activeNeg)}</h3>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <span className="chat-command-ref" style={{ display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '400px' }}>
+                                                {getProductDisplayTitle(activeNeg)}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="chat-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div className="chat-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
                                     {activeNeg.status && activeNeg.status.toUpperCase() !== 'OPEN' && (
                                         <span className={`chat-command-ref ${activeNeg.status.toLowerCase()}`}>{activeNeg.status}</span>
                                     )}
@@ -777,36 +860,82 @@ const Negotiations = ({ onNavigate }) => {
                             </div>
 
                             <div className="chat-messages">
-                                {[...proposals].reverse().map((p) => (
-                                    <div key={p.id} className={`message-group ${p.senderId === currentUser?.userId ? 'outgoing' : 'incoming'}`}>
-                                        <div className="message-bubble">
-                                            <p className="message-text">{p.message}</p>
+                                {isProposalsLoading ? (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        <div className="premium-spinner"></div>
+                                    </div>
+                                ) : (
+                                    [...proposals].reverse().map((p) => {
+                                        const isMsgDeleted = p.status === 'DELETED' || p.isDeleted;
+                                    return (
+                                        <div key={p.id} className={`message-group ${p.senderId === currentUser?.userId ? 'outgoing' : 'incoming'} ${isMsgDeleted ? 'deleted-message-group' : ''}`}>
+                                            {isMsgDeleted ? (
+                                                <div 
+                                                    className="deleted-message-bar"
+                                                    style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        padding: '10px 16px',
+                                                        background: 'rgba(241, 245, 249, 0.6)',
+                                                        border: '1px dashed rgba(148, 163, 184, 0.4)',
+                                                        borderRadius: '30px',
+                                                        color: '#94a3b8',
+                                                        fontSize: '0.85rem',
+                                                        fontStyle: 'italic',
+                                                        margin: '4px 0',
+                                                        userSelect: 'none'
+                                                    }}
+                                                >
+                                                    <span>🚫</span> {dir === 'rtl' ? 'تم حذف هذا المقترح' : 'This proposal was deleted'}
+                                                </div>
+                                            ) : (
+                                                <div 
+                                                    className="message-bubble" 
+                                                    onContextMenu={(e) => handleContextMenu(e, p)}
+                                                >
+                                                    <p className="message-text">
+                                                        {p.message}
+                                                        {p.isEdited && <span style={{ fontSize: '0.65rem', marginLeft: '6px', opacity: 0.6 }}>(edited)</span>}
+                                                    </p>
 
-                                            {(p.proposedPrice > 0) && (
-                                                <div className="proposal-summary-card">
-                                                    <div className="proposal-row">
-                                                        <span className="p-label">{t.proposedPriceLabel || 'Proposed Price'}</span>
-                                                        <span className="p-value">${p.proposedPrice}</span>
-                                                    </div>
-                                                    <div className="proposal-row">
-                                                        <span className="p-label">{t.proposedQuantityLabel || 'Proposed Quantity'}</span>
-                                                        <span className="p-value">{p.proposedQuantity} Units</span>
-                                                    </div>
+                                                    {p.proposedPrice > 0 && (
+                                                        <div 
+                                                            className="proposal-summary-card"
+                                                            style={p.status === 'ACCEPTED' ? { border: '2px solid #1F73B7', background: 'rgba(31, 115, 183, 0.05)', boxShadow: '0 4px 12px rgba(31, 115, 183, 0.15)' } : {}}
+                                                        >
+                                                             <div className="proposal-row">
+                                                                 <span className="p-label">{t.proposedPriceLabel || 'Proposed Price'}</span>
+                                                                 <span className="p-value">${p.proposedPrice}</span>
+                                                             </div>
+                                                             <div className="proposal-row">
+                                                                 <span className="p-label">{t.proposedQuantityLabel || 'Proposed Quantity'}</span>
+                                                                 <span className="p-value">{p.proposedQuantity} Units</span>
+                                                             </div>
 
-                                                    {p.senderId !== currentUser?.userId && p.status === 'PENDING' && (
-                                                        <div className="proposal-actions">
-                                                            <button className="btn-action-small accept" onClick={handleAccept}>Accept</button>
-                                                            <button className="btn-action-small reject" onClick={() => {
-                                                                setIsCountering(true);
-                                                                setCounterData({ price: p.proposedPrice, quantity: p.proposedQuantity });
-                                                            }}>Counter</button>
+                                                             {p.status === 'ACCEPTED' && (
+                                                                 <div style={{ marginTop: '10px', color: '#1F73B7', fontWeight: '950', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                                     <FiCheck strokeWidth={3} /> ACCEPTED
+                                                                 </div>
+                                                             )}
+
+                                                             {p.senderId !== currentUser?.userId && p.status === 'PENDING' && (
+                                                                 <div className="proposal-actions">
+                                                                     <button className="btn-action-small accept" onClick={handleAccept}>Accept</button>
+                                                                     <button className="btn-action-small reject" onClick={() => {
+                                                                         setIsCountering(true);
+                                                                         setCounterData({ price: p.proposedPrice, quantity: p.proposedQuantity });
+                                                                     }}>Counter</button>
+                                                                 </div>
+                                                             )}
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })
+                                )}
                                 <div ref={messagesEndRef} />
                             </div>
                             
@@ -904,25 +1033,78 @@ const Negotiations = ({ onNavigate }) => {
                             </div>
                         </>
                     ) : (
-                        <div className="no-selection-state">
-                            <div className="no-selection-content">
-                                <div className="no-selection-icon">
-                                    <FiMessageCircle />
-                                </div>
-                                <h2>{t.workspaceTitle || 'Your Workspace'}</h2>
-                                <p>{t.selectNegotiationPlaceholder || 'Select a negotiation from the list to start.'}</p>
+                        <div className="chat-blank-slate" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'linear-gradient(to bottom right, #f8fafc, #eff6ff)' }}>
+                            <div style={{ background: 'rgba(31, 115, 183, 0.05)', padding: '30px', borderRadius: '50%', marginBottom: '24px' }}>
+                                <FiMessageCircle size={48} style={{ color: '#1F73B7', opacity: 0.8 }} />
                             </div>
+                            <h2 style={{ fontSize: '1.5rem', color: '#1e293b', fontWeight: '800', marginBottom: '12px' }}>{dir === 'rtl' ? 'اختر مفاوضة للبدء' : 'Choose a Negotiation'}</h2>
+                            <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '320px', textAlign: 'center', lineHeight: '1.6' }}>
+                                {dir === 'rtl' ? 'اختر مفاوضة وابدأ التفاوض أو أنشئ طلباً مخصصاً.' : 'Choose a negotiation and start negotiating or make an order'}
+                            </p>
                         </div>
                     )}
                 </div>
+            </div>
+
+            {contextMenu && !contextMenu.proposal.isDeleted && (
+                <div 
+                    className="context-menu-premium"
+                    style={{
+                        position: 'fixed',
+                        top: contextMenu.y,
+                        left: contextMenu.x,
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(10px)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+                        border: '1px solid rgba(255, 255, 255, 0.5)',
+                        borderRadius: '12px',
+                        padding: '6px',
+                        zIndex: 9999,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minWidth: '160px',
+                        animation: 'fadeIn 0.2s ease-out'
+                    }}
+                >
+                    <button 
+                        onClick={() => handleCopyText(contextMenu.proposal.message)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '8px', color: '#334155', fontWeight: '600', fontSize: '0.85rem' }}
+                        onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                        <FiBox /> Copy
+                    </button>
+                    <button 
+                        onClick={() => {
+                            setEditingMessageId(contextMenu.proposal.id);
+                            setMessageInput(contextMenu.proposal.message);
+                            closeContextMenu();
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '8px', color: '#334155', fontWeight: '600', fontSize: '0.85rem' }}
+                        onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                        <FiEdit2 /> Edit
+                    </button>
+                    <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
+                    <button 
+                        onClick={() => { handleDeleteMessage(contextMenu.proposal.id); closeContextMenu(); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', borderRadius: '8px', color: '#ef4444', fontWeight: '600', fontSize: '0.85rem' }}
+                        onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
+                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                        <FiTrash2 /> Delete
+                    </button>
+                </div>
+            )}
 
                 {/* Cool Custom Confirmation Modal moved to top level for correct Z-index */}
                 {showAcceptConfirm && activeNeg && (() => {
-                    const resolvedImporterName = currentUser?.role === 'importator'
-                        ? (currentUser?.businessName || currentUser?.username || 'Importer')
+                    const resolvedImporterName = (currentUser?.role === 'importator' || currentUser?.role === 'importer')
+                        ? (currentUser?.fullName || currentUser?.businessName || currentUser?.username || 'Importer')
                         : (activeNeg.importatorName || activeNeg.vendorName || 'Importer');
-                    const resolvedClientName = currentUser?.role === 'client'
-                        ? (currentUser?.businessName || currentUser?.username || 'Client')
+                    const resolvedClientName = (currentUser?.role === 'client')
+                        ? (currentUser?.fullName || currentUser?.businessName || currentUser?.username || 'Client')
                         : (activeNeg.clientName || 'Client');
                     return (
                         <div className="custom-modal-overlay animate-fade-in">
@@ -1072,10 +1254,99 @@ const Negotiations = ({ onNavigate }) => {
                         </div>
                     );
                 })()}
-            </div>
+            {contextMenu && (
+                <div 
+                    className="premium-context-menu"
+                    style={{
+                        position: 'fixed',
+                        top: `${contextMenu.y}px`,
+                        left: `${contextMenu.x}px`,
+                        zIndex: 9999,
+                        background: '#ffffff',
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                        padding: '6px',
+                        minWidth: '150px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                    }}
+                >
+                    <button 
+                        onClick={() => {
+                            handleCopyText(contextMenu.proposal.message);
+                            closeContextMenu();
+                        }}
+                        style={{
+                            padding: '10px 14px',
+                            background: 'none',
+                            border: 'none',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            color: '#1e293b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            width: '100%'
+                        }}
+                    >
+                        <FiCopy size={14} /> {t.copy || 'Copy'}
+                    </button>
+                    <button 
+                        onClick={() => {
+                            setEditingMessageId(contextMenu.proposal.id);
+                            setMessageInput(contextMenu.proposal.message);
+                            closeContextMenu();
+                        }}
+                        style={{
+                            padding: '10px 14px',
+                            background: 'none',
+                            border: 'none',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            color: '#1e293b',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            width: '100%'
+                        }}
+                    >
+                        <FiEdit2 size={14} /> {t.edit || 'Edit'}
+                    </button>
+                    <button 
+                        onClick={() => {
+                            handleDeleteMessage(contextMenu.proposal.id);
+                            closeContextMenu();
+                        }}
+                        style={{
+                            padding: '10px 14px',
+                            background: 'none',
+                            border: 'none',
+                            borderRadius: '8px',
+                            textAlign: 'left',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            color: '#ef4444',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            width: '100%'
+                        }}
+                    >
+                        <FiTrash2 size={14} /> {t.delete || 'Delete'}
+                    </button>
+                </div>
+            )}
         </DashboardLayout>
     );
 };
 
 export default Negotiations;
-

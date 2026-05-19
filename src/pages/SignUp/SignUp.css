@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 2rem;
+    padding-bottom:25px;
     position: relative;
     /* Removed white background to show blobs */
     font-family: 'Montserrat', sans-serif;
@@ -116,6 +116,7 @@
     z-index: 10;
     text-align: center !important;
     margin-bottom: 1.2rem;
+    padding: 0 !important;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -1345,4 +1346,98 @@
     border-color: #1F73B7 !important;
     box-shadow: 0 0 0 4px rgba(31, 115, 183, 0.12) !important;
     background: #ffffff !important;
+}
+
+/* ========================================================================= */
+/* UNIVERSAL RESPONSIVE BREAKPOINTS                                         */
+/* ========================================================================= */
+
+@media (max-width: 1024px) {
+    .signup-card {
+        padding: 2.5rem;
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .signup-card {
+        padding: 2rem;
+        max-width: 95%;
+    }
+    
+    .inputs-grid,
+    .file-uploads-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .signup-main-title {
+        font-size: 1.8rem;
+    }
+    
+    .gradient-heading {
+        font-size: 2.2rem;
+    }
+    
+    .step-indicator {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 10px;
+    }
+    
+    .step-item {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .signup-container {
+        padding: 1rem;
+    }
+    
+    .signup-card {
+        padding: 1.5rem;
+        border-radius: 20px !important;
+    }
+    
+    .gradient-heading {
+        font-size: 1.8rem;
+    }
+    
+    .step-dot {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .step-label {
+        font-size: 0.75rem;
+    }
+    
+    .success-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Signup and Login Logo Styling */
+.login-logo-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.login-logo-img {
+    height: 75px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(31, 115, 183, 0.15));
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    mix-blend-mode: multiply; /* Removes white background */
+}
+
+.login-logo-container:hover .login-logo-img {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 8px 24px rgba(31, 115, 183, 0.25));
 }

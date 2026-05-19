@@ -12,6 +12,7 @@ import Onboarding from './pages/Onboarding/Onboarding'
 import Orders from './pages/Orders/Orders'
 import Wallet from './pages/Wallet/Wallet'
 import Settings from './pages/Settings/Settings'
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage'
 import PendingBanner from './components/PendingBanner/PendingBanner'
 
 
@@ -166,6 +167,9 @@ function AppContent() {
       )}
       {currentPage === 'settings' && (
         <Settings onNavigate={(page) => handleNavigate(page)} />
+      )}
+      {currentPage === 'notifications' && (
+        <NotificationsPage onNavigate={handleNavigate} />
       )}
     </div>
   )

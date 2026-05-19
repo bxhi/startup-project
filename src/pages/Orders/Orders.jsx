@@ -135,8 +135,7 @@ const Orders = ({ onNavigate, preselectedOrderId, clearPreselectedOrder }) => {
         try {
             const secureUrl = await uploadToCloudinary(file);
             await orderService.uploadShipmentProof(selectedOrder.id, secureUrl);
-            await orderService.updateStatus(selectedOrder.id, 'ship'); // Move to shipped
-            toast.success("Shipment proof uploaded and order shipped!", { id: toastId });
+            toast.success("Shipment proof uploaded successfully!", { id: toastId });
             const response = await orderService.getOrder(selectedOrderId);
             setSelectedOrder(response.data);
             fetchOrders();
@@ -146,6 +145,99 @@ const Orders = ({ onNavigate, preselectedOrderId, clearPreselectedOrder }) => {
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleRemoveShipmentProof = async () => {
+        setIsUploading(true);
+        const toastId = toast.loading("Removing shipment proof...");
+        try {
+            await orderService.uploadShipmentProof(selectedOrder.id, "");
+            toast.success("Shipment proof removed.", { id: toastId });
+            const response = await orderService.getOrder(selectedOrderId);
+            setSelectedOrder(response.data);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to remove shipment proof.", { id: toastId });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleFinalizeShipment = async () => {
+        setIsUploading(true);
+        const toastId = toast.loading("Finalizing shipment...");
+        try {
+            await orderService.updateStatus(selectedOrder.id, 'ship');
+            toast.success("Order status updated to SHIPPED!", { id: toastId });
+            const response = await orderService.getOrder(selectedOrderId);
+            setSelectedOrder(response.data);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to finalize shipment status.", { id: toastId });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleMarkAsDelivered = async () => {
+        setIsUploading(true);
+        const toastId = toast.loading("Marking order as delivered...");
+        try {
+            await orderService.updateStatus(selectedOrder.id, 'deliver');
+            toast.success("Order marked as DELIVERED!", { id: toastId });
+            const response = await orderService.getOrder(selectedOrderId);
+            setSelectedOrder(response.data);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to mark order as delivered.", { id: toastId });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleUploadDepositReceipt = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const toastId = toast.loading("Uploading deposit receipt...");
+        try {
+            const secureUrl = await uploadToCloudinary(file);
+            await orderService.updateOrder(selectedOrder.id, { depositReceiptUrl: secureUrl });
+            toast.success("Deposit receipt uploaded successfully!", { id: toastId });
+            const response = await orderService.getOrder(selectedOrderId);
+            setSelectedOrder(response.data);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to upload deposit receipt.", { id: toastId });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleUploadUnboxingVideo = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const toastId = toast.loading("Uploading unboxing video...");
+        try {
+            const secureUrl = await uploadToCloudinary(file);
+            await orderService.updateOrder(selectedOrder.id, { clientVideoUrl: secureUrl });
+            toast.success("Unboxing video uploaded successfully!", { id: toastId });
+            const response = await orderService.getOrder(selectedOrderId);
+            setSelectedOrder(response.data);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to upload unboxing video.", { id: toastId });
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -359,97 +451,225 @@ const Orders = ({ onNavigate, preselectedOrderId, clearPreselectedOrder }) => {
                 </div>
 
                 {/* Dynamic Action Block based on Status */}
-                {isImporter && selectedOrder.status === 'CREATED' && (
+                {selectedOrder.status === 'CREATED' && (
                     <div className="action-box-container card-glass gradient-border animate-in">
                         <div className="action-box-content">
                             <div className="action-box-icon"><FiBox /></div>
                             <div className="action-box-text">
-                                <h3>{dir === 'rtl' ? 'التحقق من إيصال الدفع' : 'Deposit Receipt Verification'}</h3>
-                                {selectedOrder.depositReceiptUrl ? (
-                                    <div className="receipt-viewer">
-                                        <p className="success-text">{dir === 'rtl' ? 'قام العميل برفع إيصال الدفع.' : 'Client has uploaded a deposit receipt.'}</p>
-                                        <img src={selectedOrder.depositReceiptUrl} alt="Deposit Receipt" className="proof-preview" />
-                                        <Button variant="primary" onClick={() => handleConfirmOrder(true)} disabled={isConfirming}>
-                                            {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد الطلب' : 'Confirm Order')}
-                                        </Button>
-                                    </div>
+                                {isImporter ? (
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'التحقق من إيصال الدفع' : 'Deposit Receipt Verification'}</h3>
+                                        {selectedOrder.depositReceiptUrl ? (
+                                            <div className="receipt-viewer">
+                                                <p className="success-text">{dir === 'rtl' ? 'قام العميل برفع إيصال الدفع.' : 'Client has uploaded a deposit receipt.'}</p>
+                                                <img src={selectedOrder.depositReceiptUrl} alt="Deposit Receipt" className="proof-preview" />
+                                                <Button variant="primary" onClick={() => handleConfirmOrder(true)} disabled={isConfirming}>
+                                                    {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد الطلب' : 'Confirm Order')}
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="receipt-missing">
+                                                <p className="warning-text">{dir === 'rtl' ? 'لم يقم العميل بإرسال إيصال الدفع بعد.' : 'The client still hasn\'t sent the deposit receipt yet.'}</p>
+                                                <p>{dir === 'rtl' ? 'هل تريد المتابعة وتأكيد الطلب على أي حال؟' : 'Do you want to continue and confirm the order anyway?'}</p>
+                                                <div className="action-buttons-row">
+                                                    <Button variant="primary" onClick={() => handleConfirmOrder(false)} disabled={isConfirming}>
+                                                        {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد بدون إيصال' : 'Confirm Without Receipt')}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
-                                    <div className="receipt-missing">
-                                        <p className="warning-text">{dir === 'rtl' ? 'لم يقم العميل بإرسال إيصال الدفع بعد.' : 'The client still hasn\'t sent the deposit receipt yet.'}</p>
-                                        <p>{dir === 'rtl' ? 'هل تريد المتابعة وتأكيد الطلب على أي حال؟' : 'Do you want to continue and confirm the order anyway?'}</p>
-                                        <div className="action-buttons-row">
-                                            <Button variant="primary" onClick={() => handleConfirmOrder(false)} disabled={isConfirming}>
-                                                {isConfirming ? <FiLoader className="animate-spin" /> : (dir === 'rtl' ? 'تأكيد بدون إيصال' : 'Confirm Without Receipt')}
-                                            </Button>
-                                        </div>
-                                    </div>
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'تحميل إيصال الإيداع' : 'Upload Deposit Receipt'}</h3>
+                                        <p>{dir === 'rtl' ? 'الرجاء تحميل إيصال الدفع الخاص بك لبدء المعاملة.' : 'Please upload your deposit payment receipt to initialize the trade escrow.'}</p>
+                                        {selectedOrder.depositReceiptUrl ? (
+                                            <div className="receipt-viewer">
+                                                <p className="success-text">{dir === 'rtl' ? 'تم رفع الإيصال بنجاح. بانتظار التحقق من المورد.' : 'Deposit receipt uploaded successfully. Waiting for vendor confirmation.'}</p>
+                                                <img src={selectedOrder.depositReceiptUrl} alt="Deposit Receipt" className="proof-preview" />
+                                            </div>
+                                        ) : (
+                                            <div className="upload-zone-premium" onClick={() => !isUploading && fileInputRef.current?.click()}>
+                                                {isUploading ? (
+                                                    <div className="uploading-state">
+                                                        <FiLoader className="animate-spin icon-large" />
+                                                        <span>Uploading receipt...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="upload-prompt">
+                                                        <FiUpload className="icon-main" />
+                                                        <span>Click to upload deposit receipt</span>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    ref={fileInputRef}
+                                                    style={{ display: 'none' }}
+                                                    onChange={handleUploadDepositReceipt}
+                                                    disabled={isUploading}
+                                                />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {isImporter && selectedOrder.status === 'CONFIRMED' && (
+                {selectedOrder.status === 'CONFIRMED' && (
                     <div className="action-box-container card-glass gradient-border animate-in">
                         <div className="action-box-content">
                             <div className="action-box-icon primary"><FiPackage /></div>
                             <div className="action-box-text">
-                                <h3>Upload Shipment Proof</h3>
-                                <p>Please provide proof that the product has been shipped to move the order to SHIPPED status.</p>
-                                <div className="upload-zone-premium" onClick={() => !isUploading && fileInputRef.current?.click()}>
-                                    {isUploading ? (
-                                        <div className="uploading-state">
-                                            <FiLoader className="animate-spin icon-large" />
-                                            <span>Uploading securely to Cloudinary...</span>
-                                        </div>
-                                    ) : (
-                                        <div className="upload-prompt">
-                                            <div className="upload-icons">
-                                                <FiUpload className="icon-main" />
-                                                <FiCamera className="icon-sub" />
+                                {isImporter ? (
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'إثبات شحن البضائع' : 'Transit & Shipment Proof'}</h3>
+                                        <p>{dir === 'rtl' ? 'يرجى تقديم إثبات الشحن لتأكيد إرسال الطلب.' : 'Please provide proof that the cargo has been dispatched. You can view, remove, or change it before final shipment confirmation.'}</p>
+                                        
+                                        {selectedOrder.shippingProove ? (
+                                            <div className="shipment-proof-uploaded-section">
+                                                <div className="uploaded-proof-preview-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                    <img src={selectedOrder.shippingProove} alt="Shipping Proof Preview" className="proof-preview" style={{ maxHeight: '200px', objectFit: 'contain', borderRadius: '8px' }} />
+                                                    <div className="uploaded-actions-row" style={{ display: 'flex', gap: '12px' }}>
+                                                        <Button variant="secondary" onClick={handleRemoveShipmentProof} disabled={isUploading}>
+                                                            {dir === 'rtl' ? 'حذف / إعادة الرفع' : 'Remove Proof'}
+                                                        </Button>
+                                                        <Button variant="primary" onClick={handleFinalizeShipment} disabled={isUploading}>
+                                                            <FiPackage /> {dir === 'rtl' ? 'تأكيد الشحن الفعلي' : 'Finalize & Ship Order'}
+                                                        </Button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <span>Click to upload image or take a photo</span>
-                                        </div>
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        capture="environment"
-                                        ref={fileInputRef}
-                                        style={{ display: 'none' }}
-                                        onChange={handleUploadShipmentProof}
-                                        disabled={isUploading}
-                                    />
-                                </div>
+                                        ) : (
+                                            <div className="upload-zone-premium" onClick={() => !isUploading && fileInputRef.current?.click()}>
+                                                {isUploading ? (
+                                                    <div className="uploading-state">
+                                                        <FiLoader className="animate-spin icon-large" />
+                                                        <span>Uploading securely to Cloudinary...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="upload-prompt">
+                                                        <div className="upload-icons">
+                                                            <FiUpload className="icon-main" />
+                                                            <FiCamera className="icon-sub" />
+                                                        </div>
+                                                        <span>Click to upload shipment document</span>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    ref={fileInputRef}
+                                                    style={{ display: 'none' }}
+                                                    onChange={handleUploadShipmentProof}
+                                                    disabled={isUploading}
+                                                />
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'الطلب قيد التحضير للشحن' : 'Shipment Preparation'}</h3>
+                                        <p>{dir === 'rtl' ? 'المورد يقوم بتجهيز وتحضير شحنتك حالياً.' : 'The importer is preparing packaging and customs logistics for your shipment.'}</p>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {isImporter && selectedOrder.status === 'SHIPPED' && (
+                {selectedOrder.status === 'SHIPPED' && (
+                    <div className="action-box-container card-glass gradient-border animate-in">
+                        <div className="action-box-content">
+                            <div className="action-box-icon success"><FiPackage /></div>
+                            <div className="action-box-text">
+                                {isImporter ? (
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'تأكيد تسليم الشحنة' : 'Confirm Order Delivery'}</h3>
+                                        <p>{dir === 'rtl' ? 'إذا تم تسليم الشحنة بنجاح إلى العميل، يرجى وضع علامة "تم التوصيل" لبدء عملية التحقق بالفيديو.' : 'If the shipment has safely reached the client, please mark the order as delivered to initiate video verification.'}</p>
+                                        <Button variant="primary" onClick={handleMarkAsDelivered} disabled={isUploading}>
+                                            <FiCheck /> {dir === 'rtl' ? 'تحديد كـ تم التوصيل' : 'Mark as Delivered'}
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'شحنتك في الطريق إليك' : 'Your Shipment is in Transit'}</h3>
+                                        <p>{dir === 'rtl' ? 'شحنتك قيد النقل والعبور الآن. بمجرد استلامها، يرجى توثيق فيديو فك التغليف.' : 'The shipment has been dispatched. Please prepare to film an unboxing video once received to claim released escrow.'}</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {selectedOrder.status === 'DELIVERED' && (
                     <div className="action-box-container card-glass gradient-border animate-in">
                         <div className="action-box-content">
                             <div className="action-box-icon success"><FiVideo /></div>
                             <div className="action-box-text">
-                                <h3>Client Unboxing Video</h3>
-                                {selectedOrder.clientVideoUrl ? (
-                                    <div className="video-viewer">
-                                        <p>The client has uploaded an unboxing video to confirm delivery condition.</p>
-                                        <div className="video-player-mock">
-                                            <FiPlay className="play-icon" />
-                                            <span>{selectedOrder.clientVideoUrl}</span>
-                                        </div>
-                                        {!selectedOrder.clientVideoSeen && (
-                                            <Button variant="primary" onClick={handleMarkVideoSeen} className="mt-4">
-                                                <FiEye /> Mark as Seen
-                                            </Button>
+                                {isImporter ? (
+                                    <>
+                                        <h3>Client Unboxing Video</h3>
+                                        {selectedOrder.clientVideoUrl ? (
+                                            <div className="video-viewer">
+                                                <p>The client has uploaded an unboxing video to confirm delivery condition.</p>
+                                                <div className="video-player-mock">
+                                                    <FiPlay className="play-icon" />
+                                                    <span>{selectedOrder.clientVideoUrl}</span>
+                                                </div>
+                                                {!selectedOrder.clientVideoSeen && (
+                                                    <Button variant="primary" onClick={handleMarkVideoSeen} className="mt-4">
+                                                        <FiEye /> Mark as Seen
+                                                    </Button>
+                                                )}
+                                                {selectedOrder.clientVideoSeen && (
+                                                    <p className="success-text mt-2"><FiCheck /> Video marked as seen. Order complete.</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="waiting-text">Waiting for the client to upload their unboxing video...</p>
                                         )}
-                                        {selectedOrder.clientVideoSeen && (
-                                            <p className="success-text mt-2"><FiCheck /> Video marked as seen.</p>
-                                        )}
-                                    </div>
+                                    </>
                                 ) : (
-                                    <p className="waiting-text">Waiting for the client to upload their unboxing video...</p>
+                                    <>
+                                        <h3>{dir === 'rtl' ? 'فيديو فك التغليف' : 'Unboxing Video Verification'}</h3>
+                                        <p>{dir === 'rtl' ? 'يرجى تحميل فيديو فك التغليف لتأكيد حالة الشحنة المفرغة بنجاح.' : 'Please upload an unboxing video verifying the package contents to close the logistics circle.'}</p>
+                                        
+                                        {selectedOrder.clientVideoUrl ? (
+                                            <div className="video-viewer">
+                                                <p className="success-text">{dir === 'rtl' ? 'تم رفع فيديو فك التغليف الخاص بك بنجاح.' : 'Your unboxing video has been submitted successfully.'}</p>
+                                                <div className="video-player-mock">
+                                                    <FiPlay className="play-icon" />
+                                                    <span>{selectedOrder.clientVideoUrl}</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="upload-zone-premium" onClick={() => !isUploading && fileInputRef.current?.click()}>
+                                                {isUploading ? (
+                                                    <div className="uploading-state">
+                                                        <FiLoader className="animate-spin icon-large" />
+                                                        <span>Uploading video...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="upload-prompt">
+                                                        <FiVideo className="icon-main" />
+                                                        <span>Click to upload unboxing video</span>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="video/*"
+                                                    ref={fileInputRef}
+                                                    style={{ display: 'none' }}
+                                                    onChange={handleUploadUnboxingVideo}
+                                                    disabled={isUploading}
+                                                />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -522,6 +742,20 @@ const Orders = ({ onNavigate, preselectedOrderId, clearPreselectedOrder }) => {
                                 </div>
                             </div>
                         </div>
+
+                        {selectedOrder.depositReceiptUrl && (
+                            <div className="shipment-proof-card card-glass" style={{ marginBottom: '20px' }}>
+                                <h3>{dir === 'rtl' ? 'إيصال الإيداع' : 'DEPOSIT RECEIPT'}</h3>
+                                <div className="proof-content">
+                                    <a href={selectedOrder.depositReceiptUrl} target="_blank" rel="noreferrer" className="proof-image-link">
+                                        <img src={selectedOrder.depositReceiptUrl} alt="Deposit Receipt" className="proof-preview" />
+                                        <div className="proof-overlay-hud">
+                                            <span>VIEW DOCUMENT</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="shipment-proof-card card-glass">
                             <h3>{t.shipmentProof || 'TRANSIT PROOF'}</h3>

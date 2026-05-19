@@ -8,6 +8,7 @@ import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationMo
 import ImageViewerModal from '../../components/ImageViewerModal/ImageViewerModal';
 import { useLanguage } from '../../context/LanguageContext';
 import { toast } from 'react-hot-toast';
+import { walletApi } from '../../api/api';
 
 const MyOffers = ({ onNavigate }) => {
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -16,7 +17,7 @@ const MyOffers = ({ onNavigate }) => {
     const [editData, setEditData] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [offerToDelete, setOfferToDelete] = useState(null);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     let vStatus = localStorage.getItem('verificationStatus') || user.status;
     if (vStatus === 'undefined' || vStatus === 'null') vStatus = null;
@@ -86,6 +87,30 @@ const MyOffers = ({ onNavigate }) => {
     const confirmDelete = (id) => { setOfferToDelete(id); setShowDeleteModal(true); };
     const handleEditOffer = (offer) => { setEditData(offer); setShowCreateModal(true); };
 
+    const handleCreateOfferClick = async () => {
+        if (isPending) {
+            toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
+            return;
+        }
+        if (!user.userId) return;
+        const toastId = toast.loading(language === 'ar' ? 'جاري التحقق من الرصيد...' : 'Checking credit limits...');
+        try {
+            const res = await walletApi.get(`/wallet/can-create-offer?userId=${user.userId}`);
+            if (res.data && res.data.allowed === false) {
+                const errorMsg = language === 'ar'
+                    ? 'ليس لديك رصيد كافٍ لإنشاء عرض. يرجى ترقية اشتراكك أو شراء نقاط مباشرة.'
+                    : 'You do not have enough credit to create an offer. Please try to upgrade your subscription or buy points directly.';
+                toast.error(errorMsg, { id: toastId });
+                return;
+            }
+            toast.dismiss(toastId);
+            setShowCreateModal(true);
+        } catch (err) {
+            console.error('Credit limit check failed:', err);
+            toast.error(language === 'ar' ? 'فشل التحقق من الرصيد. يرجى المحاولة مجدداً.' : 'Failed to verify credit limit. Please try again.', { id: toastId });
+        }
+    };
+
     return (
         <DashboardLayout onNavigate={onNavigate} activePage="offers" contentClassName="orders-layout">
             <div className="my-offers-container">
@@ -96,13 +121,7 @@ const MyOffers = ({ onNavigate }) => {
                     </div>
                     <button 
                         className={`btn-create-offer ${isPending ? 'pending-disabled' : ''}`} 
-                        onClick={() => {
-                            if (isPending) {
-                                toast.error(t.pendingActionError || "Verification in progress. Please wait for account approval.");
-                                return;
-                            }
-                            setShowCreateModal(true);
-                        }}
+                        onClick={handleCreateOfferClick}
                     >
                         <div className="svg-wrapper"><FiPlus size={22} /></div>
                         <span>{t.createOffer}</span>

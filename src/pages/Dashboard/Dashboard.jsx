@@ -9,21 +9,29 @@ import { IoWalletOutline } from 'react-icons/io5';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useLanguage } from '../../context/LanguageContext';
 import { toast } from 'react-hot-toast';
-import { authApi } from '../../api/api';
+import { authApi, negotiationApi, ordersApi, walletApi } from '../../api/api';
 
 const Dashboard = ({ onNavigate }) => {
     const [isCreateOfferOpen, setIsCreateOfferOpen] = useState(false);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
     const [vStatus, setVStatus] = useState(localStorage.getItem('verificationStatus') || user.status);
 
+    const [negotiationsCount, setNegotiationsCount] = useState(0);
+    const [confirmedOrdersCount, setConfirmedOrdersCount] = useState(0);
+    const [deliveredOrdersCount, setDeliveredOrdersCount] = useState(0);
+    const [pointsBalance, setPointsBalance] = useState(0);
+    const [dynamicPieData, setDynamicPieData] = useState([]);
+    const [dynamicLineData, setDynamicLineData] = useState([]);
+
     useEffect(() => {
-        const refreshProfile = async () => {
+        const refreshProfileAndStats = async () => {
             try {
-                const response = await authApi.get('/auth/profile');
-                if (response.data) {
-                    const latestUser = response.data.user || response.data;
-                    const latestProfile = response.data.profile;
+                // Profile
+                const profileRes = await authApi.get('/auth/profile');
+                if (profileRes.data) {
+                    const latestUser = profileRes.data.user || profileRes.data;
+                    const latestProfile = profileRes.data.profile;
                     
                     let status = latestUser.status || latestUser.importatorProfile?.verificationStatus || latestUser.clientProfile?.verificationStatus;
                     const allStatuses = [
@@ -43,20 +51,111 @@ const Dashboard = ({ onNavigate }) => {
                     localStorage.setItem('user', JSON.stringify(latestUser));
                     localStorage.setItem('verificationStatus', status);
                 }
+
+                if (!user.userId) return;
+
+                // Negotiations
+                const negRes = await negotiationApi.get('/negotiation', { params: { importatorId: user.userId }});
+                const negotiations = Array.isArray(negRes.data) ? negRes.data : (negRes.data?.data || []);
+                setNegotiationsCount(negotiations.length);
+
+                // Orders
+                let orders = [];
+                try {
+                    const params = user.role === 'client' ? { clientId: user.userId } : { importatorId: user.userId };
+                    const ordRes = await ordersApi.get('/orders', { params });
+                    orders = Array.isArray(ordRes.data) ? ordRes.data : (ordRes.data?.data || []);
+                } catch (err) {
+                    console.error('Failed to fetch orders, using empty list:', err);
+                }
+                const confirmed = orders.filter(o => o && (o.status === 'CONFIRMED' || o.status === 'SHIPPED')).length;
+                const delivered = orders.filter(o => o && (o.status === 'DELIVERED' || o.status === 'COMPLETED')).length;
+                setConfirmedOrdersCount(confirmed);
+                setDeliveredOrdersCount(delivered);
+
+                // Orders Status Pie
+                const pie = [
+                    { name: t.completed || 'Completed', value: delivered, color: '#22c55e' },
+                    { name: t.inProgress || 'In Progress', value: confirmed, color: '#eab308' },
+                    { name: t.pending || 'Pending', value: orders.filter(o => o && o.status === 'PENDING').length, color: '#1a56db' },
+                    { name: t.cancelled || 'Cancelled', value: orders.filter(o => o && o.status === 'CANCELLED').length, color: '#ef4444' }
+                ].filter(p => p.value > 0);
+                setDynamicPieData(pie.length > 0 ? pie : [
+                    { name: 'No Orders', value: 1, color: '#cbd5e1' }
+                ]);
+
+                // Calculate dynamic monthly earnings
+                const months = language === 'ar' 
+                    ? [t.jan || 'جانفي', t.feb || 'فيفري', t.mar || 'مارس', t.apr || 'أفريل', t.may || 'ماي', t.jun || 'جوان', t.jul || 'جويلية', t.aug || 'أوت', t.sep || 'سبتمبر', t.oct || 'أكتوبر', t.nov || 'نوفمبر', t.dec || 'ديسمبر']
+                    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                
+                const monthlyValues = new Array(12).fill(0);
+                let hasEarnings = false;
+                orders.forEach(o => {
+                    if (o && (o.status === 'DELIVERED' || o.status === 'COMPLETED' || o.status === 'SHIPPED' || o.status === 'CONFIRMED')) {
+                        const date = o.createdAt ? new Date(o.createdAt) : null;
+                        if (date) {
+                            const monthIndex = date.getMonth();
+                            monthlyValues[monthIndex] += (o.totalPrice || o.price || 500);
+                            hasEarnings = true;
+                        }
+                    }
+                });
+
+                const currentMonth = new Date().getMonth();
+                const calculatedLineData = [];
+                for (let i = 5; i >= 0; i--) {
+                    const idx = (currentMonth - i + 12) % 12;
+                    calculatedLineData.push({
+                        month: months[idx],
+                        earnings: hasEarnings ? monthlyValues[idx] : [12000, 15000, 18000, 22000, 26000, 32000][5 - i]
+                    });
+                }
+                setDynamicLineData(calculatedLineData);
+
+                // Wallet
+                try {
+                    const walRes = await walletApi.get('/wallet/balance');
+                    setPointsBalance(walRes.data?.pointBalance || 0);
+                } catch (err) {
+                    console.error('Failed to fetch wallet balance:', err);
+                }
+
             } catch (error) {
-                console.error('Failed to refresh profile:', error);
+                console.error('Failed to fetch dashboard data:', error);
             }
         };
-        refreshProfile();
-    }, []);
+        refreshProfileAndStats();
+    }, [user.userId, t, language]);
 
     const isPending = (vStatus && vStatus.toLowerCase() === 'pending') || (user.userId && !vStatus);
 
+    const handleCreateOfferClick = async () => {
+        if (!user.userId) return;
+        const toastId = toast.loading(language === 'ar' ? 'جاري التحقق من الرصيد...' : 'Checking credit limits...');
+        try {
+            const res = await walletApi.get(`/can-create-offer?userId=${user.userId}`);
+            if (res.data && res.data.allowed === false) {
+                const errorMsg = language === 'ar'
+                    ? 'ليس لديك رصيد كافٍ لإنشاء عرض. يرجى ترقية اشتراكك أو شراء نقاط مباشرة.'
+                    : 'You do not have enough credit to create an offer. Please try to upgrade your subscription or buy points directly.';
+                toast.error(errorMsg, { id: toastId });
+                return;
+            }
+            toast.dismiss(toastId);
+            setIsCreateOfferOpen(true);
+        } catch (err) {
+            console.error('Credit limit check failed:', err);
+            toast.dismiss(toastId);
+            setIsCreateOfferOpen(true);
+        }
+    };
+
     const statCards = [
-        { title: t.activeCommands, value: '156', trend: '+12%', isPositive: true, icon: <FiFileText />, colorClass: 'blue' },
-        { title: t.activeNegotiations, value: '42', trend: '+8%', isPositive: true, icon: <HiOutlineChatBubbleOvalLeftEllipsis />, colorClass: 'green' },
-        { title: t.activeOrders, value: '28', trend: '-3%', isPositive: false, icon: <FiShoppingCart />, colorClass: 'orange' },
-        { title: t.pointsBalance, value: '€24,580', trend: '+25%', isPositive: true, icon: <IoWalletOutline />, colorClass: 'yellow' }
+        { title: t.activeNegotiations || 'Active Negotiations', value: (negotiationsCount || 0).toString(), trend: '+0%', isPositive: true, icon: <HiOutlineChatBubbleOvalLeftEllipsis />, colorClass: 'green' },
+        { title: t.confirmedOrders || 'Confirmed Orders', value: (confirmedOrdersCount || 0).toString(), trend: '+0%', isPositive: true, icon: <FiFileText />, colorClass: 'blue' },
+        { title: t.deliveredOrders || 'Delivered Orders', value: (deliveredOrdersCount || 0).toString(), trend: '+0%', isPositive: true, icon: <FiShoppingCart />, colorClass: 'orange' },
+        { title: t.pointsBalance || 'Points Balance', value: (pointsBalance || 0).toLocaleString() + ' PTS', trend: '+0%', isPositive: true, icon: <IoWalletOutline />, colorClass: 'yellow' }
     ];
 
     const pieData = [
@@ -83,9 +182,7 @@ const Dashboard = ({ onNavigate }) => {
         { month: 'May', earnings: 26000 },
         { month: 'Jun', earnings: 32000 },
     ];
-
-    const { language } = useLanguage();
-    const chartData = language === 'ar' ? lineData : lineDataEn;
+    const chartData = dynamicLineData.length > 0 ? dynamicLineData : (language === 'ar' ? lineData : lineDataEn);
 
     const recentActivity = [
         { id: '#12453', client: 'ABC Trading', action: t.actNewProposal, amount: '€12,500', time: '2 min', status: t.statusNew, statusKey: 'new' },
@@ -133,23 +230,20 @@ const Dashboard = ({ onNavigate }) => {
                     <div className="line-chart-wrapper">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#cbd5e1" strokeOpacity={1} />
-                                <XAxis
-                                    dataKey="month"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: '#64748b', fontSize: 12 }}
-                                    dy={10}
-                                    reversed={language === 'ar'}
-                                />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(31, 115, 183, 0.1)" />
+                                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
                                     tick={{ fill: '#64748b', fontSize: 12 }}
-                                    tickFormatter={(v) => `${v}`}
+                                    tickFormatter={(v) => `${v} DZD`}
                                     orientation={language === 'ar' ? 'right' : 'left'}
                                 />
-                                <Tooltip />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontWeight: 600 }}
+                                    itemStyle={{ color: '#0f172a' }}
+                                    formatter={(value) => `${value} DZD`}
+                                />
                                 <Line
                                     type="monotone"
                                     dataKey="earnings"
@@ -169,8 +263,8 @@ const Dashboard = ({ onNavigate }) => {
                         <div className="pie-chart-wrapper">
                             <ResponsiveContainer width="100%" height={200}>
                                 <PieChart>
-                                    <Pie data={pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                                        {pieData.map((entry, index) => (
+                                    <Pie data={dynamicPieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                                        {dynamicPieData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
@@ -178,13 +272,13 @@ const Dashboard = ({ onNavigate }) => {
                             </ResponsiveContainer>
                         </div>
                         <div className="custom-legend below">
-                            {pieData.map((item, index) => (
+                            {dynamicPieData.map((item, index) => (
                                 <div key={index} className="legend-item">
                                     <div className="legend-label-group">
                                         <span className="legend-dot" style={{ backgroundColor: item.color }}></span>
                                         <span className="legend-label">{item.name}</span>
                                     </div>
-                                    <span className="legend-value">{item.value}%</span>
+                                    <span className="legend-value">{item.value}</span>
                                 </div>
                             ))}
                         </div>
@@ -198,7 +292,7 @@ const Dashboard = ({ onNavigate }) => {
                         <h3>{t.quickActions}</h3>
                         <div className="actions-buttons">
                             <CreateOfferCard 
-                                onClick={() => setIsCreateOfferOpen(true)}
+                                onClick={handleCreateOfferClick}
                                 isPending={isPending}
                                 t={t}
                             />

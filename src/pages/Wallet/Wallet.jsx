@@ -21,11 +21,15 @@ const Wallet = ({ onNavigate }) => {
     const [customPoints, setCustomPoints] = useState('');
     const [selectedPack, setSelectedPack] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('chargily');
+    const [showAllTransactions, setShowAllTransactions] = useState(false);
+
+    const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
         fetchBalance();
         fetchPacks();
-    }, []);
+        fetchTransactions();
+    }, [language]);
 
     const fetchBalance = async () => {
         try {
@@ -34,6 +38,30 @@ const Wallet = ({ onNavigate }) => {
         } catch (error) {
             console.error('Error fetching balance:', error);
             setBalance(0);
+        }
+    };
+
+    const fetchTransactions = async () => {
+        try {
+            const response = await walletApi.get('/wallet/history');
+            const data = response.data?.data || response.data || [];
+            const mapped = data.map(t => {
+                const isPositive = t.points > 0;
+                return {
+                    id: t.id,
+                    date: t.createdAt ? new Date(t.createdAt).toLocaleDateString(language === 'ar' ? 'ar-DZ' : 'en-US') : 'N/A',
+                    type: t.type === 'BUY' ? (language === 'ar' ? 'إيداع' : 'Credit') : (language === 'ar' ? 'خصم' : 'Debit'),
+                    description: t.action === 'ADD_OFFER' 
+                        ? (language === 'ar' ? 'إضافة عرض جديد' : 'New Offer Created')
+                        : (t.purchaseType === 'PACK' ? (language === 'ar' ? 'شراء باقة نقاط' : 'Points Pack Purchase') : (language === 'ar' ? 'شراء نقاط مخصصة' : 'Custom Points Purchase')),
+                    amount: `${isPositive ? '+' : ''}${t.points}`,
+                    status: t.status === 'SUCCESS' ? (language === 'ar' ? 'مكتمل' : 'completed') : (language === 'ar' ? 'معلق' : 'pending'),
+                    isPositive
+                };
+            });
+            setTransactions(mapped);
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
         }
     };
 
@@ -113,8 +141,9 @@ const Wallet = ({ onNavigate }) => {
         }
     };
 
-    const handlePurchase = async () => {
-        if (purchaseType === 'pack' && !selectedPack) {
+    const handlePurchase = async (packToBuy = null) => {
+        const targetPack = packToBuy || selectedPack;
+        if (purchaseType === 'pack' && !targetPack) {
             toast.error(language === 'ar' ? 'يرجى اختيار باقة أولاً' : 'Please select a pack first');
             return;
         }
@@ -140,7 +169,7 @@ const Wallet = ({ onNavigate }) => {
 
             if (purchaseType === 'pack') {
                 response = await walletApi.post('/wallet/purchase/pack', {
-                    packId: selectedPack.id,
+                    packId: targetPack.id,
                     ...redirectUrls
                 });
             } else {
@@ -168,12 +197,7 @@ const Wallet = ({ onNavigate }) => {
         }
     };
 
-    const transactions = [
-        { id: 'TXN-101', date: '2026-02-14', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'الإفراج عن دفعة الطلب - ORD-2026-002' : 'Order Payment Released - ORD-2026-002', amount: '+4 500', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
-        { id: 'TXN-102', date: '2026-02-12', type: language === 'ar' ? 'خصم' : 'Debit', description: language === 'ar' ? 'تجديد الاشتراك - الباقة الممتازة' : 'Subscription Renewal - Premium Plan', amount: '-99', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: false },
-        { id: 'TXN-103', date: '2026-02-10', type: language === 'ar' ? 'إيداع' : 'Credit', description: language === 'ar' ? 'شراء نقاط' : 'Points Purchase', amount: '+1 000', status: language === 'ar' ? 'مكتمل' : 'completed', isPositive: true },
-
-    ];
+    const visibleTransactions = showAllTransactions ? transactions : transactions.slice(0, 3);
 
     const labels = {
         walletTitle: language === 'ar' ? 'المحفظة' : 'Wallet',
@@ -377,13 +401,14 @@ const Wallet = ({ onNavigate }) => {
                         </div>
                     ) : (
                         <div className="pack-cards-container">
-                            {packs.map((pack) => (
+                            {packs.map((pack, idx) => (
                                 <PackCard 
                                     key={pack.id}
                                     pack={pack}
+                                    index={idx}
                                     isSelected={selectedPack?.id === pack.id}
                                     onSelect={(id) => setSelectedPack(packs.find(p => p.id === id))}
-                                    onPurchase={handlePurchase}
+                                    onPurchase={() => handlePurchase(pack)}
                                     t={labels}
                                 />
                             ))}
@@ -437,7 +462,7 @@ const Wallet = ({ onNavigate }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {transactions.map(txn => (
+                                {visibleTransactions.map(txn => (
                                     <tr key={txn.id}>
                                         <td className="date-cell">{txn.date}</td>
                                         <td>
@@ -453,6 +478,27 @@ const Wallet = ({ onNavigate }) => {
                                 ))}
                             </tbody>
                         </table>
+                        {transactions.length > 3 && (
+                            <div style={{ padding: '16px', textAlign: 'center', borderTop: '1px solid #e2e8f0' }}>
+                                <button 
+                                    className="btn-show-more-tx"
+                                    onClick={() => setShowAllTransactions(!showAllTransactions)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#1F73B7',
+                                        fontWeight: '700',
+                                        fontSize: '0.9rem',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    {showAllTransactions ? (language === 'ar' ? 'عرض أقل' : 'Show Less') : (language === 'ar' ? 'عرض المزيد' : 'Show More')}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

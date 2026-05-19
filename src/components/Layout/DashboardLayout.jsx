@@ -7,7 +7,7 @@ import './DashboardLayout.css';
 const DashboardLayout = ({ children, onNavigate, activePage, contentClassName }) => {
     return (
         <div className="dashboard-layout">
-            <Navbar />
+            <Navbar onNavigate={onNavigate} />
             <div className="dashboard-main-content">
                 <Sidebar onNavigate={onNavigate} activePage={activePage} />
                 <div className={`dashboard-content ${contentClassName || ''}`}>

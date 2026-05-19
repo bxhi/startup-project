@@ -28,15 +28,30 @@ const Input = ({
             {label && <label className="input-label">{label}</label>}
             <div className={`input-container ${prefix ? 'input-container--with-prefix' : ''}`} dir={containerDir}>
                 {prefix && <span className="input-prefix">{prefix}</span>}
-                <input
-                    type={inputType}
-                    className={`input-field ${error ? 'input-field--error' : ''} ${icon || isPassword ? 'input-field--with-icon' : ''} ${prefix ? 'input-field--with-prefix' : ''}`}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    disabled={disabled}
-                    {...props}
-                />
+                {type === 'select' ? (
+                    <select
+                        className={`input-field ${error ? 'input-field--error' : ''} ${icon ? 'input-field--with-icon' : ''}`}
+                        value={value}
+                        onChange={onChange}
+                        disabled={disabled}
+                        {...props}
+                    >
+                        {placeholder && <option value="" disabled>{placeholder}</option>}
+                        {props.options?.map((opt, idx) => (
+                            <option key={idx} value={opt.value || opt}>{opt.label || opt}</option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        type={inputType}
+                        className={`input-field ${error ? 'input-field--error' : ''} ${icon || isPassword ? 'input-field--with-icon' : ''} ${prefix ? 'input-field--with-prefix' : ''}`}
+                        placeholder={placeholder}
+                        value={value}
+                        onChange={onChange}
+                        disabled={disabled}
+                        {...props}
+                    />
+                )}
                 {isPassword && (
                     <div className="input-icon" onClick={handleTogglePassword}>
                         {showPassword ? (

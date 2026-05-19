@@ -118,7 +118,11 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
             </div>
 
             <div className="login-header">
-                <h1 className="login-title gradient-heading">Sign in</h1>
+                <div className="login-logo-with-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src="/SILA-LOGO.png" className="login-logo-img" alt="SILA" style={{ height: '125px' }} />
+                </div>
+                <div style={{ height: '1.8px', background: '#264a69', width: '60px', margin: '20px auto 25px  auto' }}></div>
+                <h1 className="login-title" style={{ color: '#283dee', fontWeight: '800' }}>Sign in</h1>
                 <p className="login-subtitle">Welcome back to the platform.</p>
             </div>
 

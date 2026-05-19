@@ -2,16 +2,23 @@ import React from 'react';
 import { FiCheck, FiStar, FiZap, FiBriefcase } from 'react-icons/fi';
 import './PackCard.css';
 
-const PackCard = ({ pack, isSelected, onSelect, onPurchase, t }) => {
-  const getPackType = (pack) => {
+const PackCard = ({ pack, index, isSelected, onSelect, onPurchase, t }) => {
+  const getPackType = (pack, idx) => {
     if (pack.type) return pack.type;
     const name = (pack.name || '').toUpperCase();
     if (name.includes('PRO') || name.includes('احتراف') || name.includes('الاحترافية')) return 'pro';
     if (name.includes('BUSINESS') || name.includes('أعمال') || name.includes('العمل') || name.includes('شركة')) return 'business';
+    if (pack.points === 400 || pack.priceDzd === 2500) return 'pro';
+    if (pack.points === 700 || pack.priceDzd === 4000) return 'business';
+    if (idx !== undefined && idx !== null) {
+      if (idx === 0) return 'basic';
+      if (idx === 1) return 'pro';
+      return 'business';
+    }
     return 'basic';
   };
 
-  const packType = getPackType(pack);
+  const packType = getPackType(pack, index);
 
   const getIcon = (type) => {
     switch (type) {

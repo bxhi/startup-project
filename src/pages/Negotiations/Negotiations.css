@@ -2,6 +2,37 @@
    NEGOTIATIONS — PREMIUM REDESIGN
    ============================================ */
 
+/* Order Creation Modal Enlarge */
+.order-creation-modal {
+    max-width: 750px !important;
+    width: 90% !important;
+    max-height: 95vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 20px 32px 24px !important;
+    overflow: hidden !important;
+}
+
+.order-creation-modal .modal-icon-header {
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.order-creation-modal h2 {
+    margin: 0 0 4px 0 !important;
+}
+
+.order-creation-modal .modal-subtitle-desc {
+    margin-bottom: 12px !important;
+}
+
+.order-creation-modal .order-form-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding-right: 6px;
+    max-height: 55vh !important;
+}
+
 :root {
     --chat-bg: #ffffff;
     --sidebar-bg: #f8fafc;
@@ -174,7 +205,7 @@
 .chat-contact-details {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 4px !important;
 }
 
 .chat-contact-info h3 {
@@ -184,7 +215,7 @@
 }
 
 .chat-command-ref {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #64748b;
     background: #f1f5f9;
     padding: 2px 10px;
@@ -206,14 +237,14 @@
 .chat-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 4px !important;
 }
 
 .create-order-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 4px !important;
 }
 
 .btn-hint {
@@ -1724,3 +1755,18 @@
     }
 }
 
+/* Silent refresh spinner */
+.premium-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(31, 115, 183, 0.15);
+    border-radius: 50%;
+    border-top-color: #1F73B7;
+    animation: premium-spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes premium-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './ClientCommands.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import { ordersApi, negotiationApi } from '../../api/api';
-import { FiSearch, FiFilter, FiList, FiGrid, FiMapPin, FiCalendar, FiWifi, FiInfo, FiClock, FiLoader } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiList, FiGrid, FiMapPin, FiCalendar, FiWifi, FiInfo, FiClock, FiLoader, FiBox } from 'react-icons/fi';
 import { TbListDetails } from 'react-icons/tb';
 import { MdClose } from 'react-icons/md';
 import { FaHandshake } from 'react-icons/fa';
@@ -49,7 +49,7 @@ const ClientCommands = ({ onNavigate }) => {
                     deadline: cmd.createdAt ? new Date(cmd.createdAt).toLocaleDateString() : 'N/A',
                     postedAgo: cmd.createdAt ? new Date(cmd.createdAt).toLocaleDateString() : 'Recently',
                     description: cmd.description || `Order for ${firstItem.productName || 'custom product'}`,
-                    image: (firstItem.productImages && firstItem.productImages[0]) || 'https://images.unsplash.com/photo-1553413077-190dd305871c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+                    image: (firstItem.productImages && firstItem.productImages[0]) || null
                 };
             });
             setCommands(fetchedCommands);
@@ -173,8 +173,9 @@ const ClientCommands = ({ onNavigate }) => {
             <div className="commands-page-container">
                 <div className={`commands-split-view ${selectedCommand ? 'sidebar-open' : ''}`}>
                     <div className="commands-main-column">
-                        <div className="commands-fixed-header">
-                            <div className="commands-header-top">
+                        <div className="commands-scrollable-content">
+                            <div className="commands-header-section">
+                                <div className="commands-header-top">
                                 <div>
                                     <h1>{t.clientCommandsTitle}</h1>
                                     <p>{t.clientCommandsSubtitle}</p>
@@ -237,9 +238,8 @@ const ClientCommands = ({ onNavigate }) => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                            </div>
 
-                        <div className="commands-scrollable-content">
                             {loading ? (
                                 <div className="loading-container">
                                     <FiLoader className="animate-spin" />
@@ -256,7 +256,15 @@ const ClientCommands = ({ onNavigate }) => {
                                         <div className="detailed-view-container">
                                             {filteredCommands.map((cmd) => (
                                                 <div key={cmd.id} className="detailed-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
-                                                    <div className="detailed-image"><img src={cmd.image} alt={cmd.product} /></div>
+                                                    <div className="detailed-image">
+                                                        {cmd.image ? (
+                                                            <img src={cmd.image} alt={cmd.product} />
+                                                        ) : (
+                                                            <div className="glass-placeholder" style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', borderRadius: '16px' }}>
+                                                                <FiBox className="placeholder-icon" style={{ fontSize: '3rem', color: '#cbd5e1' }} />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <div className="detailed-info">
                                                         <div className="detailed-header">
                                                             <h2>{cmd.title}</h2>
@@ -323,7 +331,15 @@ const ClientCommands = ({ onNavigate }) => {
                                         <div className="grid-view-container">
                                             {filteredCommands.map((cmd) => (
                                                 <div key={cmd.id} className="grid-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
-                                                    <div className="grid-image"><img src={cmd.image} alt={cmd.product} /></div>
+                                                    <div className="grid-image">
+                                                        {cmd.image ? (
+                                                            <img src={cmd.image} alt={cmd.product} />
+                                                        ) : (
+                                                            <div className="glass-placeholder" style={{ height: '180px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9' }}>
+                                                                <FiBox className="placeholder-icon" style={{ fontSize: '3rem', color: '#cbd5e1' }} />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <div className="grid-content">
                                                         <h3 className="grid-title">{cmd.title}</h3>
                                                         <p className="grid-budget">{cmd.budget}</p>
@@ -355,7 +371,15 @@ const ClientCommands = ({ onNavigate }) => {
                                     <button className="close-sidebar-btn" onClick={() => setSelectedCommand(null)}><MdClose /></button>
                                 </div>
                                 <div className="details-sidebar-content">
-                                    <div className="details-sidebar-image"><img src={selectedCommand.image} alt={selectedCommand.product} /></div>
+                                    <div className="details-sidebar-image">
+                                        {selectedCommand.image ? (
+                                            <img src={selectedCommand.image} alt={selectedCommand.product} />
+                                        ) : (
+                                            <div className="glass-placeholder" style={{ height: '200px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', borderRadius: '16px' }}>
+                                                <FiBox className="placeholder-icon" style={{ fontSize: '3rem', color: '#cbd5e1' }} />
+                                            </div>
+                                        )}
+                                    </div>
                                     <h3 className="details-sidebar-title">{selectedCommand.title}</h3>
                                     <p className="details-sidebar-desc">{selectedCommand.description}</p>
                                     <div className="details-sidebar-info-grid">

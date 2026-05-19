@@ -3,6 +3,16 @@
    Ultra-premium, simple, primary-focused, and pixel-perfect.
 */
 
+/* Center Point Packs Grid */
+.pack-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    align-items: stretch;
+    margin-bottom: 32px;
+}
+
 .wallet-container {
     --primary: #1F73B7;
     --primary-light: #eaf3fb;
