@@ -81,8 +81,10 @@ const createAPI = (baseURL) => {
                     }
                 } catch (refreshError) {
                     console.error('Token refresh failed:', refreshError);
-                    // Only log out if it is an explicit auth rejection (401, 403, 400)
-                    const isAuthFailure = refreshError.response && 
+                    
+                    // If the refresh token request fails (either via 401/403/400 or because of a CORS/Network error),
+                    // clear the expired tokens and redirect to the login screen to break the deadlock.
+                    const isAuthFailure = !refreshError.response || 
                         (refreshError.response.status === 401 || refreshError.response.status === 403 || refreshError.response.status === 400);
                     
                     if (isAuthFailure) {
