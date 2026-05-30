@@ -257,12 +257,10 @@ const SignUp = ({ onNavigate }) => {
 
     const nextStep = () => {
         setStep(prev => Math.min(prev + 1, 4));
-        setError(''); // Clear error list on navigation
     };
 
     const prevStep = () => {
         setStep(prev => Math.max(prev - 1, 1));
-        setError(''); // Clear error list on navigation
     };
 
     const [loading, setLoading] = useState(false);
@@ -775,13 +773,14 @@ const SignUp = ({ onNavigate }) => {
                 <div className="floating-logistics-icon icon-drift-6"><LuShoppingBag /></div>
             </div>
 
-            <div className="signup-header">
-                <div className="login-logo-with-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <img src="/SILA-LOGO.png" className="login-logo-img" alt="SILA" style={{ height: '125px' }} />
+            <div className="signup-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
+                    <div className="brand-horizontal" style={{ display: 'flex', alignItems: 'center', gap: '30px', justifyContent: 'center' }}>
+                    <img src="/SILA-LOGO.png" className="signup-logo-img" alt="SILA" style={{ height: '120px', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))', objectFit: 'contain' }}  />
+                    <div style={{ width: '5px', height: '50px', background: 'linear-gradient(180deg, rgba(26,86,219,0), rgba(26,86,219,0.8), rgba(26,86,219,0))', borderRadius: '4px' }}></div>
+                    <h1 className="login-title" style={{ color: '#1a56db', fontWeight: '800', margin: 0, fontSize: '1.5rem', lineHeight: '30px' }}>{t.signupMainTitle || 'Join us'}</h1>
+               
                 </div>
-                <div style={{ height: '1.8px', background: '#264a69', width: '60px', margin: '20px auto 25px  auto' }}></div>
-                <h1 className="signup-main-title" style={{ color: '#283dee', fontWeight: '800' }}>Join us</h1>
-                <p className="signup-subtitle">Join our premium importer network today.</p>
+                <p className="signup-subtitle" style={{ color: '#475569', fontSize: '1.05rem', fontWeight: '500'}}>{t.signupSubtitle || 'Join our premium importer network today.'}</p>
             </div>
 
             <Card className="signup-card">

@@ -477,45 +477,35 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
     position: relative;
+    cursor: default;
+    padding: 10px;
 }
 
 .login-logo-img {
-    height: 150px;
+    height: 120px;
     width: auto;
     object-fit: contain;
     flex-shrink: 0;
-    mix-blend-mode: multiply;
-    filter:
-        drop-shadow(0 0 18px rgba(31, 115, 183, 0.4)) drop-shadow(0 6px 24px rgba(14, 165, 233, 0.3)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.06));
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.login-logo-with-text:hover .login-logo-img {
-    transform: scale(1.1) translateY(-6px);
-    filter:
-        drop-shadow(0 0 28px rgba(31, 115, 183, 0.6)) drop-shadow(0 10px 36px rgba(14, 165, 233, 0.45)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
+.logo-separator {
+    width: 4px;
+    height: 70px;
+    background: linear-gradient(180deg, rgba(26,86,219,0) 0%, rgba(26,86,219,0.65) 50%, rgba(26,86,219,0) 100%);
+    border-radius: 4px;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-
-
-.login-logo-with-text .login-title {
+.login-title {
+    color: #1a56db;
+    font-size: 2.8rem !important;
+    font-weight: 800 !important;
     margin: 0 !important;
-    font-size: 2.4rem !important;
-    font-weight: 950 !important;
-    letter-spacing: -0.04em !important;
+    letter-spacing: -0.02em !important;
     line-height: 1.1 !important;
     text-align: left !important;
-}
-
-.login-logo-tagline {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.35);
-    margin-top: 5px;
-    text-align: left;
 }

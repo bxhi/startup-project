@@ -28,10 +28,21 @@ function AppContent() {
 
   const { dir, language, t } = useLanguage();
   
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+  const [user, setUser] = useState(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr === 'undefined' || !userStr) return {};
+    try { return JSON.parse(userStr); } catch(e) { return {}; }
+  });
+  
   const [vStatus, setVStatus] = useState(() => {
-    let status = localStorage.getItem('verificationStatus') || JSON.parse(localStorage.getItem('user') || '{}').status;
-    if (status === 'undefined' || status === 'null') return null;
+    let status = localStorage.getItem('verificationStatus');
+    if (!status || status === 'undefined' || status === 'null') {
+      const userStr = localStorage.getItem('user');
+      if (userStr && userStr !== 'undefined' && userStr !== 'null') {
+        try { status = JSON.parse(userStr).status; } catch(e) {}
+      }
+    }
+    if (status === 'undefined' || status === 'null' || !status) return null;
     return status;
   });
 

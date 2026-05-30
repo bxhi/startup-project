@@ -50,6 +50,9 @@ export const translations = {
         typeAMessage: 'Type a message...',
         activeOrders: 'Active Orders',
         pointsBalance: 'Points Balance',
+        confirmedOrders: 'Confirmed Orders',
+        deliveredOrders: 'Delivered Orders',
+        ptsUnit: 'PTS',
         earningsOverview: 'Revenue Overview',
         monthlyEarnings: 'Monthly earnings trend',
         revenueTrend: 'Monthly earnings trend',
@@ -268,7 +271,7 @@ export const translations = {
         noOrdersMsg: 'No orders found yet. Start browsing deals to make your first trade!',
 
         // Auth Pages (Login & SignUp)
-        loginTitle: 'importers',
+        loginTitle: 'Log In',
         loginSubtitle: 'Welcome back! Please login to your account.',
         emailLabel: 'Email',
         emailPlaceholder: 'your.email@example.com',
@@ -282,7 +285,7 @@ export const translations = {
         registerAsBusiness: 'Register as Business',
         loginFooter: '© 2026 Importers. All rights reserved.',
 
-        signupMainTitle: 'importers',
+        signupMainTitle: 'Sign Up',
         signupSubtitle: 'Register your business account',
         businessNameLabel: 'Business Name',
         businessNamePlaceholder: 'Enter business name',
@@ -444,6 +447,9 @@ export const translations = {
         typeAMessage: 'اكتب رسالة...',
         activeOrders: 'الأوامر النشطة',
         pointsBalance: 'رصيد النقاط',
+        confirmedOrders: 'الطلبات المؤكدة',
+        deliveredOrders: 'الطلبات المستلمة',
+        ptsUnit: 'نقطة',
         earningsOverview: 'نظرة عامة على الأرباح',
         monthlyEarnings: 'الاتجاه الشهري للأرباح',
         revenueTrend: 'الاتجاه الشهري للأرباح',
@@ -658,7 +664,7 @@ export const translations = {
         noOrdersMsg: 'لم يتم العثور على طلبات بعد. ابدأ في تصفح العروض لإجراء أول صفقة لك!',
 
         // Auth Pages (Login & SignUp)
-        loginTitle: 'المستوردين',
+        loginTitle: 'سجل دخولك',
         loginSubtitle: 'مرحباً بعودتك! يرجى تسجيل الدخول إلى حسابك.',
         emailLabel: 'البريد الإلكتروني',
         emailPlaceholder: 'your.email@example.com',
@@ -669,10 +675,10 @@ export const translations = {
         loginButton: 'تسجيل الدخول',
         loggingInButton: 'جاري تسجيل الدخول...',
         noAccount: "ليس لديك حساب؟",
-        registerAsBusiness: 'سجل كشركة',
+        registerAsBusiness: 'سجل كمورد',
         loginFooter: '© 2026 تطبيق المستوردين. جميع الحقوق محفوظة.',
 
-        signupMainTitle: 'المستوردين',
+        signupMainTitle: 'أنشئ حساب',
         signupSubtitle: 'سجل حساب شركتك',
         businessNameLabel: 'اسم الشركة',
         businessNamePlaceholder: 'أدخل اسم الشركة',
@@ -834,6 +840,9 @@ export const translations = {
         typeAMessage: 'Tapez un message...',
         activeOrders: 'Commandes en Cours',
         pointsBalance: 'Solde de Points',
+        confirmedOrders: 'Commandes Confirmées',
+        deliveredOrders: 'Commandes Livrées',
+        ptsUnit: 'PTS',
         earningsOverview: 'Aperçu des Gains',
         monthlyEarnings: 'Tendance des gains mensuels',
         revenueTrend: 'Tendance des gains mensuels',
@@ -1040,7 +1049,7 @@ export const translations = {
         noOrdersMsg: 'Aucune commande trouvée. Commencez à parcourir les offres pour réaliser votre première transaction !',
 
         // Auth Pages (Login & SignUp)
-        loginTitle: 'importateurs',
+        loginTitle: 'se connecter',
         loginSubtitle: 'Bon retour ! Veuillez vous connecter.',
         emailLabel: 'Email',
         emailPlaceholder: 'votre.email@exemple.com',
@@ -1051,11 +1060,11 @@ export const translations = {
         loginButton: 'Se connecter',
         loggingInButton: 'Connexion...',
         noAccount: "Vous n'avez pas de compte ?",
-        registerAsBusiness: "S'inscrire en tant qu'entreprise",
+        registerAsBusiness: "S'inscrire en tant qu'importateur",
         loginFooter: '© 2026 Importateurs. Tous droits réservés.',
 
-        signupMainTitle: 'importateurs',
-        signupSubtitle: 'Enregistrez votre compte entreprise',
+        signupMainTitle: 'S\'inscrire',
+        signupSubtitle: 'Enregistrez votre compte importateur',
         businessNameLabel: 'Nom de l\'Entreprise',
         businessNamePlaceholder: 'Entrez le nom de l\'entreprise',
         ownerNameLabel: 'Nom Complet du Propriétaire',

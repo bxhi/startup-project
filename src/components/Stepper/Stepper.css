@@ -51,7 +51,7 @@
 .stepper-connector {
   position: absolute;
   top: 22px;
-  left: calc(50% + 45px);
+  inset-inline-start: calc(50% + 45px);
   width: calc(100% - 90px);
   height: 2px;
   background: #cbd5e1;

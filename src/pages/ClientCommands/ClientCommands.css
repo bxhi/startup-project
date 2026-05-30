@@ -1704,3 +1704,51 @@
         justify-content: center;
     }
 }
+
+/* Blurred Commands Wrapper */
+.blurred-commands-wrapper {
+    position: relative;
+    margin-top: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.blurred-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.9) 100%);
+}
+
+.overlay-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 32px 48px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(31, 115, 183, 0.15);
+    border: 1px solid rgba(31, 115, 183, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-width: 400px;
+}
+
+.overlay-content h3 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin: 0;
+}
+
+.overlay-content p {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}

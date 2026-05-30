@@ -98,8 +98,8 @@ const MyOffers = ({ onNavigate }) => {
             const res = await walletApi.get(`/wallet/can-create-offer?userId=${user.userId}`);
             if (res.data && res.data.allowed === false) {
                 const errorMsg = language === 'ar'
-                    ? 'ليس لديك رصيد كافٍ لإنشاء عرض. يرجى ترقية اشتراكك أو شراء نقاط مباشرة.'
-                    : 'You do not have enough credit to create an offer. Please try to upgrade your subscription or buy points directly.';
+                    ? 'يرجى ترقية اشتراكك بإحدى الباقات أو شراء نقاط للمتابعة.'
+                    : 'Please upgrade with one of the packs or buy points to create a new offer.';
                 toast.error(errorMsg, { id: toastId });
                 return;
             }

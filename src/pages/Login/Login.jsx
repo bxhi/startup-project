@@ -117,13 +117,13 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
                 <div className="floating-logistics-icon icon-drift-6"><LuShoppingBag /></div>
             </div>
 
-            <div className="login-header">
-                <div className="login-logo-with-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <img src="/SILA-LOGO.png" className="login-logo-img" alt="SILA" style={{ height: '125px' }} />
+            <div className="login-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
+                <div className="brand-horizontal" style={{ display: 'flex', alignItems: 'center', gap: '30px', justifyContent: 'center' }}>
+                    <img src="/SILA-LOGO.png" className="login-logo-img" alt="SILA" style={{ height: '120px', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))', objectFit: 'contain' }} />
+                    <div style={{ width: '4px', height: '50px', background: 'linear-gradient(180deg, rgba(26,86,219,0), rgba(26,86,219,0.8), rgba(26,86,219,0))', borderRadius: '4px' }}></div>
+                    <h1 className="login-title" style={{ color: '#1a56db', fontWeight: '800', margin: 0, fontSize: '1.5rem', lineHeight: '30px' }}>{t.loginTitle || 'Sign in'}</h1>
                 </div>
-                <div style={{ height: '1.8px', background: '#264a69', width: '60px', margin: '20px auto 25px  auto' }}></div>
-                <h1 className="login-title" style={{ color: '#283dee', fontWeight: '800' }}>Sign in</h1>
-                <p className="login-subtitle">Welcome back to the platform.</p>
+                <p className="login-subtitle" style={{ color: '#475569', fontSize: '1rem', fontWeight: '500',  }}>{t.loginSubtitle || 'Welcome back to the platform.'}</p>
             </div>
 
             <Card className="login-card">
@@ -170,7 +170,7 @@ const Login = ({ onNavigate, onForgotPassword, onLoginSuccess }) => {
                         {loading ? 'Entering...' : 'Sign in'}
                     </Button>
                     <div className="register-link">
-                        New here? <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Join us</a>
+                        {t.noAccount || "New here?"} <a href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>{t.registerAsBusiness || "Join us"}</a>
                     </div>
                 </form>
             </Card>

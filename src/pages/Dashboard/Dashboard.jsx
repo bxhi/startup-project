@@ -134,11 +134,11 @@ const Dashboard = ({ onNavigate }) => {
         if (!user.userId) return;
         const toastId = toast.loading(language === 'ar' ? 'جاري التحقق من الرصيد...' : 'Checking credit limits...');
         try {
-            const res = await walletApi.get(`/can-create-offer?userId=${user.userId}`);
+            const res = await walletApi.get(`/wallet/can-create-offer?userId=${user.userId}`);
             if (res.data && res.data.allowed === false) {
                 const errorMsg = language === 'ar'
-                    ? 'ليس لديك رصيد كافٍ لإنشاء عرض. يرجى ترقية اشتراكك أو شراء نقاط مباشرة.'
-                    : 'You do not have enough credit to create an offer. Please try to upgrade your subscription or buy points directly.';
+                    ? 'يرجى ترقية اشتراكك بإحدى الباقات أو شراء نقاط للمتابعة.'
+                    : 'Please upgrade with one of the packs or buy points to create a new offer.';
                 toast.error(errorMsg, { id: toastId });
                 return;
             }
@@ -155,7 +155,7 @@ const Dashboard = ({ onNavigate }) => {
         { title: t.activeNegotiations || 'Active Negotiations', value: (negotiationsCount || 0).toString(), trend: '+0%', isPositive: true, icon: <HiOutlineChatBubbleOvalLeftEllipsis />, colorClass: 'green' },
         { title: t.confirmedOrders || 'Confirmed Orders', value: (confirmedOrdersCount || 0).toString(), trend: '+0%', isPositive: true, icon: <FiFileText />, colorClass: 'blue' },
         { title: t.deliveredOrders || 'Delivered Orders', value: (deliveredOrdersCount || 0).toString(), trend: '+0%', isPositive: true, icon: <FiShoppingCart />, colorClass: 'orange' },
-        { title: t.pointsBalance || 'Points Balance', value: (pointsBalance || 0).toLocaleString() + ' PTS', trend: '+0%', isPositive: true, icon: <IoWalletOutline />, colorClass: 'yellow' }
+        { title: t.pointsBalance || 'Points Balance', value: (pointsBalance || 0).toLocaleString() + ' ' + (t.ptsUnit || 'PTS'), trend: '+0%', isPositive: true, icon: <IoWalletOutline />, colorClass: 'yellow' }
     ];
 
     const pieData = [
@@ -201,14 +201,16 @@ const Dashboard = ({ onNavigate }) => {
             <div className="stat-cards-container">
                 {statCards.map((card, index) => (
                     <div key={index} className="stat-card">
-                        <div className={`icon-container ${card.colorClass}`}>{card.icon}</div>
-                        <div className={`trend ${card.isPositive ? 'positive' : 'negative'}`}>
-                            {card.isPositive ? <FiArrowUpRight /> : <FiArrowDownRight />}
-                            <span>{card.trend.replace('+', '').replace('-', '')}</span>
+                        <div className="stat-card-top">
+                            <div className={`icon-container ${card.colorClass}`}>{card.icon}</div>
+                            <div className={`trend-badge ${card.isPositive ? 'positive' : 'negative'}`}>
+                                {card.isPositive ? <FiArrowUpRight /> : <FiArrowDownRight />}
+                                <span>{card.trend.replace('+', '').replace('-', '')}</span>
+                            </div>
                         </div>
-                        <div className="stat-content">
-                            <h3>{card.value}</h3>
-                            <p>{card.title}</p>
+                        <div className="stat-card-bottom">
+                            <h3 className="stat-value">{card.value}</h3>
+                            <p className="stat-label">{card.title}</p>
                         </div>
                     </div>
                 ))}
@@ -307,16 +309,16 @@ const Dashboard = ({ onNavigate }) => {
                         <h3>{t.thisMonth}</h3>
                         <div className="month-stats-grid">
                             <div className="month-stat-item">
+                                <span className="stat-value">4.8</span>
+                                <span className="stat-label">{t.avgRating}</span>
+                            </div>
+                            <div className="month-stat-item border-left">
                                 <span className="stat-value">€31,240</span>
                                 <span className="stat-label">{t.totalEarnings}</span>
                             </div>
                             <div className="month-stat-item border-left">
                                 <span className="stat-value">18</span>
                                 <span className="stat-label">{t.ordersCompleted}</span>
-                            </div>
-                            <div className="month-stat-item border-left">
-                                <span className="stat-value">4.8</span>
-                                <span className="stat-label">{t.avgRating}</span>
                             </div>
                         </div>
                     </div>

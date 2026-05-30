@@ -87,6 +87,10 @@ const ClientCommands = ({ onNavigate }) => {
         return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesBudget;
     });
 
+    const VISIBLE_LIMIT = 3;
+    const visibleCommands = filteredCommands.slice(0, VISIBLE_LIMIT);
+    const blurredCommands = filteredCommands.slice(VISIBLE_LIMIT);
+
     const handleProposalMessageChange = (e) => {
         const val = e.target.value;
         setProposalData(prev => ({ ...prev, message: val }));
@@ -254,7 +258,7 @@ const ClientCommands = ({ onNavigate }) => {
                                 <>
                                     {viewMode === 'detailed' && (
                                         <div className="detailed-view-container">
-                                            {filteredCommands.map((cmd) => (
+                                            {visibleCommands.map((cmd) => (
                                                 <div key={cmd.id} className="detailed-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
                                                     <div className="detailed-image">
                                                         {cmd.image ? (
@@ -289,6 +293,27 @@ const ClientCommands = ({ onNavigate }) => {
                                                     </div>
                                                 </div>
                                             ))}
+                                            {blurredCommands.length > 0 && (
+                                                <div className="blurred-commands-wrapper">
+                                                    <div className="blurred-overlay">
+                                                        <div className="overlay-content">
+                                                            <h3>{language === 'ar' ? 'اكتشف المزيد من الطلبات' : 'Unlock More Commands'}</h3>
+                                                            <p>{language === 'ar' ? 'قم بشراء نقاط لرؤية المزيد من طلبات العملاء وإرسال العروض.' : 'Buy points to see more client commands and send proposals.'}</p>
+                                                            <button className="btn-send-proposal cool-send-btn" onClick={() => toast.info('Redirecting to points purchase...')}>
+                                                                <span>{language === 'ar' ? 'شراء نقاط' : 'Buy Points'}</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="blurred-content" style={{ filter: 'blur(8px)', opacity: 0.6 }}>
+                                                        {blurredCommands.slice(0, 2).map((cmd) => (
+                                                            <div key={cmd.id} className="detailed-card" style={{ minHeight: '300px' }}>
+                                                                <div className="detailed-image"><div className="glass-placeholder"></div></div>
+                                                                <div className="detailed-info"><div className="detailed-header"><h2>Locked Command</h2></div></div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
@@ -307,7 +332,7 @@ const ClientCommands = ({ onNavigate }) => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {filteredCommands.map((cmd) => (
+                                                    {visibleCommands.map((cmd) => (
                                                         <tr key={cmd.id} onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
                                                             <td className="cmd-id">{cmd.id}</td>
                                                             <td className="cmd-product">{cmd.product}</td>
@@ -322,6 +347,28 @@ const ClientCommands = ({ onNavigate }) => {
                                                             </td>
                                                         </tr>
                                                     ))}
+                                                    {blurredCommands.length > 0 && (
+                                                        <tr>
+                                                            <td colSpan="7" style={{ position: 'relative', padding: 0 }}>
+                                                                <div className="blurred-commands-wrapper" style={{ minHeight: '150px' }}>
+                                                                    <div className="blurred-overlay" style={{ background: 'rgba(255,255,255,0.8)' }}>
+                                                                        <div className="overlay-content">
+                                                                            <h3>{language === 'ar' ? 'اكتشف المزيد من الطلبات' : 'Unlock More Commands'}</h3>
+                                                                            <button className="btn-send-proposal cool-send-btn" style={{ minHeight: '40px', height: '40px' }} onClick={() => toast.info('Redirecting to points purchase...')}>
+                                                                                <span>{language === 'ar' ? 'شراء نقاط' : 'Buy Points'}</span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="blurred-content">
+                                                                        <div style={{ padding: '20px', filter: 'blur(5px)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                                            <div style={{ height: '40px', background: '#f1f5f9', borderRadius: '8px' }}></div>
+                                                                            <div style={{ height: '40px', background: '#f1f5f9', borderRadius: '8px' }}></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -329,7 +376,7 @@ const ClientCommands = ({ onNavigate }) => {
 
                                     {viewMode === 'grid' && (
                                         <div className="grid-view-container">
-                                            {filteredCommands.map((cmd) => (
+                                            {visibleCommands.map((cmd) => (
                                                 <div key={cmd.id} className="grid-card" onClick={() => setSelectedCommand(cmd)} style={{ cursor: 'pointer' }}>
                                                     <div className="grid-image">
                                                         {cmd.image ? (
@@ -353,6 +400,27 @@ const ClientCommands = ({ onNavigate }) => {
                                                     </div>
                                                 </div>
                                             ))}
+                                            {blurredCommands.length > 0 && (
+                                                <div className="blurred-commands-wrapper grid-span-all" style={{ gridColumn: '1 / -1' }}>
+                                                    <div className="blurred-overlay">
+                                                        <div className="overlay-content">
+                                                            <h3>{language === 'ar' ? 'اكتشف المزيد من الطلبات' : 'Unlock More Commands'}</h3>
+                                                            <p>{language === 'ar' ? 'قم بشراء نقاط لرؤية المزيد من طلبات العملاء وإرسال العروض.' : 'Buy points to see more client commands and send proposals.'}</p>
+                                                            <button className="btn-send-proposal cool-send-btn" onClick={() => toast.info('Redirecting to points purchase...')}>
+                                                                <span>{language === 'ar' ? 'شراء نقاط' : 'Buy Points'}</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="blurred-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+                                                        {blurredCommands.slice(0, 3).map((cmd) => (
+                                                            <div key={cmd.id} className="grid-card" style={{ filter: 'blur(8px)', opacity: 0.6 }}>
+                                                                <div className="grid-image"><div className="glass-placeholder"></div></div>
+                                                                <div className="grid-content"><h3 className="grid-title">Locked Command</h3></div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </>
