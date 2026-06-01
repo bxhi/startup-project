@@ -1,0 +1,85 @@
+\chapter{Contribution and Design}
+
+\section{Introduction}
+This chapter bridges the gap between the conceptual problem and the technical solution. We present the system requirements that outline what Sila DZ must accomplish and how it should perform. Furthermore, we provide the architectural blueprints using Unified Modeling Language (UML) diagrams to visualize the system's behavior and structure.
+
+\section{System Requirements}
+
+\subsection{Functional Requirements}
+Functional requirements define the specific behaviors and functions the system must support.
+\begin{itemize}
+    \item \textbf{User Management:} The system must allow users to register as Clients or Importers. It must support a strict identity verification process (ID card and live camera) for Importers.
+    \item \textbf{Offer Management:} Importers must be able to create, update, and delete product offers. They can also use "Points" to boost these offers.
+    \item \textbf{Order Creation:} Clients must be able to browse offers, select products, and initiate custom orders.
+    \item \textbf{Negotiation System:} The platform must provide a real-time chat interface where clients and importers can negotiate pricing and terms before order confirmation.
+    \item \textbf{Payment and Tracking:} The system must handle down payments to secure orders and provide a step-by-step real-time tracking dashboard for shipment visibility.
+    \item \textbf{Administration:} An admin dashboard must be available to moderate users, resolve disputes, and monitor platform statistics.
+\end{itemize}
+
+\subsection{Non-Functional Requirements}
+Non-functional requirements specify the criteria that judge the operation of a system.
+\begin{itemize}
+    \item \textbf{Security:} Passwords must be encrypted. API endpoints must be secured using JSON Web Tokens (JWT). Financial transactions must be processed through secure gateways.
+    \item \textbf{Performance \& Scalability:} The system must handle multiple concurrent users and real-time WebSocket connections without latency. A microservices architecture is required to scale services independently.
+    \item \textbf{Usability (UI/UX):} The interface must be highly intuitive, responsive across all devices, and support Right-to-Left (RTL) layouts for the Arabic language.
+    \item \textbf{Availability:} The platform must aim for 99.9\% uptime, ensuring importers and clients can access their dashboards at any time.
+\end{itemize}
+
+\section{System Modeling (UML)}
+To formalize our system's design, we utilize UML diagrams. In this section, we present the conceptual models that guided the implementation phase.
+
+\subsection{Use Case Diagram}
+The Use Case Diagram illustrates the interactions between the external actors (Client, Importer, Administrator) and the system's core functionalities. It provides a high-level view of what each user role is permitted to do.
+
+% =========== PLACEHOLDER USE CASE DIAGRAM ===========
+\begin{figure}[H]
+    \centering
+    % UNCOMMENT THE LINE BELOW AND ADD YOUR IMAGE PATH
+    % \includegraphics[width=0.9\textwidth]{assets/usecase_diagram.png}
+    \vspace{8cm} % Temporary space
+    \caption{Use Case Diagram of Sila DZ}
+    \label{fig:usecase}
+\end{figure}
+% ====================================================
+
+\subsection{Sequence Diagram: Order Process}
+The Sequence Diagram details the chronological flow of messages and interactions between the Client, the Importer, and the internal microservices during the creation and validation of an order.
+
+% =========== PLACEHOLDER SEQUENCE DIAGRAM ===========
+\begin{figure}[H]
+    \centering
+    % UNCOMMENT THE LINE BELOW AND ADD YOUR IMAGE PATH
+    % \includegraphics[width=0.9\textwidth]{assets/sequence_diagram.png}
+    \vspace{8cm} % Temporary space
+    \caption{Sequence Diagram of the Order Process}
+    \label{fig:sequence}
+\end{figure}
+% ====================================================
+
+\subsection{State Diagram: Order Lifecycle}
+An order in Sila DZ goes through various stages from its inception to final delivery. The State Diagram maps out these transitions (e.g., Pending, Negotiating, Paid, Shipped, Delivered).
+
+% =========== PLACEHOLDER STATE DIAGRAM ===========
+\begin{figure}[H]
+    \centering
+    % UNCOMMENT THE LINE BELOW AND ADD YOUR IMAGE PATH
+    % \includegraphics[width=0.9\textwidth]{assets/state_diagram.png}
+    \vspace{8cm} % Temporary space
+    \caption{State Diagram of an Order Lifecycle}
+    \label{fig:state}
+\end{figure}
+% ====================================================
+
+\subsection{Class Diagram}
+The Class Diagram represents the static structure of the Sila DZ database and backend logic, illustrating the entities (User, Order, Offer, Message), their attributes, methods, and the relationships between them.
+
+% =========== PLACEHOLDER CLASS DIAGRAM ===========
+\begin{figure}[H]
+    \centering
+    % UNCOMMENT THE LINE BELOW AND ADD YOUR IMAGE PATH
+    % \includegraphics[width=0.95\textwidth]{assets/class_diagram.png}
+    \vspace{8cm} % Temporary space
+    \caption{Class Diagram of the Sila DZ System}
+    \label{fig:class}
+\end{figure}
+% ====================================================

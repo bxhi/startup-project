@@ -1,0 +1,94 @@
+% Packages
+% Encoding and Language Support
+\usepackage{polyglossia}             % Multiple language support
+\setdefaultlanguage{english}         % Set default language to English
+\setotherlanguage{arabic}            % Set secondary language to Arabic
+\newfontfamily\arabicfont[Script=Arabic]{Amiri} % Arabic font
+
+% Font and Formatting
+\usepackage{lmodern}                 % Latin Modern fonts
+\usepackage{amsmath}                 % AMS Math packages
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{romannum}                % Roman numeral support
+\usepackage{indentfirst}             % Indent first paragraph
+
+% Graphics and Colors
+\usepackage{graphicx}                % Enhanced graphics support
+\usepackage{xcolor}                  % Enhanced color support
+\usepackage{subfigure}               % Subfigure support
+\usepackage[table]{xcolor}           % Color support for tables
+
+% Hyperlinks
+\usepackage{hyperref}                % Hyperlink support
+\hypersetup{
+  colorlinks = true,                 % Enable colored links
+  urlcolor = black,                   % URL color
+  linkcolor = black,                  % Link color
+  citecolor = black                   % Citation color
+}
+
+% Tables
+\usepackage{tabularx}                % Extra features for tabular environment
+\usepackage{array}                   % Array and tabular environments
+\usepackage{booktabs}                % Enhancements for tabular
+\usepackage{multirow}                % Multi-row support
+\usepackage{tabu}                    % Flexible tabular support
+
+% Floating elements
+\usepackage{float}                   % Enhanced floating support
+\usepackage{wrapfig}                 % Wrap text around figures
+
+% Captions
+\usepackage[compatibility=false]{caption} % Customisation of captions
+
+% Glossaries and Acronyms
+% Removed glossaries to prevent arYE tracklang errors
+
+% Bibliography
+\usepackage[backend=biber,sorting=none]{biblatex} % Bibliography support
+\addbibresource{references.bib}      % Path to the bibliography file
+\usepackage{etoolbox}
+\apptocmd{\bibsetup}{\sloppy}{}{}
+
+% Lists
+\usepackage{listofitems}             % Handling lists of items
+
+% Diagrams and Plots
+%\usepackage{tikz}                    % TikZ for drawing
+%\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows,arrows.meta}
+%\tikzset{>=latex}                    % Set default arrow style
+
+% Page Layout
+\usepackage[top=1.3cm, bottom=1.5cm, left=2.5cm, right=2.5cm, headheight=15pt]{geometry} % Page margins
+\sloppy % Prevent overfull hboxes
+
+% Chapter and Section Titles
+%\usepackage[Glenn]{fncychap}         % Fancy chapter headers (Removed to prevent timeout)
+\usepackage{titlesec}                % Custom section titles
+\def\toclevel@subsubsubsection{4}    % Sub-sub-subsections in TOC
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\setcounter{secnumdepth}{4}          % Numbering depth
+\setcounter{tocdepth}{4}             % TOC depth
+
+% Miscellaneous
+\usepackage{pdflscape}               % Landscape support in PDF
+\usepackage{footmisc}                % Footnote support
+\usepackage[outline]{contour}        % Contour support for text
+\contourlength{1.4pt}
+\usepackage[normalem]{ulem}          % Underlining support
+\title{Sila_DZ_PFE}              % Document title
+\usepackage{lipsum}                  % Lorem ipsum dummy text
+
+% Custom Commands
+\newcommand{\challenge}[2]{
+\vspace{1ex}
+\textbf{Research task {#1}}: \emph{#2}
+\vspace{1ex}}
+\newcommand{\task}[2]{\challenge{#1}{#2}}
+\newcommand{\taskref}[1]{\textbf{Task~}\ref{#1}}
+\newcounter{tasknmbr}
+\newcounter{tasklabel}
+\renewcommand{\thetasklabel}{\textbf{\thetasknmbr}}
+\newenvironment{taskenv}{
+\begin{list}{\textbf{Task }\thetasklabel:}{\usecounter{tasklabel}\stepcounter{tasknmbr}\item\em}}{\\[-7pt]\end{list}}

@@ -146,8 +146,7 @@ const Dashboard = ({ onNavigate }) => {
             setIsCreateOfferOpen(true);
         } catch (err) {
             console.error('Credit limit check failed:', err);
-            toast.dismiss(toastId);
-            setIsCreateOfferOpen(true);
+            toast.error(language === 'ar' ? 'فشل التحقق من الرصيد. يرجى المحاولة مجدداً.' : 'Failed to verify credit limit. Please try again.', { id: toastId });
         }
     };
 
@@ -298,13 +297,6 @@ const Dashboard = ({ onNavigate }) => {
                                 isPending={isPending}
                                 t={t}
                             />
-                            <button 
-                                className="btn btn-outline" 
-                                style={{ borderColor: '#ef4444', color: '#ef4444', height: '100%' }} 
-                                onClick={() => setIsCreateOfferOpen(true)}
-                            >
-                                Test Form (No Check)
-                            </button>
                             <button className="btn btn-outline browse-commands-btn" onClick={() => onNavigate('commands')}>
                                 <FiFileText /> {t.browseCommands}
                             </button>

@@ -1,0 +1,31 @@
+\chapter{Background}
+
+\section{Introduction}
+To fully grasp the technical decisions and the architecture of the Sila DZ platform, it is essential to define the core concepts, paradigms, and technologies utilized throughout the project. This chapter provides a comprehensive background on the software engineering concepts that form the backbone of our startup.
+
+\section{Software Architecture Concepts}
+
+\subsection{Microservices Architecture}
+Unlike traditional monolithic applications where all components are tightly coupled into a single deployable unit, a \textbf{Microservices Architecture} structures an application as a collection of loosely coupled, independently deployable services. Each service represents a specific business capability (e.g., Authentication, Order Management, Notifications) and communicates with other services through well-defined APIs or messaging queues. This approach enhances scalability, allows diverse technology stacks per service, and isolates failures, ensuring that if one service crashes, the entire system does not go down.
+
+\subsection{API Gateway and Service Registry}
+In a microservices ecosystem, clients need a unified entry point to communicate with numerous backend services. An \textbf{API Gateway} acts as a reverse proxy, routing client requests to the appropriate microservice. It handles cross-cutting concerns such as authentication, rate limiting, and CORS. A \textbf{Service Registry} is a dynamic directory that keeps track of the network locations (IP addresses and ports) of all available microservices, allowing them to discover and communicate with each other dynamically.
+
+\section{Communication Protocols}
+
+\subsection{Message Broker (Kafka)}
+In distributed systems, synchronous HTTP communication between services can lead to bottlenecks and cascading failures. A \textbf{Message Broker} provides asynchronous communication by decoupling the sender and receiver. \textbf{Apache Kafka} is a highly scalable, distributed event streaming platform. It acts as a robust message broker where services can publish (produce) and subscribe to (consume) streams of records in real-time, ensuring reliable data transfer and event-driven architecture.
+
+\subsection{WebSockets}
+Traditional HTTP requests are stateless and unidirectional (client requests, server responds). \textbf{WebSockets} provide a persistent, full-duplex communication channel over a single TCP connection. This allows the server to push data to the client instantly without the client needing to poll the server. In Sila DZ, WebSockets are crucial for powering real-time features like the live negotiation chat.
+
+\subsection{Server-Sent Events (SSE)}
+\textbf{Server-Sent Events (SSE)} is a standard that allows a web server to push real-time updates to a web browser via an HTTP connection. Unlike WebSockets, SSE is unidirectional (Server to Client only), making it lightweight and ideal for broadcasting notifications, status updates, or live statistical changes to the client's dashboard.
+
+\section{Data Storage Concepts}
+
+\subsection{Relational Databases (PostgreSQL)}
+Relational Database Management Systems (RDBMS) organize data into structured tables with predefined schemas. They enforce ACID (Atomicity, Consistency, Isolation, Durability) properties, ensuring high data integrity. \textbf{PostgreSQL} is an advanced, open-source object-relational database used in our platform for storing critical, structured data with complex relationships, such as users, financial transactions, and order states.
+
+\subsection{NoSQL Databases (MongoDB)}
+NoSQL databases offer flexible schemas and scale horizontally with ease. \textbf{MongoDB} is a document-oriented database that stores data in JSON-like documents. It is highly suitable for managing unstructured or semi-structured data that evolves rapidly. In Sila DZ, MongoDB is used for services that require high write throughput and flexible data models, such as chat histories, logs, or dynamic product catalogs.

@@ -288,7 +288,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                             {currentStep === 2 && (
                                 <div className="step-content">
                                     <div className="step-description-header">
-                                        <h3>{t.pricingAndInventory || 'Pricing & Inventory'}</h3>
+                                        <h3>{t.pricingQuantity || 'Pricing & Inventory'}</h3>
                                         <p>{t.pricingSubtitle || 'Set your base price and available stock'}</p>
                                     </div>
                                     <div className="pricing-row">

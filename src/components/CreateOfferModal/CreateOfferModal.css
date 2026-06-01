@@ -21,6 +21,7 @@
     max-height: 90vh;
     border-radius: 28px;
     display: flex;
+    opacity: 78%;
     flex-direction: column;
     background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(40px);
