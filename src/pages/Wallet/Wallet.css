@@ -214,6 +214,41 @@
     font-size: 0.7rem;
     font-weight: 600;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 0;
+}
+
+.last-updated-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.refresh-balance-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 0;
+}
+
+.refresh-balance-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(180deg);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-balance-btn:active {
+    transform: rotate(180deg) scale(0.9);
 }
 
 /* --- Core Section Styling --- */
@@ -889,12 +924,15 @@
     transition: color 0.3s;
     position: absolute;
     left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 2;
 }
 
 [dir="rtl"] .wallet-input-field-container .input-icon {
     left: auto;
     right: 14px;
+    transform: translateY(-50%);
 }
 
 .wallet-input-field-container:focus-within .input-icon {

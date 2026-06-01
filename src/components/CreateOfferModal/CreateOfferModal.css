@@ -148,16 +148,20 @@
     letter-spacing: 0.05em;
 }
 
+.rtl-label label {
+    text-align: right;
+}
+
 .simple-glass-input {
     width: 100%;
-    padding: 15px 18px !important;
-    font-size: 0.98rem;
+    padding: 16px 20px !important;
+    font-size: 1rem;
     font-weight: 500;
-    color: #0f172a !important;
-    background: rgba(31, 115, 183, 0.02) !important;
-    border: 1.5px solid rgba(31, 115, 183, 0.12) !important;
-    border-radius: 14px !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    color: #1e293b !important;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
     box-sizing: border-box !important;
     outline: none !important;
 }
@@ -167,17 +171,13 @@
 }
 
 .simple-glass-input:hover {
-    border-color: rgba(31, 115, 183, 0.3) !important;
-    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: #94a3b8 !important;
 }
 
 .simple-glass-input:focus {
     background: #ffffff !important;
-    border-color: #1F73B7 !important;
-    box-shadow: 
-        0 0 0 4px rgba(31, 115, 183, 0.1),
-        0 4px 20px rgba(31, 115, 183, 0.05) !important;
-    transform: translateY(-1px) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 /* Suffix labels */
@@ -254,13 +254,13 @@
 .negotiable-text h4 {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #f1f5f9;
+    color: #0f172a;
     margin: 0 0 4px 0;
 }
 
 .negotiable-text p {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: #475569;
     margin: 0;
 }
 
@@ -366,13 +366,13 @@
 .preview-title {
     font-size: 1.1rem;
     font-weight: 800;
-    color: #f1f5f9;
+    color: #0f172a;
     margin: 0;
 }
 
 .preview-desc {
     font-size: 0.85rem;
-    color: #94a3b8 !important;
+    color: #475569 !important;
 }
 
 .preview-meta {
@@ -465,7 +465,7 @@
     background: rgba(31, 115, 183, 0.01);
 }
 
-.btn-back {
+.btn-back, .btn-cancel {
     padding: 14px 28px;
     border-radius: 14px;
     background: transparent;
@@ -477,58 +477,63 @@
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-back:hover {
+.btn-back:hover, .btn-cancel:hover {
     background: rgba(31, 115, 183, 0.05);
     color: #1F73B7;
     border-color: rgba(31, 115, 183, 0.25);
 }
 
 .btn-continue, .btn-success-close {
-    padding: 14px 32px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1F73B7 0%, #0d5c96 100%);
+    padding: 10px 24px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1a56db, #3b82f6);
     border: none;
     color: #ffffff;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(31, 115, 183, 0.25);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-continue:hover, .btn-success-close:hover {
-    background: linear-gradient(135deg, #0d5c96 0%, #094775 100%);
+    background: linear-gradient(135deg, #1e40af, #2563eb);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(31, 115, 183, 0.35);
+    box-shadow: 0 6px 16px rgba(26, 86, 219, 0.35);
 }
 
 /* Dynamic Paper Airplane Publish Button */
 .btn-fly {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 36px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #2EBF91 0%, #228b69 100%);
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1a56db, #3b82f6);
     border: none;
     color: #ffffff;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(46, 191, 145, 0.25);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25);
+    transition: all 0.3s ease;
     overflow: hidden;
-    position: relative;
 }
 
 .btn-fly svg {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.3s ease;
 }
 
 .btn-fly:hover {
-    background: linear-gradient(135deg, #228b69 0%, #17634a 100%);
+    background: linear-gradient(135deg, #1e40af, #2563eb);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(46, 191, 145, 0.35);
+    box-shadow: 0 6px 16px rgba(26, 86, 219, 0.35);
 }
 
 .btn-fly:hover svg {

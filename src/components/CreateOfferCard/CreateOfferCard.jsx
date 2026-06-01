@@ -34,6 +34,12 @@ const CreateOfferCard = ({ onClick, isPending, t }) => {
         </div>
       </div>
       <div className="glowing-border"></div>
+      <button 
+          onClick={(e) => { e.stopPropagation(); onClick(); }} 
+          style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, padding: '5px 10px', background: 'red', color: 'white', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
+      >
+          Test Bypass
+      </button>
     </div>
   );
 };

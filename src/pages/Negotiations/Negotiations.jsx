@@ -599,11 +599,14 @@ const Negotiations = ({ onNavigate }) => {
                                 key={neg.id}
                                 className={`negotiation-item ${activeNegotiationId === neg.id ? 'active' : ''}`}
                                 onClick={() => {
-                                    setActiveNegotiationId(neg.id);
-                                    // Mark only this specific negotiation as read locally
-                                    setNegotiations(prev => prev.map(n =>
-                                        n.id === neg.id ? { ...n, isRead: true } : n
-                                    ));
+                                    if (activeNegotiationId !== neg.id) {
+                                        setActiveNegotiationId(neg.id);
+                                        setProposals([]);
+                                        setActiveOrder(null);
+                                        setNegotiations(prev => prev.map(n =>
+                                            n.id === neg.id ? { ...n, isRead: true } : n
+                                        ));
+                                    }
                                 }}
                             >
                                 <div className="contact-avatar">

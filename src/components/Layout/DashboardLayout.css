@@ -17,11 +17,13 @@
 .dashboard-content {
     flex: 1;
     overflow-y: auto;
-    padding: 24px 32px;
+    padding: 24px 20px;
     display: flex;
     flex-direction: column;
 }
-
+.dashboard-content:has(.commands-page-container) {
+    padding: 10;
+}
 @media (max-width: 768px) {
     .dashboard-content {
         padding: 16px;

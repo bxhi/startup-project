@@ -163,7 +163,6 @@ const Settings = ({ onNavigate }) => {
                             <div className="modal-header">
                                 <div className="icon-badge gradient-purple"><FiShield /></div>
                                 <h2>{t.changePassword}</h2>
-                                <button className="close-btn" onClick={() => setShowPasswordModal(false)}>×</button>
                             </div>
                             <div className="modal-body">
                                 <div className="form-group">
@@ -197,8 +196,11 @@ const Settings = ({ onNavigate }) => {
                                     />
                                 </div>
                             </div>
-                            <div className="modal-footer">
-                                <button className="settings-btn-primary full-width" onClick={submitPasswordChange}>
+                            <div className="modal-footer" style={{ display: 'flex', gap: '16px', justifyContent: 'flex-start' }}>
+                                <button className="btn-cancel" onClick={() => setShowPasswordModal(false)} style={{ padding: '14px 28px', borderRadius: '14px', background: 'transparent', border: '1.5px solid rgba(31, 115, 183, 0.15)', color: '#475569', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                                    {t.cancel || 'Cancel'}
+                                </button>
+                                <button className="settings-btn-primary" onClick={submitPasswordChange}>
                                     {t.updatePassword}
                                 </button>
                             </div>

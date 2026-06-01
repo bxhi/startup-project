@@ -10,7 +10,7 @@ import Stepper from '../Stepper/Stepper';
 
 
 const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [currentStep, setCurrentStep] = useState(1);
     
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -204,9 +204,6 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
 
                 <div className="modal-header">
                     <h2>{editData ? t.editOfferTitle : t.createNewOffer}</h2>
-                    <button className="close-btn" onClick={onClose} disabled={isLoading}>
-                        <FiX />
-                    </button>
                 </div>
 
                 <div className="modal-body">
@@ -237,7 +234,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                         <h3>{t.basicInfo || 'Basic Information'}</h3>
                                         <p>{t.basicInfoSubtitle || 'Provide key details about your offer'}</p>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.titleLabel}</label>
                                         <input
                                             type="text"
@@ -248,7 +245,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             className="simple-glass-input"
                                         />
                                     </div>
-                                    <div className="form-group">
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.descriptionLabel}</label>
                                         <textarea
                                             name="description"
@@ -259,7 +256,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             style={{ minHeight: '120px' }}
                                         ></textarea>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.productNameLabel}</label>
                                         <input
                                             type="text"
@@ -270,7 +267,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                             className="simple-glass-input"
                                         />
                                     </div>
-                                    <div className="form-group">
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.categoryLabel}</label>
                                         <select
                                             name="category"
@@ -295,7 +292,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                         <p>{t.pricingSubtitle || 'Set your base price and available stock'}</p>
                                     </div>
                                     <div className="pricing-row">
-                                        <div className="form-group premium-input">
+                                        <div className={`form-group premium-input ${language === 'ar' ? 'rtl-label' : ''}`}>
                                             <label>{t.basePriceLabel}</label>
                                             <div style={{ position: 'relative' }}>
                                                 <input
@@ -310,7 +307,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                                 <span className="input-suffix">DZD</span>
                                             </div>
                                         </div>
-                                        <div className="form-group premium-input">
+                                        <div className={`form-group premium-input ${language === 'ar' ? 'rtl-label' : ''}`}>
                                             <label>{t.availableQtyLabel}</label>
                                             <div style={{ position: 'relative' }}>
                                                 <input
@@ -322,7 +319,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                                     className="simple-glass-input"
                                                     style={{ paddingRight: '70px' }}
                                                 />
-                                                <span className="input-suffix">Units</span>
+                                                <span className="input-suffix">{t.unitsSuffix || 'Units'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -351,7 +348,8 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                         <h3>{t.mediaOrigin || 'Media & Origin'}</h3>
                                         <p>{t.mediaOriginSubtitle || 'Upload product images and set country of origin'}</p>
                                     </div>
-                                    <div className="form-group">
+
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.productImages}</label>
                                         <input
                                             type="file"
@@ -404,7 +402,7 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
                                         )}
                                     </div>
 
-                                    <div className="form-group">
+                                    <div className={`form-group ${language === 'ar' ? 'rtl-label' : ''}`}>
                                         <label>{t.originCountry}</label>
                                         <input
                                             type="text"
@@ -448,6 +446,9 @@ const CreateOfferModal = ({ isOpen, onClose, onSuccess, editData }) => {
 
                 {!showSuccess && (
                     <div className="modal-footer">
+                        <button className="btn-cancel" onClick={onClose} disabled={isLoading}>
+                            {t.cancel || 'Cancel'}
+                        </button>
                         {currentStep > 1 && (
                             <button className="btn-back" onClick={() => {
                                 setError(null);

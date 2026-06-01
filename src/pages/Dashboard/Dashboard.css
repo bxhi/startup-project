@@ -497,7 +497,6 @@
 .activity-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 650px;
 }
 
 .activity-table thead th {

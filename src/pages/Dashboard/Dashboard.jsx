@@ -298,6 +298,13 @@ const Dashboard = ({ onNavigate }) => {
                                 isPending={isPending}
                                 t={t}
                             />
+                            <button 
+                                className="btn btn-outline" 
+                                style={{ borderColor: '#ef4444', color: '#ef4444', height: '100%' }} 
+                                onClick={() => setIsCreateOfferOpen(true)}
+                            >
+                                Test Form (No Check)
+                            </button>
                             <button className="btn btn-outline browse-commands-btn" onClick={() => onNavigate('commands')}>
                                 <FiFileText /> {t.browseCommands}
                             </button>

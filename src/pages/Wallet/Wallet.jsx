@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Wallet.css';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import PackCard from '../../components/PackCard/PackCard';
-import { FiShield, FiZap, FiAward, FiCpu } from 'react-icons/fi';
+import { FiShield, FiZap, FiAward, FiCpu, FiRefreshCw } from 'react-icons/fi';
 import { MdOutlineCallMade, MdOutlineCallReceived } from 'react-icons/md';
 import { LuPackage, LuBox, LuShoppingBag, LuTrendingUp, LuStore, LuDollarSign, LuGift, LuCreditCard, LuShoppingCart } from 'react-icons/lu';
 import { useLanguage } from '../../context/LanguageContext';
@@ -260,7 +260,12 @@ const Wallet = ({ onNavigate }) => {
                         <div className="main-balance">
                             <span>{labels.availableBalance}</span>
                             <h2>{balance.toLocaleString()} {labels.pts}</h2>
-                            <p className="last-updated">{labels.lastUpdated}</p>
+                            <div className="last-updated-wrapper">
+                                <p className="last-updated">{labels.lastUpdated}</p>
+                                <button className="refresh-balance-btn" onClick={() => fetchBalance()} title={language === 'ar' ? 'تحديث الرصيد' : 'Refresh Balance'}>
+                                    <FiRefreshCw />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

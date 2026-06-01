@@ -641,11 +641,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .settings-input {
     width: 100%;
-    padding: 14px 18px;
+    padding: 16px 20px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     color: #1e293b;
+    font-size: 1.05rem;
     font-weight: 600;
     transition: all 0.3s ease;
 }
@@ -759,7 +760,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .modal-content {
     width: 100%;
-    max-width: 450px;
+    max-width: 520px;
     background: white;
     border-radius: 24px;
     padding: 0;

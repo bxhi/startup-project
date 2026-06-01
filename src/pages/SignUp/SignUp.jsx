@@ -348,7 +348,7 @@ const SignUp = ({ onNavigate }) => {
                     registerCommerceNumber: formData.licenseId,
                     NIN: formData.nin,
                     wilaya: formData.willaya,
-                    adress: formData.address,
+                    address: formData.address,
                     gender: formData.gender
                 },
                 imageUrls: {
